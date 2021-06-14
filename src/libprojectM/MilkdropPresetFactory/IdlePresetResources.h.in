@@ -1,0 +1,27 @@
+#pragma once
+
+#include "Renderer/TextureManager.hpp"
+#include "Renderer/SOIL2/SOIL2.h"
+
+#include <array>
+
+template<typename arrayType>
+static void CreateIdlePresetTexture(TextureManager& textureManager, arrayType textureData, const std::string& name)
+{
+    int width;
+    int height;
+
+    GLuint texture = SOIL_load_OGL_texture_from_memory(
+                textureData.data(),
+                textureData.size(),
+                SOIL_LOAD_AUTO,
+                SOIL_CREATE_NEW_ID,
+                SOIL_FLAG_POWER_OF_TWO
+                |  SOIL_FLAG_MULTIPLY_ALPHA
+                ,&width,&height);
+
+    textureManager.addTexture(name, texture, width, height);
+};
+
+static void LoadIdlePresetTextures(TextureManager& textureManager);
+

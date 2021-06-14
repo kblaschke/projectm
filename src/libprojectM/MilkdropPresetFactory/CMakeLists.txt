@@ -1,4 +1,12 @@
+
+include(IdlePresetResourceBuilder.cmake)
+
+set(IDLE_PRESET_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/include/IdlePresetResources.h")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+generate_idle_preset(${CMAKE_SOURCE_DIR}/presets/idle IdlePresetResources.h.in "${IDLE_PRESET_RESOURCES}")
+
 add_library(MilkdropPresetFactory OBJECT
+        "${IDLE_PRESET_RESOURCES}"
         BuiltinFuncs.cpp
         BuiltinFuncs.hpp
         BuiltinParams.cpp
@@ -42,6 +50,7 @@ add_library(MilkdropPresetFactory OBJECT
 target_include_directories(MilkdropPresetFactory
         PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
+        "${CMAKE_CURRENT_BINARY_DIR}/include"
         PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}"
         )

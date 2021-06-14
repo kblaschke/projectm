@@ -29,6 +29,17 @@ public:
 
   void Clear();
   void Preload();
+
+  /**
+   * @brief Adds or replaces the given texture with the new OpenGL texture.
+   * @param name The internal name of the texture.
+   * @param textureId The OpenGL texture to add.
+   * @param width The width of the texture.
+   * @param height The height of the texture.
+   * @return A descriptor that describes the newly added texture.
+   */
+  TextureSamplerDesc addTexture(const std::string& name, GLuint textureId, size_t width, size_t height);
+
   TextureSamplerDesc tryLoadingTexture(const std::string name);
   TextureSamplerDesc getTexture(const std::string fullName, const GLenum defaultWrap, const GLenum defaultFilter);
   const Texture * getMainTexture() const;

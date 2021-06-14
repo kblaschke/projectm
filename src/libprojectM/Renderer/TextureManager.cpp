@@ -261,12 +261,32 @@ TextureSamplerDesc TextureManager::tryLoadingTexture(const std::string name)
     return texDesc;
 }
 
+TextureSamplerDesc TextureManager::addTexture(const std::string& name, GLuint textureId, size_t width, size_t height)
+{
+    GLint wrap_mode;
+    GLint filter_mode;
+    std::string unqualifiedName;
+
+    ExtractTextureSettings(name, wrap_mode, filter_mode, unqualifiedName);
+    Texture * newTexture = new Texture(unqualifiedName, textureId, GL_TEXTURE_2D, width, height, true);
+    Sampler * sampler = newTexture->getSampler(wrap_mode, filter_mode);
+
+    if (textures.find(name) != textures.end())
+    {
+        delete textures[name];
+    }
+
+    textures[name] = newTexture;
+
+    return TextureSamplerDesc(newTexture, sampler);
+}
+
 TextureSamplerDesc TextureManager::loadTexture(const std::string fileName, const std::string name)
 {
-    int width, height;
-//    std::cout << "Loading texture " << name << " at " << fileName << std::endl;
+    int width;
+    int height;
 
-    unsigned int tex = SOIL_load_OGL_texture(
+    GLuint tex = SOIL_load_OGL_texture(
                 fileName.c_str(),
                 SOIL_LOAD_AUTO,
                 SOIL_CREATE_NEW_ID,
@@ -275,26 +295,10 @@ TextureSamplerDesc TextureManager::loadTexture(const std::string fileName, const
 
     if (tex == 0)
     {
-        return TextureSamplerDesc(NULL, NULL);
+        return { nullptr, nullptr };
     }
 
-    GLint wrap_mode;
-    GLint filter_mode;
-    std::string unqualifiedName;
-
-    ExtractTextureSettings(name, wrap_mode, filter_mode, unqualifiedName);
-    Texture * newTexture = new Texture(unqualifiedName, tex, GL_TEXTURE_2D, width, height, true);
-    Sampler * sampler = newTexture->getSampler(wrap_mode, filter_mode);
-
-    if (textures.find(name) != textures.end()) {
-        // found duplicate.. this could be optimized
-        delete textures[name];
-    }
-
-    textures[name] = newTexture;
-//    std::cout << "Loaded texture " << name << std::endl;
-
-    return TextureSamplerDesc(newTexture, sampler);
+    return addTexture(name, tex, width, height);
 }
 
 TextureSamplerDesc TextureManager::getRandomTextureName(std::string random_id)
