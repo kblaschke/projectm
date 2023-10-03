@@ -1,5 +1,6 @@
 /**
  * @file Constants.hpp
+ * @internal
  * @brief Holds Milkdrop constants like number of Q variables etc.
  */
 #pragma once

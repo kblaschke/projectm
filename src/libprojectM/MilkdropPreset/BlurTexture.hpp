@@ -1,5 +1,6 @@
 /**
  * @file BlurTexture.hpp
+ * @internal
  * @brief Blurs a given texture in multiple passes and stores the results.
  */
 #pragma once

@@ -205,6 +205,12 @@ add_subdirectory(presets)
 add_subdirectory(vendor)
 add_subdirectory(src)
 
+# Configs for generating public and private API documentation with Doxygen
+configure_file(doc/doxygen-public.cfg.in ${PROJECTM_BINARY_DIR}/doxygen-public.cfg @ONLY)
+configure_file(doc/doxygen-private.cfg.in ${PROJECTM_BINARY_DIR}/doxygen-private.cfg @ONLY)
+file(MAKE_DIRECTORY "${PROJECTM_BINARY_DIR}/doc/public")
+file(MAKE_DIRECTORY "${PROJECTM_BINARY_DIR}/doc/private")
+
 if(BUILD_TESTING)
     enable_testing()
     add_subdirectory(tests)

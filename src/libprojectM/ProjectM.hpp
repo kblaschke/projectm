@@ -1,23 +1,24 @@
 /*
- * projectM -- Milkdrop-esque visualisation SDK
- * Copyright (C)2003-2007 projectM Team
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * See 'LICENSE.txt' included within this release
- *
- */
+* projectM -- Milkdrop-esque visualisation SDK
+* Copyright (C) 2003-2023 The projectM Team
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+* See 'LICENSE.txt' included within this release
+*
+*/
+
 #pragma once
 
 #include <Renderer/RenderContext.hpp>
@@ -71,6 +72,13 @@ class TimeKeeper;
 
 class PresetFactoryManager;
 
+/**
+ * @internal
+ * @class ProjectM
+ * @brief Main projectM instance manager class.
+ *
+ * A pointer to this class is
+ */
 class PROJECTM_EXPORT ProjectM
 {
 public:
@@ -79,6 +87,7 @@ public:
     virtual ~ProjectM();
 
     /**
+     * @internal
      * @brief Callback for notifying the integrating app that projectM wants to switch to a new preset.
      *
      * It is safe to call LoadPreset() from inside the callback. The app can decide when to actually
@@ -89,6 +98,7 @@ public:
     virtual void PresetSwitchRequestedEvent(bool isHardCut) const;
 
     /**
+     * @internal
      * @brief Callback for notifying the integrating app that the requested preset file couldn't be loaded.
      * @param presetFilename The filename of the preset that failed to load. Empty if loaded from a stream.
      * @param message The error message with the failure reason.
@@ -96,6 +106,7 @@ public:
     virtual void PresetSwitchFailedEvent(const std::string& presetFilename, const std::string& message) const;
 
     /**
+     * @internal
      * @brief Loads the given preset file and performs a smooth or immediate transition.
      * @param presetFilename The preset filename to load.
      * @param smoothTransition If set to true, old and new presets will be blended over smoothly.
@@ -104,6 +115,7 @@ public:
     void LoadPresetFile(const std::string& presetFilename, bool smoothTransition);
 
     /**
+     * @internal
      * @brief Loads the given preset data and performs a smooth or immediate transition.
      *
      * This function assumes the data to be in Milkdrop format.
@@ -117,6 +129,7 @@ public:
     void ResetOpenGL(size_t width, size_t height);
 
     /**
+     * @internal
      * @brief Sets the texture paths used to find images for presets.
      *
      * Setting new texture paths will clear the texture manager cache and reload textures.
@@ -151,6 +164,7 @@ public:
     void SetHardCutSensitivity(float sensitivity);
 
     /**
+     * @internal
      * @brief Returns the currently set preset duration in seconds.
      * @return The currently set preset duration in seconds.
      */
@@ -159,12 +173,14 @@ public:
     void SetPresetDuration(double seconds);
 
     /**
+     * @internal
      * @brief Returns the current frames per second value.
      * @return The current frames per second value.
      */
     auto TargetFramesPerSecond() const -> int32_t;
 
     /**
+     * @internal
      * @brief Sets a new current frames per second value.
      * @param fps The new frames per second value.
      */
@@ -203,6 +219,7 @@ public:
     auto WindowHeight() -> int;
 
     /**
+     * @internal
      * @brief Dumps a debug image to the working dir when the next frame is rendered.
      *
      * The main texture is dumped after render pass 1, e.g. before shaders are applied.

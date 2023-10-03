@@ -1,3 +1,8 @@
+/**
+ * @file CustomShape.hpp
+ * @internal
+ * @brief Draws textured, untextured and/or outlined polygons defioned by user code.
+ */
 #pragma once
 
 #include "Constants.hpp"

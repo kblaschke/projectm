@@ -1,4 +1,4 @@
-# Building with CMake
+# Building with CMake {#building_with_cmake}
 
 This file contains in-depth information for building with the CMake build system.
 

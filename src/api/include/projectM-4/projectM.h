@@ -1,9 +1,6 @@
-/**
- * @file projectM.h
- * @copyright 2003-2023 projectM Team
- * @brief Convenience include file that includes all other API headers.
- *
+/*
  * projectM -- Milkdrop-esque visualisation SDK
+ * Copyright (C) 2003-2023 The projectM Team
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +19,11 @@
  *
  */
 
+/**
+ * @file projectM.h
+ * @copyright 2003-2023 projectM Team
+ * @brief Convenience include file that includes all other API headers.
+ */
 #pragma once
 
 #include "projectM-4/audio.h"

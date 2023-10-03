@@ -158,7 +158,7 @@ development team. Please report bugs in those applications to their respective d
 
 # Building from source
 
-See [BUILDING.md](BUILDING.md) and
+See [Building.md](doc/Building.md) in the doc directory and
 the [developer documentation in the wiki](https://github.com/projectM-visualizer/projectm/wiki/Building-libprojectM).
 
 # Using the library

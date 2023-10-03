@@ -1,29 +1,27 @@
-# Building projectM from source
+# Building and Installing libprojectM from Source {#building}
 
-Suggested: use CMake. See [BUILDING-cmake.md](./BUILDING-cmake.md).
-
-This document describes the deprecated GNU Autotools setup.
+This document provides a quick overview of the build and install steps. For a more in-depth documentation, including all
+available CMake options, please see the [CMake build documentation](Building_CMake.md).
 
 ## Quick Start (Debian / Ubuntu)
 
-For other operating systems (Windows/macOS), see the OS-specific sections below.
+this provides a brief overview on how to install the required dependencies and build the projectM library on
+Debian-based Linux distributions. For more detailed instructions, please see the OS-specific sections below, after the
+_Dependencies_ section.
 
 ### Install the build tools and dependencies
 
 Mandatory packages:
 
 ```bash
-sudo apt install build-essential libgl1-mesa-dev mesa-common-dev libsdl2-dev libglm-dev
+sudo apt install build-essential libgl1-mesa-dev mesa-common-dev
 ```
 
 Optional packages for additional features:
 
 ```bash
-sudo apt install qtbase5-dev # For building Qt-based UIs
-sudo apt install llvm-dev # for using the experimental LLVM Jit
-sudo apt install libvisual-0.4-dev # To build the libvisual plug-in
-sudo apt install libjack-jackd2-dev # To build the JACK visualizer application
-sudo apt install ninja # To build projectM with Ninja instead of make
+sudo apt install ninja # To build libprojectM with Ninja instead of GNU Make
+sudo apt install libsdl2-dev # To build the test UI
 ```
 
 ### Download the projectM sources
@@ -57,10 +55,10 @@ Replace `/usr/local` with your preferred installation prefix.
 sudo apt install cmake
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
+cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
 ```
 
-To generate Ninja scripts instead of Makefiles, add `-GNinja` to the above command.
+To generate Ninja build scripts instead of UNIX Makefiles, add `-GNinja` to the above command.
 
 #### Build and install
 
@@ -68,14 +66,13 @@ These commands will build projectM and install it to /usr/local or the configure
 before:
 
 ```bash
-cmake --build . -- -j && sudo cmake --build . --target install 
+cmake --build . --parallel && sudo cmake --build . --target install 
 ```
 
 **Note**: You won't need to use `sudo` if the install prefix is writeable by your non-privileged user.
 
-#### Test projectM
-
-If you have a desktop environment installed, you can now run `[prefix]/bin/projectMSDL`.
+You now have all required files - libraries, includes, CMake find modules and pkgconfig files - at the
+provided `CMAKE_INSTALL_PREFIX` and can start using them in your project.
 
 ## Dependencies
 
@@ -84,33 +81,25 @@ development files. To build projectM, both binaries and development files need t
 
 #### General build dependencies for all platforms:
 
-* A working build toolchain.
+* A working C/C++ toolchain/SDK for your target platform, e.g. "build-essentials" on Debian-based Linux distros, the
+  Windows SDK (included in Visual Studio) on Windows or Xcode on macOS.
+* [**CMake**](https://cmake.org/): Used to generate the platform-specific build files.
 * **OpenGL**: 3D graphics library. Used to render the visualizations.
-* **GLES3**: OpenGL libraries for embedded systems, version 3. Required to build projectM on mobile devices, Raspberry
+* _or_ **GLES3**: OpenGL libraries for embedded systems, version 3. Required to build projectM on mobile devices,
+  Raspberry
   Pi and Emscripten.
-* [**glm**](https://github.com/g-truc/glm):  OpenGL Mathematics library. Optional, will use a bundled version with
-  autotools or if not installed.
+* [**glm**](https://github.com/g-truc/glm): Header-only OpenGL Mathematics library. Optional, will use a bundled version
+  by default.
 * [**SDL2**](https://github.com/libsdl-org/SDL): Simple Directmedia Layer. Version 2.0.5 or higher is required to build
   the standalone visualizer application (projectMSDL).
 
-#### Only relevant for Linux distributions, FreeBSD and macOS:
-
-* [**Qt5**](https://www.qt.io/): Qt cross-platform UI framework. Used to build the Pulseaudio and JACK visualizer
-  applications. Requires the `Gui` and `OpenGL` component libraries/frameworks.
-* [**Pulseaudio**](https://www.freedesktop.org/wiki/Software/PulseAudio/): Sound system for POSIX platforms. Required to
-  build the Pulseaudio visualizer application.
-* [**JACK**](https://jackaudio.org/): Real-time audio server. Required to build the JACK visualizer application.
-* [**libvisual 0.4**](http://libvisual.org/): Audio visualization library with plug-in support. Required to build the
-  projectM libvisual plug-in.
-* [**CMake**](https://cmake.org/): Used to generate platform-specific build files.
-
 ### Only relevant for Windows:
 
-* [**vcpkg**](https://github.com/microsoft/vcpkg): C++ Library Manager for Windows. Optional, but recommended to install
-  the aforementioned library dependencies and/or using CMake to configure the build.
-* [**NuGet**](https://www.nuget.org/): Dependency manager for .NET. Required to build the EyeTune app.
 * [**GLEW**](http://glew.sourceforge.net/): The OpenGL Extension Wrangler Library. Only required if using CMake to
   configure the build, the pre-created solutions use a bundled copy of GLEW.
+* [**vcpkg**](https://github.com/microsoft/vcpkg): C/C++ Package Manager for Windows. Optional, but recommended to
+  install
+  the aforementioned library dependencies and/or using CMake to configure the build.
 
 ## Building on Linux and macOS
 
@@ -121,38 +110,28 @@ development files. To build projectM, both binaries and development files need t
   to the documentation of your build OS on how to find and install the required libraries.
 - On *BSD, install the appropriate Ports with `pkg install`.
 - On macOS, using [Homebrew](https://brew.sh/) is the recommended way of installing any dependencies not supplied by
-  Xcode.
+  Xcode. Note that Homebrew doesn't provide universal binaries, so if you need to build libprojectM as a universal
+  binary, you need to build and install the dependencies yourself with the proper target architectures.
 
 ### Building with CMake
 
----
-
-:exclamation: **IMPORTANT NOTE**: Currently, CMake build support is still in active development and considered
-unfinished. It is working and produces running binaries, but there are still some features, build internals and whole
-targets missing. While testing the CMake build files on any platform and feedback on this is strongly encouraged,
-CMake-based builds should not yet be used in any production environment until this message is gone.
-
----
-
 The steps documented below are a bare minimum quickstart guide on how to build and install the project. If you want to
 configure the build to your needs, require more in-depth information about the build process and available tweaks, or on
-how to use libprojectM in your own CMake-based projects, see [BUILDING-cmake.md](BUILDING-cmake.md).
+how to use libprojectM in your own CMake-based projects, see [Building with CMake](Building_CMake.md).
 
-Using CMake is the recommended and future-proof way of building projectM. CMake is a platform-independent tool that is
-able to generate files for multiple build systems and toolsets while using only a single set of build instructions.
-CMake support is still new and in development, but will replace the other project files (automake/autoconf scripts,
-Visual Studio solutions and Xcode projects) in this repository once mature and stable.
+CMake is now the mandatory tool for building projectM. CMake is a platform-independent tool that is able to generate
+files for multiple build systems and toolsets while using only a single set of build instructions.
 
 Building the project with CMake requires two steps:
 
 - Configure the build and generate project files.
 - Build and install the project using the selected build tools.
 
-**Note:** When building with CMake, the build directory should always be separate from the source directory. Generating
-the build files directly inside the source tree is possible, but strongly discouraged. Using a subdirectory,
+**Note:** The build directory should always be separate from the source directory ("out-of-tree" build). Generating the
+build files directly inside the source tree is possible, but strongly discouraged. Using a subdirectory,
 e.g. `cmake-build` inside the source directory is fine though.
 
-This documentation only covers project-specific information. CMake is way too versatile and feature-rich to cover any
+This documentation only covers basic build instructions. CMake is way too versatile and feature-rich to cover any
 possible platform- and toolset-specific configuration details here. If you are not experienced in using CMake, please
 first read the [official CMake documentation](https://cmake.org/cmake/help/latest/) (at least
 the [User Interaction Guide](https://cmake.org/cmake/help/latest/guide/user-interaction/index.html)) for basic usage
@@ -197,7 +176,7 @@ If you want to provide arguments directly to the toolset command, add `--` at th
 by any additional arguments. CMake will pass these *unchanged and unchecked* to the subcommand:
 
 ```shell
-cmake --build /path/to/build/dir --config Release -- -j 4
+cmake --build /path/to/build/dir --config Release --parallel
 ```
 
 ## Building on Windows

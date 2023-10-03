@@ -1,3 +1,8 @@
+/**
+ * @file Border.hpp
+ * @internal
+ * @brief Draws a single or double border around the screen.
+ */
 #pragma once
 
 #include "PerFrameContext.hpp"
