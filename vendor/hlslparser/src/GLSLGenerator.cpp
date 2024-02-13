@@ -1128,6 +1128,14 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     {
         name = m_asinFunction;
     }
+    else if (String_Equal(name, "asuint"))
+    {
+        name = "floatBitsToUint";
+    }
+    else if (String_Equal(name, "asfloat"))
+    {
+        name = "uintBitsToFloat";
+    }
     else
     {
         // The identifier could be a GLSL reserved word (if it's not also a HLSL reserved word).

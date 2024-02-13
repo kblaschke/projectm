@@ -15,6 +15,9 @@
 #include <regex>
 #include <set>
 
+// Uncomment to make NaNs visible in shader outputs.
+//#define MILKDROP_SHADER_NAN_VISUALIZER
+
 namespace libprojectM {
 namespace MilkdropPreset {
 
@@ -403,8 +406,17 @@ void MilkdropShader::PreprocessPresetShader(std::string& program)
     found = program.rfind('}');
     if (found != std::string::npos)
     {
+#ifdef MILKDROP_SHADER_NAN_VISUALIZER
+        // Darken result and replace all pixels containing a NaN value with a full-bright color in the respective color channel.
+        program.replace(int(found), 1, "_return_value = float4(ret.xyz * 0.5, 1.0);\n"
+                                       "if((asuint(ret.x) & 0x7fffffff) > 0x7f800000) { _return_value.x = 1.0; }\n"
+                                       "if((asuint(ret.y) & 0x7fffffff) > 0x7f800000) { _return_value.y = 1.0; }\n"
+                                       "if((asuint(ret.z) & 0x7fffffff) > 0x7f800000) { _return_value.z = 1.0; }\n"
+                                       "}\n");
+#else
         program.replace(int(found), 1, "_return_value = float4(ret.xyz, 1.0);\n"
                                        "}\n");
+#endif
     }
     else
     {
@@ -612,7 +624,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     // Then generate GLSL from the resulting parser tree
     if (!generator.Generate(&tree, M4::GLSLGenerator::Target_FragmentShader,
                             MilkdropStaticShaders::Get()->GetGlslGeneratorVersion(),
-                            "PS", M4::GLSLGenerator::Options(M4::GLSLGenerator::Flag_AlternateNanPropagation)))
+                            "PS"/*, M4::GLSLGenerator::Options(M4::GLSLGenerator::Flag_AlternateNanPropagation)*/))
     {
         throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: GLSL generating failed.\nSource:\n" + sourcePreprocessed);
     }

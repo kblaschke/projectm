@@ -624,6 +624,7 @@ const Intrinsic _intrinsic[] =
 		Intrinsic("isinf",    HLSLBaseType_Bool, HLSLBaseType_Float),
 
 		Intrinsic("asuint",    HLSLBaseType_Uint, HLSLBaseType_Float),
+        Intrinsic("asfloat",   HLSLBaseType_Float, HLSLBaseType_Uint),
 
         SAMPLER_INTRINSIC_FUNCTION("tex2D", HLSLBaseType_Sampler2D, HLSLBaseType_Float2),
         
