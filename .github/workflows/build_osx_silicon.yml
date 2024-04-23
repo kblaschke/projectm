@@ -1,4 +1,4 @@
-name: macOS (x86_64)
+name: macOS (aarch64)
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
 jobs:
   build-shared:
     name: Shared Library
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
@@ -44,12 +44,12 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-            name: projectm-osx-x86_64-shared-latest
+            name: projectm-osx-aarch64-shared-latest
             path: install/*
 
   build-static:
     name: Static Library
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
@@ -79,5 +79,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: projectm-osx-x86_64-static-latest
+          name: projectm-osx-aarch64-static-latest
           path: install/*
