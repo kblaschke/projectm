@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 # Run as custom command in script mode if any shader file has changed.
 # Recreates the BuiltInTransitionsResources.hpp file accordingly.
@@ -16,4 +16,4 @@ foreach(shader_file IN LISTS SHADER_FILES)
 
 endforeach()
 
-configure_file(BuiltInTransitionsResources.hpp.in ${OUTPUT_DIR}/BuiltInTransitionsResources.hpp @ONLY)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/ShaderResources.hpp.in "${OUTPUT_FILE}" @ONLY)
