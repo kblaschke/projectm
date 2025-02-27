@@ -62,6 +62,21 @@ public:
               bool flipVertical = false, bool flipHorizontal = false);
 
     /**
+     * @brief Draws the original texture onto the specified target texte, using the provided screen coordinates to position it.
+     * @param shaderCache The global shader cache instance.
+     * @param originalTexture The texture to be copied.
+     * @param targetTexture The target texture to draw onto.
+     * @param left Left offset on the target texture in screen coordinates.
+     * @param top Top offset on the target texture in screen coordinates.
+     * @param width Width on the target texture in screen coordinates. Use a negative value to flip vertically.
+     * @param height Height on the target texture in screen coordinates. Use a negative value to flip horizontally.
+     */
+    void Draw(ShaderCache& shaderCache,
+              const std::shared_ptr<class Texture>& originalTexture,
+              const std::shared_ptr<class Texture>& targetTexture,
+              int left, int top, int width, int height);
+
+    /**
      * @brief Returns the flipped texture.
      *
      * @return The flipped texture.
@@ -77,7 +92,9 @@ private:
     void Copy(ShaderCache& shaderCache,
               bool flipVertical, bool flipHorizontal);
 
-    Shader m_shader;                                 //!< Simple textured shader
+    void Copy(ShaderCache& shaderCache,
+              int left, int top, int width, int height);
+
     std::weak_ptr<Shader> m_shader;                  //!< Simple textured shader
     Framebuffer m_framebuffer{1};                    //!< Framebuffer for drawing the flipped texture
     Sampler m_sampler{GL_CLAMP_TO_EDGE, GL_NEAREST}; //!< Texture sampler settings

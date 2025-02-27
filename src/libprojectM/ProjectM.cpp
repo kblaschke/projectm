@@ -312,6 +312,21 @@ auto ProjectM::UserSpriteIdentifiers() const -> std::vector<uint32_t>
     return m_spriteManager->ActiveSpriteIdentifiers();
 }
 
+void ProjectM::BurnInTexture(uint32_t openGlTextureId, int left, int top, int width, int height)
+{
+    auto sourceTexture = std::make_shared<Renderer::Texture>("burn-in", static_cast<GLuint>(openGlTextureId), GL_TEXTURE_2D, 1, 1, true);
+
+    if (m_activePreset)
+    {
+        m_textureCopier->Draw(*m_shaderCache, sourceTexture, m_activePreset->OutputTexture(), left, top, width, height);
+    }
+
+    if (m_transitioningPreset)
+    {
+        m_textureCopier->Draw(*m_shaderCache, sourceTexture, m_transitioningPreset->OutputTexture(), left, top, width, height);
+    }
+}
+
 void ProjectM::SetPresetLocked(bool locked)
 {
     // ToDo: Add a preset switch timer separate from the display timer and reset to 0 when

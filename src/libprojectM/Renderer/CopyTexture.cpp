@@ -183,6 +183,44 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
     Framebuffer::Unbind();
 }
 
+void CopyTexture::Draw(ShaderCache& shaderCache,
+                       const std::shared_ptr<struct Texture>& originalTexture,
+                       const std::shared_ptr<struct Texture>& targetTexture,
+                       int left, int top, int width, int height)
+{
+    if (originalTexture == nullptr ||
+        originalTexture->Empty() ||
+        targetTexture == nullptr ||
+        targetTexture->Empty() ||
+        originalTexture == targetTexture)
+    {
+        return;
+    }
+
+    UpdateTextureSize(targetTexture->Width(), targetTexture->Height());
+
+    if (m_width == 0 || m_height == 0)
+    {
+        return;
+    }
+
+    std::shared_ptr<class Texture> internalTexture;
+
+    m_framebuffer.Bind(0);
+
+    // Draw from original texture
+    originalTexture->Bind(0);
+    internalTexture = m_framebuffer.GetColorAttachmentTexture(0, 0);
+    m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0)->Texture(targetTexture);
+
+    Copy(shaderCache, left, top, width, height);
+
+    // Rebind our internal texture.
+    m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0)->Texture(internalTexture);
+
+    Framebuffer::Unbind();
+}
+
 auto CopyTexture::Texture() -> std::shared_ptr<class Texture>
 {
     return m_framebuffer.GetColorAttachmentTexture(0, 0);
@@ -205,9 +243,6 @@ void CopyTexture::UpdateTextureSize(int width, int height)
 void CopyTexture::Copy(ShaderCache& shaderCache,
                        bool flipVertical, bool flipHorizontal)
 {
-    m_shader.Bind();
-    m_shader.SetUniformInt("texture_sampler", 0);
-    m_shader.SetUniformInt2("flip", {flipHorizontal ? 1 : 0, flipVertical ? 1 : 0});
     glm::mat4x4 flipMatrix(1.0);
 
     flipMatrix[0][0] = flipHorizontal ? -1.0 : 1.0;
@@ -217,6 +252,33 @@ void CopyTexture::Copy(ShaderCache& shaderCache,
 
     shader->SetUniformInt("texture_sampler", 0);
     shader->SetUniformMat4x4("vertex_transformation", flipMatrix);
+
+    m_sampler.Bind(0);
+
+    glBindVertexArray(m_vaoID);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    Sampler::Unbind(0);
+    Shader::Unbind();
+}
+
+void CopyTexture::Copy(ShaderCache& shaderCache,
+                       int left, int top, int width, int height)
+{
+    glm::mat4x4 scaleMatrix(1.0);
+    scaleMatrix[0][0] = static_cast<float>(width) / static_cast<float>(m_width);
+    scaleMatrix[1][1] = static_cast<float>(height) / static_cast<float>(m_height);
+
+    glm::mat4x4 translationMatrix(1.0);
+    translationMatrix[3][0] = static_cast<float>(left) / static_cast<float>(m_width);
+    translationMatrix[3][1] = static_cast<float>(top) / static_cast<float>(m_height);
+
+    std::shared_ptr<Shader> shader = BindShader(shaderCache);
+
+    shader->SetUniformInt("texture_sampler", 0);
+    shader->SetUniformMat4x4("vertex_transformation", scaleMatrix * translationMatrix);
 
     m_sampler.Bind(0);
 
