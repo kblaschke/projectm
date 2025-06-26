@@ -123,6 +123,8 @@ add_library(MilkdropPreset OBJECT
         Waveforms/WaveformMath.hpp
         Waveforms/XYOscillationSpiral.cpp
         Waveforms/XYOscillationSpiral.hpp
+        SpectrumBars.cpp
+        SpectrumBars.hpp
         )
 
 target_include_directories(MilkdropPreset

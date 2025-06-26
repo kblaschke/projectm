@@ -74,6 +74,12 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
     return !m_presetValues.empty();
 }
 
+auto PresetFileParser::HasKey(const std::string& key) -> bool
+{
+    auto lowerKey = ToLower(key);
+    return m_presetValues.find(lowerKey) != m_presetValues.end();
+}
+
 auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::string
 {
     auto lowerKey = ToLower(keyPrefix);
@@ -154,6 +160,19 @@ auto PresetFileParser::GetString(const std::string& key, const std::string& defa
     }
 
     return defaultValue;
+}
+
+auto PresetFileParser::GetColorARGB(const std::string& key, uint32_t defaultValue) -> uint32_t
+{
+    std::string colorString = GetString(key, "");
+
+    if (colorString.empty()
+        || colorString.length() != 10
+        || ToLower(colorString.substr(0, 2)) != "0x")
+    {
+        return defaultValue;
+    }
+
 }
 
 const std::map<std::string, std::string>& PresetFileParser::PresetValues() const

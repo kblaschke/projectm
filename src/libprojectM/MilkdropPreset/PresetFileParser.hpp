@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <map>
 #include <string>
 
@@ -33,6 +34,13 @@ public:
      * @return True if the stream was parsed successfully, false if an error occurred or no line could be parsed.
      */
     [[nodiscard]] auto Read(std::istream& presetStream) -> bool;
+
+    /**
+     * @brief Checks if the file contains the requested key.
+     * @param key The key to check for.
+     * @return true if the key way found at least oncve, false otherwise.
+     */
+    [[nodiscard]] auto HasKey(const std::string& key) -> bool;
 
     /**
      * @brief Returns a block of code, ready for parsing or use in shader compilation.
@@ -99,6 +107,18 @@ public:
      * @return the string content of the key, or the default value.
      */
     [[nodiscard]] auto GetString(const std::string& key, const std::string& defaultValue) -> std::string;
+
+    /**
+     * @brief Returns the given key value as a 32-bit color value in ARGB format.
+     *
+     * Returns the default value if no value can be parsed or the key doesn't exist.
+     * Color values are stored in order, highest byte first, as 0xAARRGGBB.
+     *
+     * @param key The key to retrieve the value from.
+     * @param defaultValue The default value to return if key is not found.
+     * @return the string content of the key, or the default value.
+     */
+    [[nodiscard]] auto GetColorARGB(const std::string& key, uint32_t defaultValue) -> uint32_t;
 
     /**
      * @brief Returns a reference to the internal value map.
