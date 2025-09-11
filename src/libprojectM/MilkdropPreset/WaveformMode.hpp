@@ -21,8 +21,9 @@ enum class WaveformMode : int
     Milkdrop2077WaveStar,   //!< Additional Milkdrop2077 waveform, star shape.
     Milkdrop2077WaveFlower, //!< Additional Milkdrop2077 waveform, flower shape.
     Milkdrop2077WaveLasso,  //!< Additional Milkdrop2077 waveform, lassoshape.
+    Triangle,               //!< Triangular waveform, slowly rotates and moves around.
 
-    Count                   //!< Always keep as last item! Used to wrap the mode value if it exceeds this value.
+    Count //!< Always keep as last item! Used to wrap the mode value if it exceeds this value.
 };
 
 } // namespace MilkdropPreset

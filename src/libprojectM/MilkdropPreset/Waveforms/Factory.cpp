@@ -14,6 +14,7 @@
 #include "Waveforms/Milkdrop2077WaveStar.hpp"
 #include "Waveforms/Milkdrop2077WaveX.hpp"
 #include "Waveforms/SpectrumLine.hpp"
+#include "Waveforms/Triangle.hpp"
 #include "Waveforms/XYOscillationSpiral.hpp"
 
 namespace libprojectM {
@@ -70,6 +71,9 @@ auto Factory::Create(WaveformMode mode) -> std::unique_ptr<WaveformMath>
 
         case WaveformMode::Milkdrop2077WaveLasso:
             return std::make_unique<Milkdrop2077WaveLasso>();
+
+        case WaveformMode::Triangle:
+            return std::make_unique<Triangle>();
 
         case WaveformMode::Count:
             break;

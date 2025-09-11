@@ -120,6 +120,8 @@ add_library(MilkdropPreset OBJECT
         Waveforms/Milkdrop2077WaveX.hpp
         Waveforms/SpectrumLine.cpp
         Waveforms/SpectrumLine.hpp
+        Waveforms/Triangle.cpp
+        Waveforms/Triangle.hpp
         Waveforms/WaveformMath.cpp
         Waveforms/WaveformMath.hpp
         Waveforms/XYOscillationSpiral.cpp
