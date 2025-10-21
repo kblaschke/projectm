@@ -1,0 +1,9 @@
+; Built-in waveform
+; MODE=2 Blob2
+[preset00]
+fDecay=0
+nWaveMode=2
+warp=0.000000
+wave_r=1
+wave_x=0.500000
+wave_y=0.500000

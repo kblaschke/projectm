@@ -1,8 +1,8 @@
+; Test preset defaults, see BuiltinParams.cpp
+; minimal preset to make something visible
 [preset00]
-// test preset defaults, see BuiltinParams.cpp
-// minimal preset to make something visible
 fdecay=0
-warp=0;
+warp=0
 nWaveMode=6
 fWaveScale=1
 fwavesmoothing=0.01

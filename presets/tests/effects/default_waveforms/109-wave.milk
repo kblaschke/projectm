@@ -1,0 +1,10 @@
+; Built-in waveform - BeatDrop + Others
+; MODE=9 Rotating Line (via MysteryParam)
+[preset00]
+fDecay=0
+nWaveMode=9
+warp=0.000000
+wave_r=1
+wave_x=0.500000
+wave_y=0.500000
+per_frame_1=wave_mystery = 0.5 * time;

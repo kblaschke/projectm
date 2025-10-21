@@ -1,0 +1,39 @@
+; Custom Wave Code
+; Turquoise, geometrical waveform with 3-6 corners
+[preset00]
+fDecay=0.9
+nWaveMode=0
+bMaximizeWaveColor=1
+fWaveAlpha=0.0
+fWaveScale=1.5
+fZoomExponent=1.000000
+zoom=1.01
+warp=0.000000
+sx=1.000000
+sy=1.000000
+wave_r=0.00000
+wave_g=0.0000
+wave_b=0.00000
+wave_x=0.500000
+wave_y=0.5000000
+
+wavecode_0_enabled=1
+wavecode_0_mode=0
+wavecode_0_bDrawThick=0
+wavecode_0_bAdditive=1
+wavecode_0_scaling=1.000000
+wavecode_0_smoothing=0.500000
+wavecode_0_r=0.000000
+wavecode_0_g=1.000000
+wavecode_0_b=1.000000
+wavecode_0_a=1.000000
+wave_0_per_frame1=t1 = sin(time * .5) * $PI * 2; // rotation
+wave_0_per_frame2=t2 = 3 + (floor(time / 2) % 4); // sides, changing every 2s
+wave_0_per_frame3=t3 = .05 + sin(time * 1.42) * .05; // scale
+wave_0_per_point1=phi0 = (floor(sample * t2) + .5) / t2 * 2 * $PI + t1;
+wave_0_per_point2=ang = sample * 2 * $PI + t1;
+wave_0_per_point3=edge_dist = cos(ang -phi0);
+wave_0_per_point4=rad = (.1 + edge_dist * value1 * .5 + t3) / (2 * edge_dist);
+wave_0_per_point5=
+wave_0_per_point6=x = .5 + rad * cos(ang) + sin(time * .34) * .3 * q1;
+wave_0_per_point7=y = .5 + rad * sin(ang) + sin(time * .45) * .3 * q2;

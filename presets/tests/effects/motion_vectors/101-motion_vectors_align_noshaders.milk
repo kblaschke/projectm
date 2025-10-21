@@ -1,0 +1,27 @@
+; Test pattern for motion vector alignment, each quadrant with a distinctive pattern:
+; - Top left: Dots
+; - Top right: Horizontal bars
+; - Bottom left: Vertical bars
+; - Bottom right: Diagonal bars
+[preset00]
+bTexWrap=0
+fWaveAlpha=0.000
+fDecay=0.500
+zoom=1.0
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=1.000
+per_pixel_1=dx = if(x > 0.5, 0, .01);
+per_pixel_2=dy = if(y > 0.5, 0, .01);
