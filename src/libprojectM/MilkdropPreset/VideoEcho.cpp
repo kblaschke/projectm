@@ -7,7 +7,8 @@ namespace MilkdropPreset {
 
 VideoEcho::VideoEcho(const PresetState& presetState)
     : m_presetState(presetState)
-    , m_echoMesh(Renderer::VertexBufferUsage::DynamicDraw, true, true)
+    , m_echoMesh(Renderer::VertexBufferUsage::DynamicDraw, true, true, presetState.renderContext.glContext)
+    , m_sampler(GL_CLAMP_TO_EDGE, GL_LINEAR, presetState.renderContext.glContext)
 {
     m_echoMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleStrip);
     m_echoMesh.SetVertexCount(4);
@@ -15,6 +16,8 @@ VideoEcho::VideoEcho(const PresetState& presetState)
 
 void VideoEcho::Draw()
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     float const aspect = m_presetState.renderContext.viewportSizeX / static_cast<float>(m_presetState.renderContext.viewportSizeY * m_presetState.renderContext.invAspectY);
     float aspectMultX = 1.0f;
     float aspectMultY = 1.0f;
@@ -78,25 +81,27 @@ void VideoEcho::Draw()
         DrawGammaAdjustment();
     }
 
-    Renderer::BlendMode::SetBlendActive(false);
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
+    Renderer::BlendMode::SetBlendActive(false, glContext);
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
 
     if (mainTexture)
     {
         mainTexture->Unbind(0);
-        Renderer::Sampler::Unbind(0);
+        Renderer::Sampler::Unbind(0, glContext);
     }
 }
 
 void VideoEcho::DrawVideoEcho()
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     auto const videoEchoZoom = m_presetState.videoEchoZoom;
     auto const videoEchoAlpha = m_presetState.videoEchoAlpha;
     auto const videoEchoOrientation = m_presetState.videoEchoOrientation % 4;
     auto const gammaAdj = m_presetState.gammaAdj;
 
-    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero);
+    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero, glContext);
 
     for (int pass = 0; pass < 2; pass++)
     {
@@ -141,7 +146,7 @@ void VideoEcho::DrawVideoEcho()
 
         if (pass == 0)
         {
-            Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::One);
+            Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::One, glContext);
         }
 
         if (gammaAdj > 0.001f)
@@ -178,12 +183,14 @@ void VideoEcho::DrawVideoEcho()
 
 void VideoEcho::DrawGammaAdjustment()
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     m_echoMesh.UVs().Set({{0.0f, 0.0f},
                           {1.0f, 0.0f},
                           {0.0f, 1.0f},
                           {1.0f, 1.0f}});
 
-    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero);
+    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero, glContext);
 
     auto const gammaAdj = m_presetState.gammaAdj;
     int const redrawCount = static_cast<int>(gammaAdj - 0.0001f) + 1;
@@ -214,7 +221,7 @@ void VideoEcho::DrawGammaAdjustment()
 
         if (redraw == 0)
         {
-            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::One);
+            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::One, glContext);
         }
     }
 }

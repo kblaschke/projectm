@@ -24,8 +24,8 @@ public:
 
 private:
     PresetState& m_presetState; //!< The global preset state.
-    Renderer::Mesh m_mesh; //!< The "diamond" mesh.
-    float m_aspectY{}; //!< Previous Y aspect ratio.
+    Renderer::Mesh m_mesh;      //!< The "diamond" mesh.
+    float m_aspectY{};          //!< Previous Y aspect ratio.
 };
 
 } // namespace MilkdropPreset

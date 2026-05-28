@@ -30,60 +30,68 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
-MilkdropPreset::MilkdropPreset(const std::string& absoluteFilePath)
+MilkdropPreset::MilkdropPreset(const std::string& absoluteFilePath, const Renderer::RenderContext& renderContext)
     : m_absoluteFilePath(absoluteFilePath)
+    , m_framebuffer(2, renderContext.glContext)
+    , m_state(renderContext)
     , m_perFrameContext(m_state.globalMemory, &m_state.globalRegisters)
     , m_perPixelContext(m_state.globalMemory, &m_state.globalRegisters)
+    , m_perPixelMesh(m_state)
     , m_motionVectors(m_state)
     , m_waveform(m_state)
     , m_darkenCenter(m_state)
     , m_border(m_state)
+    , m_flipTexture(renderContext.glContext)
+    , m_finalComposite(m_state)
 {
     Load(absoluteFilePath);
 }
 
-MilkdropPreset::MilkdropPreset(std::istream& presetData)
-    : m_perFrameContext(m_state.globalMemory, &m_state.globalRegisters)
+MilkdropPreset::MilkdropPreset(std::istream& presetData, const Renderer::RenderContext& renderContext)
+    : m_framebuffer(2, renderContext.glContext)
+    , m_state(renderContext)
+    , m_perFrameContext(m_state.globalMemory, &m_state.globalRegisters)
     , m_perPixelContext(m_state.globalMemory, &m_state.globalRegisters)
+    , m_perPixelMesh(m_state)
     , m_motionVectors(m_state)
     , m_waveform(m_state)
     , m_darkenCenter(m_state)
     , m_border(m_state)
+    , m_flipTexture(renderContext.glContext)
+    , m_finalComposite(m_state)
 {
     Load(presetData);
 }
 
-void MilkdropPreset::Initialize(const Renderer::RenderContext& renderContext)
+void MilkdropPreset::Initialize()
 {
-    assert(renderContext.textureManager);
-    m_state.renderContext = renderContext;
-    m_state.blurTexture.Initialize(renderContext);
+    m_state.blurTexture.Initialize(m_state.builtinShaders);
     m_state.LoadShaders();
 
     // Initialize variables and code now we have a proper render state.
     CompileCodeAndRunInitExpressions();
 
     // Update framebuffer and texture sizes if needed
-    m_framebuffer.SetSize(renderContext.viewportSizeX, renderContext.viewportSizeY);
-    m_motionVectorUVMap->SetSize(renderContext.viewportSizeX, renderContext.viewportSizeY);
+    m_framebuffer.SetSize(m_state.renderContext.viewportSizeX, m_state.renderContext.viewportSizeY);
+    m_motionVectorUVMap->SetSize(m_state.renderContext.viewportSizeX, m_state.renderContext.viewportSizeY);
     if (m_state.mainTexture.expired())
     {
         m_state.mainTexture = m_framebuffer.GetColorAttachmentTexture(1, 0);
     }
 
-    m_perPixelMesh.CompileWarpShader(m_state);
-    m_finalComposite.CompileCompositeShader(m_state);
+    m_perPixelMesh.CompileWarpShader();
+    m_finalComposite.CompileCompositeShader();
 }
 
-void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audioData, const Renderer::RenderContext& renderContext)
+void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audioData)
 {
+    const auto& glContext = m_state.renderContext.glContext;
     m_state.audioData = audioData;
-    m_state.renderContext = renderContext;
 
     // Update framebuffer and u/v texture size if needed
-    if (m_framebuffer.SetSize(renderContext.viewportSizeX, renderContext.viewportSizeY))
+    if (m_framebuffer.SetSize(m_state.renderContext.viewportSizeX, m_state.renderContext.viewportSizeY))
     {
-        m_motionVectorUVMap->SetSize(renderContext.viewportSizeX, renderContext.viewportSizeY);
+        m_motionVectorUVMap->SetSize(m_state.renderContext.viewportSizeX, m_state.renderContext.viewportSizeY);
         m_isFirstFrame = true;
     }
 
@@ -92,7 +100,7 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     // First evaluate per-frame code
     PerFrameUpdate();
 
-    glViewport(0, 0, renderContext.viewportSizeX, renderContext.viewportSizeY);
+    glContext.Viewport(0, 0, m_state.renderContext.viewportSizeX, m_state.renderContext.viewportSizeY);
 
     m_framebuffer.Bind(m_previousFrameBuffer);
     // Motion vector field. Drawn to the previous frame texture before warping it.
@@ -103,7 +111,7 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     }
 
     // y-flip the previous frame and assign the flipped texture as "main"
-    m_flipTexture.Draw(*renderContext.shaderCache, m_framebuffer.GetColorAttachmentTexture(m_previousFrameBuffer, 0), nullptr, true, false);
+    m_flipTexture.Draw(m_state.renderContext.shaderCache, m_framebuffer.GetColorAttachmentTexture(m_previousFrameBuffer, 0), nullptr, true, false);
     m_state.mainTexture = m_flipTexture.Texture();
 
     // We now draw to the current framebuffer.
@@ -144,19 +152,19 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     m_border.Draw(m_perFrameContext);
 
     // y-flip the image for final compositing again
-    m_flipTexture.Draw(*renderContext.shaderCache, m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0), nullptr, true, false);
+    m_flipTexture.Draw(m_state.renderContext.shaderCache, m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0), nullptr, true, false);
     m_state.mainTexture = m_flipTexture.Texture();
 
     // We no longer need the previous frame image, use it to render the final composite.
     m_framebuffer.BindRead(m_currentFrameBuffer);
     m_framebuffer.BindDraw(m_previousFrameBuffer);
 
-    m_finalComposite.Draw(m_state, m_perFrameContext);
+    m_finalComposite.Draw(m_perFrameContext);
 
     if (!m_finalComposite.HasCompositeShader())
     {
         // Flip texture again in "previous" framebuffer as old-school effects are still upside down.
-        m_flipTexture.Draw(*renderContext.shaderCache, m_framebuffer.GetColorAttachmentTexture(m_previousFrameBuffer, 0), m_framebuffer, m_previousFrameBuffer, true, false);
+        m_flipTexture.Draw(m_state.renderContext.shaderCache, m_framebuffer.GetColorAttachmentTexture(m_previousFrameBuffer, 0), m_framebuffer, m_previousFrameBuffer, true, false);
     }
 
     // Swap framebuffer IDs for the next frame.
@@ -171,12 +179,12 @@ auto MilkdropPreset::OutputTexture() const -> std::shared_ptr<Renderer::Texture>
     return m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0);
 }
 
-void MilkdropPreset::DrawInitialImage(const std::shared_ptr<Renderer::Texture>& image, const Renderer::RenderContext& renderContext)
+void MilkdropPreset::DrawInitialImage(const std::shared_ptr<Renderer::Texture>& image)
 {
-    m_framebuffer.SetSize(renderContext.viewportSizeX, renderContext.viewportSizeY);
+    m_framebuffer.SetSize(m_state.renderContext.viewportSizeX, m_state.renderContext.viewportSizeY);
 
     // Render to previous framebuffer, as this is the image used to draw the next frame on.
-    m_flipTexture.Draw(*renderContext.shaderCache, image, m_framebuffer, m_previousFrameBuffer);
+    m_flipTexture.Draw(m_state.renderContext.shaderCache, image, m_framebuffer, m_previousFrameBuffer);
 }
 
 void MilkdropPreset::BindFramebuffer()
@@ -227,7 +235,7 @@ void MilkdropPreset::Load(std::istream& stream)
 
     if (!parser.Read(stream))
     {
-        const std::string error =  "[MilkdropPreset] Could not parse preset data.";
+        const std::string error = "[MilkdropPreset] Could not parse preset data.";
         LOG_ERROR(error)
         throw MilkdropPresetLoadException(error);
     }
@@ -238,11 +246,11 @@ void MilkdropPreset::Load(std::istream& stream)
 void MilkdropPreset::InitializePreset(PresetFileParser& parsedFile)
 {
     // Create the offscreen rendering surfaces.
-    m_motionVectorUVMap = std::make_shared<Renderer::TextureAttachment>(GL_RG16F, GL_RG, GL_FLOAT, 0, 0);
+    m_motionVectorUVMap = std::make_shared<Renderer::TextureAttachment>(GL_RG16F, GL_RG, GL_FLOAT, 0, 0, m_state.renderContext.glContext);
     m_framebuffer.CreateColorAttachment(0, 0); // Main image 1
     m_framebuffer.CreateColorAttachment(1, 0); // Main image 2
 
-    Renderer::Framebuffer::Unbind();
+    m_framebuffer.Unbind();
 
     // Load global init variables into the state
     m_state.Initialize(parsedFile);
@@ -256,7 +264,7 @@ void MilkdropPreset::InitializePreset(PresetFileParser& parsedFile)
     {
         auto wave = std::make_unique<CustomWaveform>(m_state);
         wave->Initialize(parsedFile, i);
-        m_customWaveforms[i] = std::move(wave);
+        m_customWaveforms.at(i) = std::move(wave);
     }
 
     // Custom shapes:
@@ -264,7 +272,7 @@ void MilkdropPreset::InitializePreset(PresetFileParser& parsedFile)
     {
         auto shape = std::make_unique<CustomShape>(m_state);
         shape->Initialize(parsedFile, i);
-        m_customShapes[i] = std::move(shape);
+        m_customShapes.at(i) = std::move(shape);
     }
 
     // Preload shaders
@@ -283,21 +291,21 @@ void MilkdropPreset::CompileCodeAndRunInitExpressions()
 
     for (int i = 0; i < CustomWaveformCount; i++)
     {
-        auto& wave = m_customWaveforms[i];
+        auto& wave = m_customWaveforms.at(i);
         wave->CompileCodeAndRunInitExpressions(m_perFrameContext);
     }
 
     for (int i = 0; i < CustomShapeCount; i++)
     {
-        auto& shape = m_customShapes[i];
+        auto& shape = m_customShapes.at(i);
         shape->CompileCodeAndRunInitExpressions();
     }
 }
 
 void MilkdropPreset::LoadShaderCode()
 {
-    m_perPixelMesh.LoadWarpShader(m_state);
-    m_finalComposite.LoadCompositeShader(m_state);
+    m_perPixelMesh.LoadWarpShader();
+    m_finalComposite.LoadCompositeShader();
 }
 
 auto MilkdropPreset::ParseFilename(const std::string& filename) -> std::string

@@ -1,6 +1,5 @@
 #include "PresetState.hpp"
 
-#include "MilkdropStaticShaders.hpp"
 #include "PresetFileParser.hpp"
 
 #include <Renderer/ShaderCache.hpp>
@@ -15,8 +14,11 @@ namespace MilkdropPreset {
 const glm::mat4 PresetState::orthogonalProjection = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -40.0f, 40.0f);
 const glm::mat4 PresetState::orthogonalProjectionFlipped = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -40.0f, 40.0f);
 
-PresetState::PresetState()
+PresetState::PresetState(const Renderer::RenderContext& renderContextInit)
     : globalMemory(projectm_eval_memory_buffer_create())
+    , renderContext(renderContextInit)
+    , builtinShaders(renderContextInit.glContext)
+    , blurTexture(renderContextInit)
 {
     std::random_device randomDevice;
     std::mt19937 randomGenerator(randomDevice());
@@ -162,25 +164,23 @@ void PresetState::Initialize(PresetFileParser& parsedFile)
 
 void PresetState::LoadShaders()
 {
-    auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
-
-    auto untexturedShaderShared = renderContext.shaderCache->Get("milkdrop_generic_untextured");
+    auto untexturedShaderShared = renderContext.shaderCache.Get("milkdrop_generic_untextured");
     if (!untexturedShaderShared)
     {
-        untexturedShaderShared = std::make_shared<Renderer::Shader>();
-        untexturedShaderShared->CompileProgram(staticShaders->GetUntexturedDrawVertexShader(),
-                                        staticShaders->GetUntexturedDrawFragmentShader());
-        renderContext.shaderCache->Insert("milkdrop_generic_untextured", untexturedShaderShared);
+        untexturedShaderShared = std::make_shared<Renderer::Shader>(renderContext.glContext);
+        untexturedShaderShared->CompileProgram(builtinShaders.GetUntexturedDrawVertexShader(),
+                                               builtinShaders.GetUntexturedDrawFragmentShader());
+        renderContext.shaderCache.Insert("milkdrop_generic_untextured", untexturedShaderShared);
     }
     untexturedShader = untexturedShaderShared;
 
-    auto texturedShaderShared = renderContext.shaderCache->Get("milkdrop_generic_textured");
+    auto texturedShaderShared = renderContext.shaderCache.Get("milkdrop_generic_textured");
     if (!texturedShaderShared)
     {
-        texturedShaderShared = std::make_shared<Renderer::Shader>();
-        texturedShaderShared->CompileProgram(staticShaders->GetTexturedDrawVertexShader(),
-                                      staticShaders->GetTexturedDrawFragmentShader());
-        renderContext.shaderCache->Insert("milkdrop_generic_textured", texturedShaderShared);
+        texturedShaderShared = std::make_shared<Renderer::Shader>(renderContext.glContext);
+        texturedShaderShared->CompileProgram(builtinShaders.GetTexturedDrawVertexShader(),
+                                             builtinShaders.GetTexturedDrawFragmentShader());
+        renderContext.shaderCache.Insert("milkdrop_generic_textured", texturedShaderShared);
     }
     texturedShader = texturedShaderShared;
 }

@@ -3,7 +3,7 @@
 #include "PerFrameContext.hpp"
 #include "PresetState.hpp"
 
-#include "MilkdropStaticShaders.hpp"
+#include "MilkdropBuiltinShaders.hpp"
 
 #include <Renderer/BlendMode.hpp>
 #include <Renderer/Point.hpp>
@@ -14,9 +14,11 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
-BlurTexture::BlurTexture()
-    : m_blurMesh(Renderer::VertexBufferUsage::StaticDraw, false, true)
-    , m_blurSampler(std::make_shared<Renderer::Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR))
+BlurTexture::BlurTexture(const Renderer::RenderContext& renderContext)
+    : m_renderContext(renderContext)
+    , m_blurMesh(Renderer::VertexBufferUsage::StaticDraw, false, true, renderContext.glContext)
+    , m_blurFramebuffer(renderContext.glContext)
+    , m_blurSampler(std::make_shared<Renderer::Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR, renderContext.glContext))
 {
     m_blurFramebuffer.CreateColorAttachment(0, 0);
 
@@ -44,31 +46,29 @@ BlurTexture::BlurTexture()
             textureName = "blur" + std::to_string(i / 2 + 1);
         }
 
-        m_blurTextures[i] = std::make_shared<Renderer::Texture>(textureName, 0, GL_TEXTURE_2D, 0, 0, false);
+        m_blurTextures.at(i) = std::make_shared<Renderer::Texture>(textureName, 0, GL_TEXTURE_2D, 0, 0, false, true, renderContext.glContext);
     }
 }
 
-void BlurTexture::Initialize(const Renderer::RenderContext& renderContext)
+void BlurTexture::Initialize(const MilkdropBuiltinShaders& milkdropShaders)
 {
-    auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
-
     // Load/compile shader sources
-    auto blur1Shader = renderContext.shaderCache->Get("milkdrop_blur1");
+    auto blur1Shader = m_renderContext.shaderCache.Get("milkdrop_blur1");
     if (!blur1Shader)
     {
-        blur1Shader = std::make_shared<Renderer::Shader>();
-        blur1Shader->CompileProgram(staticShaders->GetBlurVertexShader(),
-                                    staticShaders->GetBlur1FragmentShader());
-        renderContext.shaderCache->Insert("milkdrop_blur1", blur1Shader);
+        blur1Shader = std::make_shared<Renderer::Shader>(m_renderContext.glContext);
+        blur1Shader->CompileProgram(milkdropShaders.GetBlurVertexShader(),
+                                    milkdropShaders.GetBlur1FragmentShader());
+        m_renderContext.shaderCache.Insert("milkdrop_blur1", blur1Shader);
     }
 
-    auto blur2Shader = renderContext.shaderCache->Get("milkdrop_blur2");
+    auto blur2Shader = m_renderContext.shaderCache.Get("milkdrop_blur2");
     if (!blur2Shader)
     {
-        blur2Shader = std::make_shared<Renderer::Shader>();
-        blur2Shader->CompileProgram(staticShaders->GetBlurVertexShader(),
-                                    staticShaders->GetBlur2FragmentShader());
-        renderContext.shaderCache->Insert("milkdrop_blur2", blur2Shader);
+        blur2Shader = std::make_shared<Renderer::Shader>(m_renderContext.glContext);
+        blur2Shader->CompileProgram(milkdropShaders.GetBlurVertexShader(),
+                                    milkdropShaders.GetBlur2FragmentShader());
+        m_renderContext.shaderCache.Insert("milkdrop_blur2", blur2Shader);
     }
 
     m_blur1Shader = blur1Shader;
@@ -144,14 +144,16 @@ void BlurTexture::Update(const Renderer::Texture& sourceTexture, const PerFrameC
     bias[2] = -tempMin * scale[2];
 
     // Remember previously bound framebuffer
+    const auto& glContext = m_renderContext.glContext;
+
     GLint origReadFramebuffer;
     GLint origDrawFramebuffer;
-    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &origReadFramebuffer);
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &origDrawFramebuffer);
+    glContext.GetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &origReadFramebuffer);
+    glContext.GetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &origDrawFramebuffer);
 
     m_blurFramebuffer.Bind(0);
 
-    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero);
+    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero, glContext);
 
     for (unsigned int pass = 0; pass < passes; pass++)
     {
@@ -178,7 +180,7 @@ void BlurTexture::Update(const Renderer::Texture& sourceTexture, const PerFrameC
         blurShader->Bind();
         blurShader->SetUniformInt("texture_sampler", 0);
 
-        glViewport(0, 0, m_blurTextures[pass]->Width(), m_blurTextures[pass]->Height());
+        glContext.Viewport(0, 0, m_blurTextures[pass]->Width(), m_blurTextures[pass]->Height());
 
         // hook up correct source texture - assume there is only one, at stage 0
         if (pass == 0)
@@ -259,22 +261,22 @@ void BlurTexture::Update(const Renderer::Texture& sourceTexture, const PerFrameC
 
         // Save to blur texture
         m_blurTextures[pass]->Bind(0);
-        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, m_blurTextures[pass]->Width(), m_blurTextures[pass]->Height());
+        glContext.CopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, m_blurTextures[pass]->Width(), m_blurTextures[pass]->Height());
         m_blurTextures[pass]->Unbind(0);
     }
 
-    Renderer::Mesh::Unbind();
-    Renderer::BlendMode::Set(false, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::BlendMode::Set(false, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, glContext);
 
     // Bind previous framebuffer and reset viewport size
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, origReadFramebuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, origDrawFramebuffer);
-    glViewport(0, 0, sourceTexture.Width(), sourceTexture.Height());
+    glContext.BindFramebuffer(GL_READ_FRAMEBUFFER, origReadFramebuffer);
+    glContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, origDrawFramebuffer);
+    glContext.Viewport(0, 0, sourceTexture.Width(), sourceTexture.Height());
 
-    Renderer::Shader::Unbind();
+    Renderer::Shader::Unbind(glContext);
 }
 
-void BlurTexture::Bind(GLint& unit, Renderer::Shader& shader) const
+void BlurTexture::Bind(GLint& unit, const Renderer::Shader& shader) const
 {
     for (size_t i = 0; i < static_cast<size_t>(m_blurLevel) * 2; i++)
     {
@@ -354,8 +356,8 @@ void BlurTexture::AllocateTextures(const Renderer::Texture& sourceTexture)
             width = std::max(16, width / 2);
             height = std::max(16, height / 2);
         }
-        int width2 = ((width + 3) / 16) * 16;
-        int height2 = ((height + 3) / 4) * 4;
+        const int width2 = ((width + 3) / 16) * 16;
+        const int height2 = ((height + 3) / 4) * 4;
 
         if (i == 0)
         {
@@ -370,7 +372,7 @@ void BlurTexture::AllocateTextures(const Renderer::Texture& sourceTexture)
         }
 
         // This will automatically replace any old texture.
-        m_blurTextures[i] = std::make_shared<Renderer::Texture>(textureName, width2, height2, false);
+        m_blurTextures[i] = std::make_shared<Renderer::Texture>(textureName, width2, height2, false, m_renderContext.glContext);
     }
 
     m_sourceTextureWidth = sourceTexture.Width();

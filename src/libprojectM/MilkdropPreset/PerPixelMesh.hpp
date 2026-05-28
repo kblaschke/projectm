@@ -27,19 +27,21 @@ class MilkdropShader;
 class PerPixelMesh
 {
 public:
-    PerPixelMesh();
+    /**
+     * Constructor.
+     * @param presetState The preset state container.
+     */
+    PerPixelMesh(PresetState& presetState);
 
     /**
      * @brief Loads the warp shader, if the preset uses one.
-     * @param presetState The preset state to retrieve the shader from.
      */
-    void LoadWarpShader(const PresetState& presetState);
+    void LoadWarpShader();
 
     /**
      * @brief Loads the required textures and compiles the warp shader.
-     * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileWarpShader(PresetState& presetState);
+    void CompileWarpShader();
 
     /**
      * @brief Renders the transformation mesh.
@@ -60,9 +62,9 @@ private:
         float radius{};
         float angle{};
 
-        static void InitializeAttributePointer(uint32_t attributeIndex)
+        static void InitializeAttributePointer(uint32_t attributeIndex, const GladGLContext& glContext)
         {
-            glVertexAttribPointer(attributeIndex, sizeof(RadiusAngle) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(RadiusAngle), nullptr);
+            glContext.VertexAttribPointer(attributeIndex, sizeof(RadiusAngle) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(RadiusAngle), nullptr);
         }
     };
 
@@ -75,9 +77,9 @@ private:
         float rot{};
         float warp{};
 
-        static void InitializeAttributePointer(uint32_t attributeIndex)
+        static void InitializeAttributePointer(uint32_t attributeIndex, const GladGLContext& glContext)
         {
-            glVertexAttribPointer(attributeIndex, sizeof(ZoomRotWarp) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(ZoomRotWarp), nullptr);
+            glContext.VertexAttribPointer(attributeIndex, sizeof(ZoomRotWarp) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(ZoomRotWarp), nullptr);
         }
     };
 
@@ -86,34 +88,33 @@ private:
      *
      * The vertices will be reallocated if the grid size has changed. If either this happened,
      * or the viewport size changed, the static values will be recalculated.
-     *
-     * @param presetState The preset state to retrieve the configuration values from.
      */
-    void InitializeMesh(const PresetState& presetState);
+    void InitializeMesh();
 
     /**
      * @brief Executes the per-pixel code and calculates the u/v coordinates.
      * The x/y coordinates are either a static grid or computed by the per-vertex expression.
-     * @param presetState The preset state to retrieve the configuration values from.
-     * @param presetPerFrameContext The per-frame context to retrieve the initial vars from.
+     * @param perFrameContext The per-frame context to retrieve the initial vars from.
      * @param perPixelContext The per-pixel code context to use.
      */
-    void CalculateMesh(const PresetState& presetState,
+    void CalculateMesh(
                        const PerFrameContext& perFrameContext,
                        PerPixelContext& perPixelContext);
 
     /**
      * @brief Draws the warp mesh with or without a warp shader.
      * If the preset doesn't use a warp shader, a default textured shader is used.
+     * @param perFrameContext The per-frame context to retrieve the initial vars from.
      */
-    void WarpedBlit(const PresetState& presetState, const PerFrameContext& perFrameContext);
+    void WarpedBlit(const PerFrameContext& perFrameContext);
 
     /**
      * @brief Creates or retrieves the default warp shader.
-     * @param presetState The preset state to retrieve the rendering context from.
      * @return A shared pointer to the default warp shader instance.
      */
-    auto GetDefaultWarpShader(const PresetState& presetState) -> std::shared_ptr<Renderer::Shader>;
+    auto GetDefaultWarpShader() -> std::shared_ptr<Renderer::Shader>;
+
+    PresetState& m_presetState; //!< The global preset state.
 
     int m_gridSizeX{}; //!< Warp mesh X resolution.
     int m_gridSizeY{}; //!< Warp mesh Y resolution.
@@ -121,16 +122,16 @@ private:
     int m_viewportWidth{};  //!< Last known viewport width.
     int m_viewportHeight{}; //!< Last known viewport height.
 
-    Renderer::Mesh m_warpMesh;                                                                         //!< The Warp effect mesh
-    Renderer::VertexBuffer<RadiusAngle> m_radiusAngleBuffer{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for radius and angle values.
-    Renderer::VertexBuffer<ZoomRotWarp> m_zoomRotWarpBuffer{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for zoom, roation and warp values.
-    Renderer::VertexBuffer<Renderer::Point> m_centerBuffer{Renderer::VertexBufferUsage::StreamDraw};   //!< Vertex attribute buffer for center coordinate values.
-    Renderer::VertexBuffer<Renderer::Point> m_distanceBuffer{Renderer::VertexBufferUsage::StreamDraw}; //!< Vertex attribute buffer for distance values.
-    Renderer::VertexBuffer<Renderer::Point> m_stretchBuffer{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for stretch values.
+    Renderer::Mesh m_warpMesh;                                //!< The Warp effect mesh
+    Renderer::VertexBuffer<RadiusAngle> m_radiusAngleBuffer;  //!< Vertex attribute buffer for radius and angle values.
+    Renderer::VertexBuffer<ZoomRotWarp> m_zoomRotWarpBuffer;  //!< Vertex attribute buffer for zoom, roation and warp values.
+    Renderer::VertexBuffer<Renderer::Point> m_centerBuffer;   //!< Vertex attribute buffer for center coordinate values.
+    Renderer::VertexBuffer<Renderer::Point> m_distanceBuffer; //!< Vertex attribute buffer for distance values.
+    Renderer::VertexBuffer<Renderer::Point> m_stretchBuffer;  //!< Vertex attribute buffer for stretch values.
 
-    std::weak_ptr<Renderer::Shader> m_perPixelMeshShader;             //!< Special shader which calculates the per-pixel UV coordinates.
-    std::unique_ptr<MilkdropShader> m_warpShader;                     //!< The warp shader. Either preset-defined or a default shader.
-    Renderer::Sampler m_perPixelSampler{GL_CLAMP_TO_EDGE, GL_LINEAR}; //!< The main texture sampler.
+    std::weak_ptr<Renderer::Shader> m_perPixelMeshShader; //!< Special shader which calculates the per-pixel UV coordinates.
+    std::unique_ptr<MilkdropShader> m_warpShader;         //!< The warp shader. Either preset-defined or a default shader.
+    Renderer::Sampler m_perPixelSampler;                  //!< The main texture sampler.
 };
 
 } // namespace MilkdropPreset

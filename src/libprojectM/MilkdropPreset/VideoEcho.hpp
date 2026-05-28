@@ -15,7 +15,12 @@ class VideoEcho
 {
 public:
 	VideoEcho() = delete;
-    explicit VideoEcho(const PresetState& presetState);
+
+    /**
+     * Constructor.
+     * @param presetState The preset state to retrieve the effect data from.
+     */
+explicit VideoEcho(const PresetState& presetState);
 
 	void Draw();
 
@@ -28,7 +33,7 @@ private:
 
     std::array<std::array<float, 3>, 4> m_shade; // !< Random, changing color values for the four corners
     Renderer::Mesh m_echoMesh; //!< The video echo/gamma adj mesh
-    Renderer::Sampler m_sampler{GL_CLAMP_TO_EDGE, GL_LINEAR};
+    Renderer::Sampler m_sampler;
 };
 
 } // namespace MilkdropPreset

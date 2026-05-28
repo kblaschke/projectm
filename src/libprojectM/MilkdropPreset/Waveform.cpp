@@ -17,12 +17,14 @@ namespace MilkdropPreset {
 
 Waveform::Waveform(PresetState& presetState)
     : m_presetState(presetState)
-    , m_waveMesh(Renderer::VertexBufferUsage::StreamDraw)
+    , m_waveMesh(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
 {
 }
 
 void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     m_mode = static_cast<WaveformMode>(m_presetState.waveMode % static_cast<int>(WaveformMode::Count));
 
     if (!m_waveformMath)
@@ -34,10 +36,12 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
         }
     }
 
-#ifndef USE_GLES
-    glDisable(GL_LINE_SMOOTH);
-#endif
-    glLineWidth(1);
+    if (!glContext.ES_VERSION_3_0)
+    {
+        glContext.Disable(GL_LINE_SMOOTH);
+    }
+
+    glContext.LineWidth(1);
 
     auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
@@ -47,11 +51,11 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
     // Additive wave drawing (vice overwrite)
     if (m_presetState.additiveWaves)
     {
-        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::One);
+        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::One, glContext);
     }
     else
     {
-        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, glContext);
     }
 
     auto smoothedVertices = m_waveformMath->GetVertices(m_presetState, presetPerFrameContext);
@@ -117,9 +121,10 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
         }
     }
 
-    Renderer::BlendMode::SetBlendActive(false);;
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
+    Renderer::BlendMode::SetBlendActive(false, glContext);
+    ;
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
 }
 
 void Waveform::ModulateOpacityByVolume(const PerFrameContext& presetPerFrameContext)
@@ -242,7 +247,7 @@ void Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext)
         }
     }
 
-    glVertexAttrib4f(1, waveR, waveG, waveB, m_tempAlpha);
+    m_presetState.renderContext.glContext.VertexAttrib4f(1, waveR, waveG, waveB, m_tempAlpha);
 }
 
 } // namespace MilkdropPreset

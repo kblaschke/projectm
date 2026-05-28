@@ -40,7 +40,7 @@ private:
     Renderer::Mesh m_motionVectorMesh; //!< The Motion Vector geometry.
 
     std::weak_ptr<Renderer::Shader> m_motionVectorShader;                                                           //!< The motion vector shader, calculates the trace positions in the GPU.
-    std::shared_ptr<Renderer::Sampler> m_sampler{std::make_shared<Renderer::Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR)}; //!< The texture sampler.
+    std::shared_ptr<Renderer::Sampler> m_sampler; //!< The texture sampler.
 };
 
 } // namespace MilkdropPreset

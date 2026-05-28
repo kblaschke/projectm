@@ -6,28 +6,27 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
-std::unique_ptr<::libprojectM::Preset> Factory::LoadPresetFromFile(const std::string& filename)
+std::unique_ptr<Preset> Factory::LoadPresetFromFile(const std::string& filename, const Renderer::RenderContext& renderContext)
 {
     std::string path;
-    auto protocol = PresetFactory::Protocol(filename, path);
+    auto protocol = Protocol(filename, path);
     if (protocol == "idle")
     {
-        return IdlePresets::allocate();
+        return IdlePresets::Allocate(renderContext);
     }
-    else if (protocol == "" || protocol == "file")
+
+    if (protocol == "" || protocol == "file")
     {
-        return std::make_unique<MilkdropPreset>(path);
+        return std::make_unique<MilkdropPreset>(path, renderContext);
     }
-    else
-    {
-        // ToDO: Throw unsupported protocol exception instead to provide more information.
-        return nullptr;
-    }
+
+    // ToDO: Throw unsupported protocol exception instead to provide more information.
+    return nullptr;
 }
 
-std::unique_ptr<Preset> Factory::LoadPresetFromStream(std::istream& data)
+std::unique_ptr<Preset> Factory::LoadPresetFromStream(std::istream& data, const Renderer::RenderContext& renderContext)
 {
-    return std::make_unique<MilkdropPreset>(data);
+    return std::make_unique<MilkdropPreset>(data, renderContext);
 }
 
 } // namespace MilkdropPreset

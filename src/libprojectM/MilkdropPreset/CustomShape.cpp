@@ -11,8 +11,8 @@ namespace libprojectM {
 namespace MilkdropPreset {
 
 CustomShape::CustomShape(PresetState& presetState)
-    : m_outlineMesh(Renderer::VertexBufferUsage::StreamDraw)
-    , m_fillMesh(Renderer::VertexBufferUsage::StreamDraw, true, false)
+    : m_outlineMesh(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_fillMesh(Renderer::VertexBufferUsage::StreamDraw, true, false, presetState.renderContext.glContext)
     , m_presetState(presetState)
     , m_perFrameContext(presetState.globalMemory, &presetState.globalRegisters)
 {
@@ -74,6 +74,8 @@ void CustomShape::CompileCodeAndRunInitExpressions()
 
 void CustomShape::Draw()
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     static constexpr float pi = 3.141592653589793f;
 
     if (!m_enabled)
@@ -81,7 +83,7 @@ void CustomShape::Draw()
         return;
     }
 
-    Renderer::BlendMode::SetBlendActive(true);
+    Renderer::BlendMode::SetBlendActive(true, glContext);
 
     for (int instance = 0; instance < m_instances; instance++)
     {
@@ -102,7 +104,8 @@ void CustomShape::Draw()
         Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::SourceAlpha,
                                               static_cast<int>(*m_perFrameContext.additive) != 0
                                                   ? Renderer::BlendMode::Function::One
-                                                  : Renderer::BlendMode::Function::OneMinusSourceAlpha);
+                                                  : Renderer::BlendMode::Function::OneMinusSourceAlpha,
+                                              glContext);
 
         auto& vertexData = m_fillMesh.Vertices();
         auto& colorData = m_fillMesh.Colors();
@@ -160,7 +163,7 @@ void CustomShape::Draw()
             }
             else
             {
-                auto desc = m_presetState.renderContext.textureManager->GetTexture(m_image);
+                auto desc = m_presetState.renderContext.textureManager.GetTexture(m_image);
                 if (!desc.Empty())
                 {
                     desc.Bind(0, *shader);
@@ -174,8 +177,8 @@ void CustomShape::Draw()
                 }
             }
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             auto& uvs = m_fillMesh.UVs();
 
@@ -205,8 +208,8 @@ void CustomShape::Draw()
         m_fillMesh.Update();
         m_fillMesh.Draw();
 
-        glBindTexture(GL_TEXTURE_2D, 0);
-        Renderer::Sampler::Unbind(0);
+        glContext.BindTexture(GL_TEXTURE_2D, 0);
+        Renderer::Sampler::Unbind(0, glContext);
 
         if (*m_perFrameContext.border_a > 0.0001f)
         {
@@ -225,15 +228,16 @@ void CustomShape::Draw()
             shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
             shader->SetUniformFloat("vertex_point_size", 1.0f);
 
-            glVertexAttrib4f(1,
-                             static_cast<float>(*m_perFrameContext.border_r),
-                             static_cast<float>(*m_perFrameContext.border_g),
-                             static_cast<float>(*m_perFrameContext.border_b),
-                             static_cast<float>(*m_perFrameContext.border_a));
-            glLineWidth(1);
-#ifndef USE_GLES
-            glEnable(GL_LINE_SMOOTH);
-#endif
+            glContext.VertexAttrib4f(1,
+                                     static_cast<float>(*m_perFrameContext.border_r),
+                                     static_cast<float>(*m_perFrameContext.border_g),
+                                     static_cast<float>(*m_perFrameContext.border_b),
+                                     static_cast<float>(*m_perFrameContext.border_a));
+            glContext.LineWidth(1);
+            if (!glContext.ES_VERSION_3_0)
+            {
+                glContext.Enable(GL_LINE_SMOOTH);
+            }
 
             const auto iterations = m_thickOutline ? 4 : 1;
 
@@ -278,13 +282,14 @@ void CustomShape::Draw()
         }
     }
 
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
 
-#ifndef USE_GLES
-    glDisable(GL_LINE_SMOOTH);
-#endif
-    Renderer::BlendMode::SetBlendActive(false);
+    if (!glContext.ES_VERSION_3_0)
+    {
+        glContext.Disable(GL_LINE_SMOOTH);
+    }
+    Renderer::BlendMode::SetBlendActive(false, glContext);
 }
 
 } // namespace MilkdropPreset

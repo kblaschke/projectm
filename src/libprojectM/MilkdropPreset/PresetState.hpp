@@ -8,6 +8,8 @@
 #include "Constants.hpp"
 
 #include "BlurTexture.hpp"
+#include "MilkdropBuiltinShaders.hpp"
+#include "MilkdropShader.hpp"
 
 #include <Audio/FrameAudioData.hpp>
 
@@ -35,7 +37,7 @@ using BlendableFloat = float; //!< Currently a placeholder to mark blendable val
 class PresetState
 {
 public:
-    PresetState();
+    PresetState(const Renderer::RenderContext& renderContextInit);
 
     ~PresetState();
 
@@ -136,8 +138,10 @@ public:
     double globalRegisters[100]{};                   //!< Global reg00-reg99 variables.
     std::array<double, QVarCount> frameQVariables{}; //!< Q variables after per-frame code evaluation.
 
-    libprojectM::Audio::FrameAudioData audioData; //!< Holds audio/spectrum data and values for beat detection.
-    Renderer::RenderContext renderContext;        //!< Current renderer state data like viewport size and generic shaders.
+    Audio::FrameAudioData audioData; //!< Holds audio/spectrum data and values for beat detection.
+    const Renderer::RenderContext& renderContext;        //!< Current renderer state data like viewport size and generic shaders.
+
+    MilkdropBuiltinShaders builtinShaders; //!< Internal shaders used to render Milkdrop effects.
 
     std::string perFrameInitCode; //!< Preset init code, run once on load.
     std::string perFrameCode;     //!< Preset per-frame code, run once at the start of each frame.

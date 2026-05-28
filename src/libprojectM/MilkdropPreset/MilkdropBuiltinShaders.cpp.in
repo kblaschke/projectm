@@ -1,0 +1,52 @@
+#include "MilkdropBuiltinShaders.hpp"
+
+#include <Renderer/OpenGL.h>
+
+#include <cstring>
+#include <stdexcept>
+
+namespace libprojectM {
+namespace MilkdropPreset {
+
+@SHADER_CONTENTS@
+
+MilkdropBuiltinShaders::MilkdropBuiltinShaders(const GladGLContext& glContext)
+{
+    if (glContext.ES_VERSION_3_0)
+    {
+        // If GLES is used, use the embedded specification language variant.
+        m_versionHeader = "#version 300 es";
+        m_GLSLGeneratorVersion = M4::GLSLGenerator::Version::Version_300_ES;
+    }
+    else if (glContext.VERSION_3_3)
+    {
+        m_versionHeader = "#version 330";
+        m_GLSLGeneratorVersion = M4::GLSLGenerator::Version::Version_330;
+    }
+    else
+    {
+        throw Renderer::ShaderException("[MilkdropBuiltinShaders] Unsupported OpenGL context, requires at least OpenGL ES 3.0 or Core Profile 3.3.");
+    }
+}
+
+std::string MilkdropBuiltinShaders::AddVersionHeader(const std::string& shader_text) const
+{
+    return m_versionHeader + "\n" + shader_text;
+}
+
+#define IMPLEMENT_SHADER_ACCESSOR(name)                   \
+    std::string MilkdropBuiltinShaders::Get##name() const \
+    {                                                     \
+        return AddVersionHeader(k##name);                 \
+    }
+
+#define IMPLEMENT_SHADER_ACCESSOR_NO_HEADER(name)         \
+    std::string MilkdropBuiltinShaders::Get##name() const \
+    {                                                     \
+        return k##name;                                   \
+    }
+
+@SHADER_ACCESSOR_DEFINITIONS@
+
+} // namespace MilkdropPreset
+} // namespace libprojectM

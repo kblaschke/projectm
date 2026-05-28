@@ -14,6 +14,11 @@ class Filters
 {
 public:
     Filters() = delete;
+
+    /**
+     * Constructor.
+     * @param presetState The preset state to retrieve the effect data from.
+     */
     explicit Filters(const PresetState& presetState);
 
     /**
@@ -48,7 +53,7 @@ private:
 
     Renderer::Mesh m_filterMesh;
 
-    int m_viewportWidth{}; //!< Last known viewport width
+    int m_viewportWidth{};  //!< Last known viewport width
     int m_viewportHeight{}; //!< Last known viewport height
 };
 

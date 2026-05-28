@@ -17,27 +17,28 @@ namespace MilkdropPreset {
 class FinalComposite
 {
 public:
-    FinalComposite();
+    /**
+     * Constructor.
+     * @param presetState The preset state to retrieve the effect data from.
+     **/
+    explicit FinalComposite(PresetState& presetState);
 
     /**
      * @brief Loads the composite shader, if the preset uses one.
-     * @param presetState The preset state to retrieve the shader from.
      */
-    void LoadCompositeShader(const PresetState& presetState);
+    void LoadCompositeShader();
 
     /**
      * @brief Loads the required textures and compiles the composite shader.
      * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileCompositeShader(PresetState& presetState);
+    void CompileCompositeShader();
 
     /**
      * @brief Renders the composite quad with the appropriate effects or shaders.
-     * @param presetState The preset state to retrieve the configuration values from.
      * @param presetPerFrameContext The per-frame context to retrieve the initial vars from.
      */
-    void Draw(const PresetState& presetState,
-              const PerFrameContext& perFrameContext);
+    void Draw(const PerFrameContext& perFrameContext);
 
     /**
      * @brief Returns if the final composite is using a shader or classic filters.
@@ -66,10 +67,8 @@ private:
      * @brief Initializes the vertex array and fills in static data if needed.
      *
      * The vertices will only be reinitialized if the viewport size changed.
-     *
-     * @param presetState The preset state to retrieve the configuration values from.
      */
-    void InitializeMesh(const PresetState& presetState);
+    void InitializeMesh();
 
     static float SquishToCenter(float x, float exponent);
 
@@ -78,17 +77,18 @@ private:
 
     /**
      * @brief Calculates the randomized, slowly changing diffuse colors.
-     * @param presetState The preset state to retrieve the configuration values from.
      */
-    void ApplyHueShaderColors(const PresetState& presetState);
+    void ApplyHueShaderColors();
 
     static constexpr int compositeGridWidth{32};
     static constexpr int compositeGridHeight{24};
     static constexpr int vertexCount{compositeGridWidth * compositeGridHeight};
     static constexpr int indexCount{(compositeGridWidth - 2) * (compositeGridHeight - 2) * 6};
 
+    PresetState& m_presetState; //!< The global preset state.
+
     Renderer::Mesh m_compositeMesh;                                                                 //!< The composite shader mesh.
-    Renderer::VertexBuffer<Renderer::Point> m_radiusAngle{Renderer::VertexBufferUsage::StreamDraw}; //!< Additional vertex attribute array for radius and angle.
+    Renderer::VertexBuffer<Renderer::Point> m_radiusAngle; //!< Additional vertex attribute array for radius and angle.
 
     int m_viewportWidth{};  //!< Last known viewport width.
     int m_viewportHeight{}; //!< Last known viewport height.

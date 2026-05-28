@@ -7,7 +7,7 @@ namespace MilkdropPreset {
 
 DarkenCenter::DarkenCenter(PresetState& presetState)
     : m_presetState(presetState)
-    , m_mesh(Renderer::VertexBufferUsage::StaticDraw, true, false)
+    , m_mesh(Renderer::VertexBufferUsage::StaticDraw, true, false, presetState.renderContext.glContext)
 {
     m_mesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleFan);
     m_mesh.SetVertexCount(6);
@@ -22,6 +22,8 @@ DarkenCenter::DarkenCenter(PresetState& presetState)
 
 void DarkenCenter::Draw()
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     if (m_presetState.renderContext.aspectY != m_aspectY)
     {
         m_aspectY = m_presetState.renderContext.aspectY;
@@ -37,7 +39,7 @@ void DarkenCenter::Draw()
         m_mesh.Update();
     }
 
-    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, glContext);
 
     auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
@@ -46,9 +48,9 @@ void DarkenCenter::Draw()
 
     m_mesh.Draw();
 
-    Renderer::BlendMode::SetBlendActive(false);
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
+    Renderer::BlendMode::SetBlendActive(false, glContext);
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
 }
 
 } // namespace MilkdropPreset

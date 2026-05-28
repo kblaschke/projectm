@@ -1,7 +1,6 @@
 #include "PerPixelMesh.hpp"
 
 #include "MilkdropShader.hpp"
-#include "MilkdropStaticShaders.hpp"
 #include "PerFrameContext.hpp"
 #include "PerPixelContext.hpp"
 #include "PresetState.hpp"
@@ -16,8 +15,15 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
-PerPixelMesh::PerPixelMesh()
-    : m_warpMesh(Renderer::VertexBufferUsage::StreamDraw)
+PerPixelMesh::PerPixelMesh(PresetState& presetState)
+    : m_presetState(presetState)
+    , m_warpMesh(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_radiusAngleBuffer(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_zoomRotWarpBuffer(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_centerBuffer(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_distanceBuffer(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_stretchBuffer(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_perPixelSampler(GL_CLAMP_TO_EDGE, GL_LINEAR, presetState.renderContext.glContext)
 {
     m_warpMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Triangles);
 
@@ -34,45 +40,45 @@ PerPixelMesh::PerPixelMesh()
     m_distanceBuffer.InitializeAttributePointer(6);
     m_stretchBuffer.InitializeAttributePointer(7);
 
-    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(3, true);
-    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(4, true);
-    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(5, true);
-    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(6, true);
-    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(7, true);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(3, true, presetState.renderContext.glContext);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(4, true, presetState.renderContext.glContext);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(5, true, presetState.renderContext.glContext);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(6, true, presetState.renderContext.glContext);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(7, true, presetState.renderContext.glContext);
 
-    Renderer::Mesh::Unbind();
+    m_warpMesh.Unbind();
 }
 
-void PerPixelMesh::LoadWarpShader(const PresetState& presetState)
+void PerPixelMesh::LoadWarpShader()
 {
     // Compile warp shader if preset specifies one.
-    if (presetState.warpShaderVersion > 0)
+    if (m_presetState.warpShaderVersion > 0)
     {
-        if (!presetState.warpShader.empty())
+        if (!m_presetState.warpShader.empty())
         {
             try
             {
-                m_warpShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::WarpShader);
-                m_warpShader->LoadCode(presetState.warpShader);
+                m_warpShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::WarpShader, m_presetState);
+                m_warpShader->LoadCode(m_presetState.warpShader);
                 LOG_DEBUG("[PerPixelMesh] Successfully loaded preset warp shader code.");
             }
             catch (Renderer::ShaderException& ex)
             {
                 LOG_ERROR("[PerPixelMesh] Error loading warp shader code:" + ex.message());
-                LOG_DEBUG("[PerPixelMesh] Warp shader code:\n" + presetState.warpShader);
+                LOG_DEBUG("[PerPixelMesh] Warp shader code:\n" + m_presetState.warpShader);
                 m_warpShader.reset();
             }
         }
     }
 }
 
-void PerPixelMesh::CompileWarpShader(PresetState& presetState)
+void PerPixelMesh::CompileWarpShader()
 {
     if (m_warpShader)
     {
         try
         {
-            m_warpShader->LoadTexturesAndCompile(presetState);
+            m_warpShader->LoadTexturesAndCompile();
             LOG_DEBUG("[PerPixelMesh] Successfully compiled warp shader code.");
         }
         catch (Renderer::ShaderException&)
@@ -96,22 +102,22 @@ void PerPixelMesh::Draw(const PresetState& presetState,
     }
 
     // Initialize or recreate the mesh (if grid size changed)
-    InitializeMesh(presetState);
+    InitializeMesh();
 
     // Calculate the dynamic movement values
-    CalculateMesh(presetState, perFrameContext, perPixelContext);
+    CalculateMesh(perFrameContext, perPixelContext);
 
     // Render the resulting mesh.
-    WarpedBlit(presetState, perFrameContext);
+    WarpedBlit(perFrameContext);
 }
 
-void PerPixelMesh::InitializeMesh(const PresetState& presetState)
+void PerPixelMesh::InitializeMesh()
 {
-    if (m_gridSizeX != presetState.renderContext.perPixelMeshX ||
-        m_gridSizeY != presetState.renderContext.perPixelMeshY)
+    if (m_gridSizeX != m_presetState.renderContext.perPixelMeshX ||
+        m_gridSizeY != m_presetState.renderContext.perPixelMeshY)
     {
-        m_gridSizeX = presetState.renderContext.perPixelMeshX;
-        m_gridSizeY = presetState.renderContext.perPixelMeshY;
+        m_gridSizeX = m_presetState.renderContext.perPixelMeshX;
+        m_gridSizeY = m_presetState.renderContext.perPixelMeshY;
 
         // Grid size has changed, resize buffers accordingly
         const size_t vertexCount = (m_gridSizeX + 1) * (m_gridSizeY + 1);
@@ -125,15 +131,15 @@ void PerPixelMesh::InitializeMesh(const PresetState& presetState)
 
         m_warpMesh.Indices().Resize(m_gridSizeX * m_gridSizeY * 6);
     }
-    else if (m_viewportWidth == presetState.renderContext.viewportSizeX &&
-             m_viewportHeight == presetState.renderContext.viewportSizeY)
+    else if (m_viewportWidth == m_presetState.renderContext.viewportSizeX &&
+             m_viewportHeight == m_presetState.renderContext.viewportSizeY)
     {
         // Nothing changed, just go on to the dynamic calculation.
         return;
     }
 
-    const float aspectX = presetState.renderContext.aspectX;
-    const float aspectY = presetState.renderContext.aspectY;
+    const float aspectX = m_presetState.renderContext.aspectX;
+    const float aspectY = m_presetState.renderContext.aspectY;
 
     // Either viewport size or mesh size changed, reinitialize the vertices.
     auto& vertices = m_warpMesh.Vertices();
@@ -197,7 +203,7 @@ void PerPixelMesh::InitializeMesh(const PresetState& presetState)
     }
 }
 
-void PerPixelMesh::CalculateMesh(const PresetState& presetState, const PerFrameContext& perFrameContext, PerPixelContext& perPixelContext)
+void PerPixelMesh::CalculateMesh(const PerFrameContext& perFrameContext, PerPixelContext& perPixelContext)
 {
     // Cache some per-frame values as floats
     float zoom = static_cast<float>(*perFrameContext.zoom);
@@ -229,8 +235,8 @@ void PerPixelMesh::CalculateMesh(const PresetState& presetState, const PerFrameC
             // Execute per-vertex/per-pixel code if the preset uses it.
             if (perPixelContext.perPixelCodeHandle)
             {
-                *perPixelContext.x = static_cast<double>(curVertex.X() * 0.5f * presetState.renderContext.aspectX + 0.5f);
-                *perPixelContext.y = static_cast<double>(curVertex.Y() * 0.5f * presetState.renderContext.aspectY + 0.5f);
+                *perPixelContext.x = static_cast<double>(curVertex.X() * 0.5f * m_presetState.renderContext.aspectX + 0.5f);
+                *perPixelContext.y = static_cast<double>(curVertex.Y() * 0.5f * m_presetState.renderContext.aspectY + 0.5f);
                 *perPixelContext.rad = static_cast<double>(curRadiusAngle.radius);
                 *perPixelContext.ang = static_cast<double>(-curRadiusAngle.angle);
                 *perPixelContext.zoom = static_cast<double>(*perFrameContext.zoom);
@@ -263,7 +269,7 @@ void PerPixelMesh::CalculateMesh(const PresetState& presetState, const PerFrameC
                 curZoomRotWarp.zoomExp = zoomExp;
                 curZoomRotWarp.rot = rot;
                 curZoomRotWarp.warp = warp;
-                curCenter = { cx, cy};
+                curCenter = {cx, cy};
                 curDistance = {dx, dy};
                 curStretch = {sx, sy};
             }
@@ -280,12 +286,13 @@ void PerPixelMesh::CalculateMesh(const PresetState& presetState, const PerFrameC
     m_stretchBuffer.Update();
 }
 
-void PerPixelMesh::WarpedBlit(const PresetState& presetState,
-                              const PerFrameContext& perFrameContext)
+void PerPixelMesh::WarpedBlit(const PerFrameContext& perFrameContext)
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     // Warp stuff
-    float const warpTime = presetState.renderContext.time * presetState.warpAnimSpeed;
-    float const warpScaleInverse = 1.0f / presetState.warpScale;
+    float const warpTime = m_presetState.renderContext.time * m_presetState.warpAnimSpeed;
+    float const warpScaleInverse = 1.0f / m_presetState.warpScale;
     glm::vec4 const warpFactors{
         11.68f + 4.0f * cosf(warpTime * 1.413f + 10),
         8.77f + 3.0f * cosf(warpTime * 1.113f + 7),
@@ -294,25 +301,25 @@ void PerPixelMesh::WarpedBlit(const PresetState& presetState,
     };
 
     // Texel alignment
-    glm::vec2 const texelOffsets{presetState.renderContext.texelOffsetX / static_cast<float>(presetState.renderContext.viewportSizeX),
-                                 presetState.renderContext.texelOffsetY / static_cast<float>(presetState.renderContext.viewportSizeY)};
+    glm::vec2 const texelOffsets{m_presetState.renderContext.texelOffsetX / static_cast<float>(m_presetState.renderContext.viewportSizeX),
+                                 m_presetState.renderContext.texelOffsetY / static_cast<float>(m_presetState.renderContext.viewportSizeY)};
 
     // Decay
     float decay = std::min(static_cast<float>(*perFrameContext.decay), 1.0f);
 
     // No blending between presets here, so we make sure blending is disabled.
-    Renderer::BlendMode::SetBlendActive(false);
+    Renderer::BlendMode::SetBlendActive(false, glContext);
 
     if (!m_warpShader)
     {
-        auto perPixelMeshShader = GetDefaultWarpShader(presetState);
+        auto perPixelMeshShader = GetDefaultWarpShader();
         perPixelMeshShader->Bind();
         perPixelMeshShader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
         perPixelMeshShader->SetUniformInt("texture_sampler", 0);
-        perPixelMeshShader->SetUniformFloat4("aspect", {presetState.renderContext.aspectX,
-                                                        presetState.renderContext.aspectY,
-                                                        presetState.renderContext.invAspectX,
-                                                        presetState.renderContext.invAspectY});
+        perPixelMeshShader->SetUniformFloat4("aspect", {m_presetState.renderContext.aspectX,
+                                                        m_presetState.renderContext.aspectY,
+                                                        m_presetState.renderContext.invAspectX,
+                                                        m_presetState.renderContext.invAspectY});
         perPixelMeshShader->SetUniformFloat("warpTime", warpTime);
         perPixelMeshShader->SetUniformFloat("warpScaleInverse", warpScaleInverse);
         perPixelMeshShader->SetUniformFloat4("warpFactors", warpFactors);
@@ -321,12 +328,12 @@ void PerPixelMesh::WarpedBlit(const PresetState& presetState,
     }
     else
     {
-        m_warpShader->LoadVariables(presetState, perFrameContext);
+        m_warpShader->LoadVariables(perFrameContext);
         auto& shader = m_warpShader->Shader();
-        shader.SetUniformFloat4("aspect", {presetState.renderContext.aspectX,
-                                           presetState.renderContext.aspectY,
-                                           presetState.renderContext.invAspectX,
-                                           presetState.renderContext.invAspectY});
+        shader.SetUniformFloat4("aspect", {m_presetState.renderContext.aspectX,
+                                           m_presetState.renderContext.aspectY,
+                                           m_presetState.renderContext.invAspectX,
+                                           m_presetState.renderContext.invAspectY});
         shader.SetUniformFloat("warpTime", warpTime);
         shader.SetUniformFloat("warpScaleInverse", warpScaleInverse);
         shader.SetUniformFloat4("warpFactors", warpFactors);
@@ -334,8 +341,8 @@ void PerPixelMesh::WarpedBlit(const PresetState& presetState,
         shader.SetUniformFloat("decay", decay);
     }
 
-    assert(!presetState.mainTexture.expired());
-    presetState.mainTexture.lock()->Bind(0);
+    assert(!m_presetState.mainTexture.expired());
+    m_presetState.mainTexture.lock()->Bind(0);
 
     // Set wrap mode and bind the sampler to get interpolation right.
     if (*perFrameContext.wrap > 0.0001f)
@@ -350,12 +357,12 @@ void PerPixelMesh::WarpedBlit(const PresetState& presetState,
 
     m_warpMesh.Draw();
 
-    Renderer::Mesh::Unbind();
-    Renderer::Sampler::Unbind(0);
-    Renderer::Shader::Unbind();
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Sampler::Unbind(0, glContext);
+    Renderer::Shader::Unbind(glContext);
 }
 
-auto PerPixelMesh::GetDefaultWarpShader(const PresetState& presetState) -> std::shared_ptr<Renderer::Shader>
+auto PerPixelMesh::GetDefaultWarpShader() -> std::shared_ptr<Renderer::Shader>
 {
     auto perPixelMeshShader = m_perPixelMeshShader.lock();
     if (perPixelMeshShader)
@@ -363,19 +370,19 @@ auto PerPixelMesh::GetDefaultWarpShader(const PresetState& presetState) -> std::
         return perPixelMeshShader;
     }
 
-    perPixelMeshShader = presetState.renderContext.shaderCache->Get("milkdrop_default_warp_shader");
+    perPixelMeshShader = m_presetState.renderContext.shaderCache.Get("milkdrop_default_warp_shader");
     if (perPixelMeshShader)
     {
         return perPixelMeshShader;
     }
 
-    auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
+    const auto& staticShaders = m_presetState.builtinShaders;
 
-    perPixelMeshShader = std::make_shared<Renderer::Shader>();
-    perPixelMeshShader->CompileProgram(staticShaders->GetPresetWarpVertexShader(),
-                                       staticShaders->GetPresetWarpFragmentShader());
+    perPixelMeshShader = std::make_shared<Renderer::Shader>(m_presetState.renderContext.glContext);
+    perPixelMeshShader->CompileProgram(staticShaders.GetPresetWarpVertexShader(),
+                                       staticShaders.GetPresetWarpFragmentShader());
 
-    presetState.renderContext.shaderCache->Insert("milkdrop_default_warp_shader", perPixelMeshShader);
+    m_presetState.renderContext.shaderCache.Insert("milkdrop_default_warp_shader", perPixelMeshShader);
     m_perPixelMeshShader = perPixelMeshShader;
 
     return perPixelMeshShader;

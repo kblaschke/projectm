@@ -9,8 +9,9 @@ namespace libprojectM {
 namespace MilkdropPreset {
 
 // Original preset name: "Geiss & Sperl - Feedback (projectM idle HDR mix).milk"
-std::string IdlePresets::presetText()
-{    return R"([preset00]
+std::string IdlePresets::PresetText()
+{
+    return R"([preset00]
 fRating=2.000000
 fGammaAdj=1.700000
 fDecay=0.940000
@@ -193,10 +194,10 @@ per_pixel_1=zoom = log(sqrt(sin(time * .5) * 0.5 + 2.5) - .5 * rad) + 0.4;
 }
 
 std::unique_ptr<Preset>
-IdlePresets::allocate()
+IdlePresets::Allocate(const Renderer::RenderContext& renderContext)
 {
-    std::istringstream in(presetText());
-    return std::unique_ptr<Preset>(new MilkdropPreset(in));
+    std::istringstream in(PresetText());
+    return std::unique_ptr<Preset>(new MilkdropPreset(in, renderContext));
 }
 
 } // namespace MilkdropPreset

@@ -9,7 +9,7 @@ namespace MilkdropPreset {
 
 Filters::Filters(const PresetState& presetState)
     : m_presetState(presetState)
-    , m_filterMesh(Renderer::VertexBufferUsage::StaticDraw)
+    , m_filterMesh(Renderer::VertexBufferUsage::StaticDraw, presetState.renderContext.glContext)
 {
     m_filterMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleStrip);
     m_filterMesh.SetVertexCount(4);
@@ -17,6 +17,8 @@ Filters::Filters(const PresetState& presetState)
 
 void Filters::Draw()
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     UpdateMesh();
 
     if (m_viewportWidth == 0 || m_viewportHeight == 0)
@@ -24,14 +26,14 @@ void Filters::Draw()
         return;
     }
 
-    BlendMode::SetBlendActive(true);
+    BlendMode::SetBlendActive(true, glContext);
 
     auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
     shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
     shader->SetUniformFloat("vertex_point_size", 1.0f);
 
-    glVertexAttrib4f(1, 1.0, 1.0, 1.0, 1.0);
+    glContext.VertexAttrib4f(1, 1.0, 1.0, 1.0, 1.0);
 
     if (m_presetState.brighten)
     {
@@ -50,40 +52,48 @@ void Filters::Draw()
         Invert();
     }
 
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
 
-    BlendMode::SetBlendActive(false);
+    BlendMode::SetBlendActive(false, glContext);
 }
 
 
 void Filters::Brighten()
 {
-    BlendMode::SetBlendFunction(BlendMode::Function::OneMinusDestinationColor, BlendMode::Function::Zero);
+    const auto& glContext = m_presetState.renderContext.glContext;
+
+    BlendMode::SetBlendFunction(BlendMode::Function::OneMinusDestinationColor, BlendMode::Function::Zero, glContext);
     m_filterMesh.Draw();
-    BlendMode::SetBlendFunction(BlendMode::Function::Zero, BlendMode::Function::DestinationColor);
+    BlendMode::SetBlendFunction(BlendMode::Function::Zero, BlendMode::Function::DestinationColor, glContext);
     m_filterMesh.Draw();
-    BlendMode::SetBlendFunction(BlendMode::Function::OneMinusDestinationColor, BlendMode::Function::Zero);
+    BlendMode::SetBlendFunction(BlendMode::Function::OneMinusDestinationColor, BlendMode::Function::Zero, glContext);
     m_filterMesh.Draw();
 }
 
 void Filters::Darken()
 {
-    BlendMode::SetBlendFunction(BlendMode::Function::Zero, BlendMode::Function::DestinationColor);
+    const auto& glContext = m_presetState.renderContext.glContext;
+
+    BlendMode::SetBlendFunction(BlendMode::Function::Zero, BlendMode::Function::DestinationColor, glContext);
     m_filterMesh.Draw();
 }
 
 void Filters::Solarize()
 {
-    BlendMode::SetBlendFunction(BlendMode::Function::Zero, BlendMode::Function::OneMinusDestinationColor);
+    const auto& glContext = m_presetState.renderContext.glContext;
+
+    BlendMode::SetBlendFunction(BlendMode::Function::Zero, BlendMode::Function::OneMinusDestinationColor, glContext);
     m_filterMesh.Draw();
-    BlendMode::SetBlendFunction(BlendMode::Function::DestinationColor, BlendMode::Function::One);
+    BlendMode::SetBlendFunction(BlendMode::Function::DestinationColor, BlendMode::Function::One, glContext);
     m_filterMesh.Draw();
 }
 
 void Filters::Invert()
 {
-    BlendMode::SetBlendFunction(BlendMode::Function::OneMinusDestinationColor, BlendMode::Function::Zero);
+    const auto& glContext = m_presetState.renderContext.glContext;
+
+    BlendMode::SetBlendFunction(BlendMode::Function::OneMinusDestinationColor, BlendMode::Function::Zero, glContext);
     m_filterMesh.Draw();
 }
 

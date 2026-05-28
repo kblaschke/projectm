@@ -12,8 +12,10 @@ namespace MilkdropPreset {
 
 static std::string const defaultCompositeShader = "shader_body\n{\nret = tex2D(sampler_main, uv).xyz;\n}";
 
-FinalComposite::FinalComposite()
-    : m_compositeMesh(Renderer::VertexBufferUsage::StreamDraw, true, true)
+FinalComposite::FinalComposite(PresetState& presetState)
+    : m_presetState(presetState)
+    , m_compositeMesh(Renderer::VertexBufferUsage::StreamDraw, true, true, presetState.renderContext.glContext)
+    , m_radiusAngle(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
 {
     m_compositeMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Triangles);
 
@@ -22,26 +24,26 @@ FinalComposite::FinalComposite()
     m_radiusAngle.Bind();
     m_radiusAngle.Resize(vertexCount);
     m_radiusAngle.InitializeAttributePointer(3);
-    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(3, true);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(3, true, m_presetState.renderContext.glContext);
 
     // Pre-allocate vertex and index buffers
     m_compositeMesh.SetVertexCount(vertexCount);
     m_compositeMesh.Indices().Resize(indexCount);
     m_compositeMesh.Update();
 
-    Renderer::Mesh::Unbind();
+    m_compositeMesh.Unbind();
 }
 
-void FinalComposite::LoadCompositeShader(const PresetState& presetState)
+void FinalComposite::LoadCompositeShader()
 {
-    if (presetState.compositeShaderVersion > 0)
+    if (m_presetState.compositeShaderVersion > 0)
     {
-        m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader);
-        if (!presetState.compositeShader.empty())
+        m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader, m_presetState);
+        if (!m_presetState.compositeShader.empty())
         {
             try
             {
-                m_compositeShader->LoadCode(presetState.compositeShader);
+                m_compositeShader->LoadCode(m_presetState.compositeShader);
                 LOG_DEBUG("[FinalComposite] Successfully loaded composite shader code.");
             }
             catch (Renderer::ShaderException& ex)
@@ -49,7 +51,7 @@ void FinalComposite::LoadCompositeShader(const PresetState& presetState)
                 LOG_WARN("[FinalComposite] Error loading composite warp shader code: " + ex.message() + " - Using fallback shader.");
 
                 // Fall back to default shader
-                m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader);
+                m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader, m_presetState);
                 m_compositeShader->LoadCode(defaultCompositeShader);
             }
         }
@@ -62,24 +64,24 @@ void FinalComposite::LoadCompositeShader(const PresetState& presetState)
     else
     {
         // Video echo OR gamma adjustment with random hue.
-        m_videoEcho = std::make_unique<VideoEcho>(presetState);
-        if (presetState.brighten ||
-            presetState.darken ||
-            presetState.solarize ||
-            presetState.invert)
+        m_videoEcho = std::make_unique<VideoEcho>(m_presetState);
+        if (m_presetState.brighten ||
+            m_presetState.darken ||
+            m_presetState.solarize ||
+            m_presetState.invert)
         {
-            m_filters = std::make_unique<Filters>(presetState);
+            m_filters = std::make_unique<Filters>(m_presetState);
         }
     }
 }
 
-void FinalComposite::CompileCompositeShader(PresetState& presetState)
+void FinalComposite::CompileCompositeShader()
 {
     if (m_compositeShader)
     {
         try
         {
-            m_compositeShader->LoadTexturesAndCompile(presetState);
+            m_compositeShader->LoadTexturesAndCompile();
             LOG_DEBUG("[FinalComposite] Successfully compiled composite shader code.");
         }
         catch (Renderer::ShaderException& ex)
@@ -87,26 +89,26 @@ void FinalComposite::CompileCompositeShader(PresetState& presetState)
             LOG_WARN("[FinalComposite] Error compiling composite warp shader code - Using fallback shader.");
 
             // Fall back to default shader
-            m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader);
+            m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader, m_presetState);
             m_compositeShader->LoadCode(defaultCompositeShader);
-            m_compositeShader->LoadTexturesAndCompile(presetState);
+            m_compositeShader->LoadTexturesAndCompile();
         }
     }
 }
 
-void FinalComposite::Draw(const PresetState& presetState, const PerFrameContext& perFrameContext)
+void FinalComposite::Draw(const PerFrameContext& perFrameContext)
 {
     if (m_compositeShader)
     {
-        InitializeMesh(presetState);
-        ApplyHueShaderColors(presetState);
+        InitializeMesh();
+        ApplyHueShaderColors();
 
         // Render the grid
-        Renderer::BlendMode::SetBlendActive(false);
-        m_compositeShader->LoadVariables(presetState, perFrameContext);
+        Renderer::BlendMode::SetBlendActive(false, m_presetState.renderContext.glContext);
+        m_compositeShader->LoadVariables(perFrameContext);
 
         m_compositeMesh.Draw();
-        Renderer::Mesh::Unbind();
+        m_compositeMesh.Unbind();
     }
     else
     {
@@ -118,7 +120,7 @@ void FinalComposite::Draw(const PresetState& presetState, const PerFrameContext&
         }
     }
 
-    Renderer::Shader::Unbind();
+    Renderer::Shader::Unbind(m_presetState.renderContext.glContext);
 }
 
 auto FinalComposite::HasCompositeShader() const -> bool
@@ -126,16 +128,16 @@ auto FinalComposite::HasCompositeShader() const -> bool
     return m_compositeShader != nullptr;
 }
 
-void FinalComposite::InitializeMesh(const PresetState& presetState)
+void FinalComposite::InitializeMesh()
 {
-    if (m_viewportWidth == presetState.renderContext.viewportSizeX &&
-        m_viewportHeight == presetState.renderContext.viewportSizeY)
+    if (m_viewportWidth == m_presetState.renderContext.viewportSizeX &&
+        m_viewportHeight == m_presetState.renderContext.viewportSizeY)
     {
         return;
     }
 
-    float const halfTexelWidth = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeX);
-    float const halfTexelHeight = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeY);
+    float const halfTexelWidth = 0.5f / static_cast<float>(m_presetState.renderContext.viewportSizeX);
+    float const halfTexelHeight = 0.5f / static_cast<float>(m_presetState.renderContext.viewportSizeY);
 
     float const dividedByX = 1.0f / static_cast<float>(compositeGridWidth - 2);
     float const dividedByY = 1.0f / static_cast<float>(compositeGridHeight - 2);
@@ -163,8 +165,8 @@ void FinalComposite::InitializeMesh(const PresetState& presetState)
 
             float rad{};
             float ang{};
-            UvToMathSpace(presetState.renderContext.aspectX,
-                          presetState.renderContext.aspectY,
+            UvToMathSpace(m_presetState.renderContext.aspectX,
+                          m_presetState.renderContext.aspectY,
                           u, v, rad, ang);
 
             // fix-ups:
@@ -317,7 +319,7 @@ void FinalComposite::UvToMathSpace(float aspectX, float aspectY,
     }
 }
 
-void FinalComposite::ApplyHueShaderColors(const PresetState& presetState)
+void FinalComposite::ApplyHueShaderColors()
 {
     std::array<std::array<float, 3>, 4> shade = {{{1.0f, 1.0f, 1.0f},
                                                   {1.0f, 1.0f, 1.0f},
@@ -327,9 +329,9 @@ void FinalComposite::ApplyHueShaderColors(const PresetState& presetState)
     for (int i = 0; i < 4; i++)
     {
         auto const indexFloat = static_cast<float>(i);
-        shade[i][0] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0143f + 3 + indexFloat * 21 + presetState.hueRandomOffsets[3]);
-        shade[i][1] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0107f + 1 + indexFloat * 13 + presetState.hueRandomOffsets[1]);
-        shade[i][2] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0129f + 6 + indexFloat * 9 + presetState.hueRandomOffsets[2]);
+        shade[i][0] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0143f + 3 + indexFloat * 21 + m_presetState.hueRandomOffsets[3]);
+        shade[i][1] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0107f + 1 + indexFloat * 13 + m_presetState.hueRandomOffsets[1]);
+        shade[i][2] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0129f + 6 + indexFloat * 9 + m_presetState.hueRandomOffsets[2]);
 
         float const max = std::max(shade[i][0], std::max(shade[i][1], shade[i][2]));
 

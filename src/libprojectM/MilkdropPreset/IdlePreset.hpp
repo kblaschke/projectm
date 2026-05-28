@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/RenderContext.hpp>
+
 #include <memory>
 #include <string>
 
@@ -22,12 +24,13 @@ public:
 
     /**
      * @brief Allocate a new idle preset instance.
+     * @param renderContext The projectM preset render context.
      * @return A newly allocated auto pointer of an idle preset instance
      */
-    static std::unique_ptr<::libprojectM::Preset> allocate();
+    static std::unique_ptr<Preset> Allocate(const Renderer::RenderContext& renderContext);
 
 private:
-    static std::string presetText();
+    static std::string PresetText();
 };
 
 } // namespace MilkdropPreset

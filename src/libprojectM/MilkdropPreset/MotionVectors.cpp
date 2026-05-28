@@ -1,10 +1,7 @@
 #include "MotionVectors.hpp"
 
-#include "MilkdropStaticShaders.hpp"
-
 #include <Renderer/BlendMode.hpp>
 #include <Renderer/ShaderCache.hpp>
-#include <Renderer/TextureManager.hpp>
 
 #include <algorithm>
 
@@ -13,13 +10,16 @@ namespace MilkdropPreset {
 
 MotionVectors::MotionVectors(PresetState& presetState)
     : m_presetState(presetState)
-    , m_motionVectorMesh(Renderer::VertexBufferUsage::StreamDraw)
+    , m_motionVectorMesh(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
+    , m_sampler(std::make_shared<Renderer::Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR, presetState.renderContext.glContext))
 {
     m_motionVectorMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Lines);
 }
 
 void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shared_ptr<Renderer::Texture> motionTexture)
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     // Don't draw if invisible.
     if (*presetPerFrameContext.mv_a < 0.0001f)
     {
@@ -63,7 +63,7 @@ void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
 
     m_motionVectorMesh.SetVertexCount(static_cast<std::size_t>(countX + 1) * 2); // countX + 1 lines for each grid row, 2 vertices each.
 
-    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, glContext);
 
     auto shader = GetShader();
     shader->Bind();
@@ -75,16 +75,17 @@ void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
 
     motionTexture->Bind(0, m_sampler);
 
-    glVertexAttrib4f(1,
-                     static_cast<float>(*presetPerFrameContext.mv_r),
-                     static_cast<float>(*presetPerFrameContext.mv_g),
-                     static_cast<float>(*presetPerFrameContext.mv_b),
-                     static_cast<float>(*presetPerFrameContext.mv_a));
+    glContext.VertexAttrib4f(1,
+                             static_cast<float>(*presetPerFrameContext.mv_r),
+                             static_cast<float>(*presetPerFrameContext.mv_g),
+                             static_cast<float>(*presetPerFrameContext.mv_b),
+                             static_cast<float>(*presetPerFrameContext.mv_a));
 
-    glLineWidth(1);
-#ifndef USE_GLES
-    glEnable(GL_LINE_SMOOTH);
-#endif
+    glContext.LineWidth(1);
+    if (!glContext.ES_VERSION_3_0)
+    {
+        glContext.Enable(GL_LINE_SMOOTH);
+    }
 
     auto& lineVertices = m_motionVectorMesh.Vertices();
 
@@ -113,14 +114,15 @@ void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
         }
     }
 
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
 
-#ifndef USE_GLES
-    glDisable(GL_LINE_SMOOTH);
-#endif
+    if (!glContext.ES_VERSION_3_0)
+    {
+        glContext.Disable(GL_LINE_SMOOTH);
+    }
 
-    Renderer::BlendMode::SetBlendActive(false);
+    Renderer::BlendMode::SetBlendActive(false, glContext);
 }
 
 std::shared_ptr<Renderer::Shader> MotionVectors::GetShader()
@@ -128,18 +130,18 @@ std::shared_ptr<Renderer::Shader> MotionVectors::GetShader()
     auto shader = m_motionVectorShader.lock();
     if (!shader)
     {
-        shader = m_presetState.renderContext.shaderCache->Get("milkdrop_motion_vectors");
+        shader = m_presetState.renderContext.shaderCache.Get("milkdrop_motion_vectors");
     }
     if (!shader)
     {
         // First use, compile and cache.
-        auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
+        const auto& staticShaders = m_presetState.builtinShaders;
 
-        shader = std::make_shared<Renderer::Shader>();
-        shader->CompileProgram(staticShaders->GetPresetMotionVectorsVertexShader(),
-                               staticShaders->GetUntexturedDrawFragmentShader());
+        shader = std::make_shared<Renderer::Shader>(m_presetState.renderContext.glContext);
+        shader->CompileProgram(staticShaders.GetPresetMotionVectorsVertexShader(),
+                               staticShaders.GetUntexturedDrawFragmentShader());
 
-        m_presetState.renderContext.shaderCache->Insert("milkdrop_motion_vectors", shader);
+        m_presetState.renderContext.shaderCache.Insert("milkdrop_motion_vectors", shader);
     }
 
     m_motionVectorShader = shader;

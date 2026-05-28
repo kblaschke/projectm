@@ -16,6 +16,7 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
+class MilkdropBuiltinShaders;
 class PerFrameContext;
 class PresetState;
 
@@ -43,8 +44,9 @@ public:
 
     /**
      * Constructor.
+     * @param renderContext The projectM preset rendering context.
      */
-    BlurTexture();
+    BlurTexture(const Renderer::RenderContext& renderContext);
 
     /**
      * Destructor.
@@ -53,9 +55,8 @@ public:
 
     /**
      * @brief Initializes the blur texture.
-     * @param renderContext
      */
-    void Initialize(const Renderer::RenderContext& renderContext);
+    void Initialize(const MilkdropBuiltinShaders& milkdropShaders);
 
     /**
      * @brief Sets the minimum required blur level.
@@ -85,7 +86,7 @@ public:
      *                     free unit, which can be the same as the input slot if no blur textures
      *                     are used.
      */
-    void Bind(GLint& unit, Renderer::Shader& shader) const;
+    void Bind(GLint& unit, const Renderer::Shader& shader) const;
 
     /**
      * @brief Returns properly scaled and clamped vlur values from the given context.
@@ -105,6 +106,8 @@ private:
      * @param sourceTexture The source texture.
      */
     void AllocateTextures(const Renderer::Texture& sourceTexture);
+
+    const Renderer::RenderContext& m_renderContext; //!< The projectM preset rendering context.
 
     Renderer::Mesh m_blurMesh; //!< The blur mesh (a simple quad).
 

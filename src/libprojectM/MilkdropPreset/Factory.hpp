@@ -23,9 +23,9 @@ class Factory : public PresetFactory
 {
 
 public:
-    std::unique_ptr<Preset> LoadPresetFromFile(const std::string& filename) override;
+    std::unique_ptr<Preset> LoadPresetFromFile(const std::string& filename, const Renderer::RenderContext& renderContext) override;
 
-    std::unique_ptr<Preset> LoadPresetFromStream(std::istream& data) override;
+    std::unique_ptr<Preset> LoadPresetFromStream(std::istream& data, const Renderer::RenderContext& renderContext) override;
 
     std::string supportedExtensions() const override
     {

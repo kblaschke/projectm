@@ -9,7 +9,7 @@ namespace MilkdropPreset {
 
 Border::Border(PresetState& presetState)
     : m_presetState(presetState)
-    , m_borderMesh(Renderer::VertexBufferUsage::StreamDraw)
+    , m_borderMesh(Renderer::VertexBufferUsage::StreamDraw, presetState.renderContext.glContext)
 {
     m_borderMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Triangles);
     m_borderMesh.SetVertexCount(8);
@@ -29,12 +29,14 @@ Border::Border(PresetState& presetState)
 
 void Border::Draw(const PerFrameContext& presetPerFrameContext)
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     // Draw Borders
     float const outerBorderSize = static_cast<float>(*presetPerFrameContext.ob_size);
     float const innerBorderSize = static_cast<float>(*presetPerFrameContext.ib_size);
 
     // No additive drawing for borders
-    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+    Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, glContext);
 
     auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
@@ -52,7 +54,7 @@ void Border::Draw(const PerFrameContext& presetPerFrameContext)
 
         if (a > 0.001f)
         {
-            glVertexAttrib4f(1, r, g, b, a);
+            glContext.VertexAttrib4f(1, r, g, b, a);
 
             float innerRadius = (border == 0) ? 1.0f - outerBorderSize : 1.0f - outerBorderSize - innerBorderSize;
             float outerRadius = (border == 0) ? 1.0f : 1.0f - outerBorderSize;
@@ -71,9 +73,9 @@ void Border::Draw(const PerFrameContext& presetPerFrameContext)
         }
     }
 
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
-    Renderer::BlendMode::SetBlendActive(false);
+    Renderer::Mesh::Unbind(glContext);
+    Renderer::Shader::Unbind(glContext);
+    Renderer::BlendMode::SetBlendActive(false, glContext);
 }
 
 } // namespace MilkdropPreset

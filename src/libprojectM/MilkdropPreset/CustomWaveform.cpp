@@ -17,7 +17,7 @@ CustomWaveform::CustomWaveform(PresetState& presetState)
     : m_presetState(presetState)
     , m_perFrameContext(presetState.globalMemory, &presetState.globalRegisters)
     , m_perPointContext(presetState.globalMemory, &presetState.globalRegisters)
-    , m_mesh(Renderer::VertexBufferUsage::StreamDraw, true, false)
+    , m_mesh(Renderer::VertexBufferUsage::StreamDraw, true, false, presetState.renderContext.glContext)
 {
     m_perFrameContext.RegisterBuiltinVariables();
     m_perPointContext.RegisterBuiltinVariables();
@@ -66,6 +66,8 @@ void CustomWaveform::CompileCodeAndRunInitExpressions(const PerFrameContext& pre
 
 void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
 {
+    const auto& glContext = m_presetState.renderContext.glContext;
+
     static_assert(Audio::WaveformSamples <= WaveformMaxPoints, "WaveformMaxPoints is larger than WaveformSamples");
     static_assert(Audio::SpectrumSamples <= WaveformMaxPoints, "WaveformMaxPoints is larger than SpectrumSamples");
 
@@ -159,19 +161,20 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
 
     SmoothWave(points, colors);
 
-#ifndef USE_GLES
-    glDisable(GL_LINE_SMOOTH);
-#endif
-    glLineWidth(1);
+    if (!glContext.ES_VERSION_3_0)
+    {
+        glContext.Disable(GL_LINE_SMOOTH);
+    }
+    glContext.LineWidth(1);
 
     // Additive wave drawing (vice overwrite)
     if (m_additive)
     {
-        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::One);
+        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::One, glContext);
     }
     else
     {
-        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+        Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, glContext);
     }
 
     auto shader = m_presetState.untexturedShader.lock();
@@ -226,8 +229,8 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     }
 
     m_mesh.Unbind();
-    Renderer::Shader::Unbind();
-    Renderer::BlendMode::SetBlendActive(false);
+    Renderer::Shader::Unbind(glContext);
+    Renderer::BlendMode::SetBlendActive(false, glContext);
 }
 
 void CustomWaveform::LoadPerFrameEvaluationVariables(const PerFrameContext& presetPerFrameContext)

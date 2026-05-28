@@ -37,8 +37,9 @@ public:
     /**
      * constructor.
      * @param type The preset shader type.
+     * @param presetState The global preset state.
      */
-    explicit MilkdropShader(ShaderType type);
+    explicit MilkdropShader(ShaderType type, PresetState& presetState);
 
     /**
      * @brief Translates and compiles the shader code.
@@ -49,17 +50,15 @@ public:
     /**
      * @brief Loads the required texture references into the shader.
      * Binds the underlying shader program.
-     * @param presetState The preset state to pull the values and textures from.
      */
-    void LoadTexturesAndCompile(PresetState& presetState);
+    void LoadTexturesAndCompile();
 
     /**
      * @brief Loads all required shader variables into the uniforms.
      * Binds the underlying shader program.
-     * @param presetState The preset state to pull the values from.
      * @param perFrameContext The per-frame context with dynamically calculated values.
      */
-    void LoadVariables(const PresetState& presetState, const PerFrameContext& perFrameContext);
+    void LoadVariables(const PerFrameContext& perFrameContext);
 
     /**
      * @brief Returns the contained shader.
@@ -82,10 +81,9 @@ private:
 
     /**
      * @brief Translates the HLSL shader into GLSL.
-     * @param presetState The preset state to pull the blur textures from.
      * @param program The shader to transpile.
      */
-    void TranspileHLSLShader(const PresetState& presetState, std::string& program);
+    void TranspileHLSLShader(std::string& program);
 
     /**
      * @brief Updates the requested blur level if higher than before.
@@ -93,6 +91,8 @@ private:
      * @param requestedLevel The requested blur level.
      */
     void UpdateMaxBlurLevel(BlurTexture::BlurLevel requestedLevel);
+
+    PresetState& m_presetState; //!< The global preset state.
 
     ShaderType m_type{ShaderType::WarpShader}; //!< Type of this shader.
     std::string m_fragmentShaderCode;          //!< The original preset fragment shader code.

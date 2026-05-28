@@ -54,35 +54,32 @@ class MilkdropPreset : public ::libprojectM::Preset
 public:
     /**
      * @brief LoadCode a MilkdropPreset by filename with input and output buffers specified.
-     * @param factory The factory class that created this preset instance.
      * @param absoluteFilePath the absolute file path of a MilkdropPreset to load from the file system
+     * @param renderContext The projectM preset render context.
      */
-    MilkdropPreset(const std::string& absoluteFilePath);
+    MilkdropPreset(const std::string& absoluteFilePath, const Renderer::RenderContext& renderContext);
 
     /**
      * @brief LoadCode a MilkdropPreset from an input stream with input and output buffers specified.
      * @param presetData an already initialized input stream to read the MilkdropPreset file from
-     * @param presetOutputs initialized and filled with data parsed from a MilkdropPreset
+     * @param renderContext The projectM preset render context.
      */
-    MilkdropPreset(std::istream& presetData);
+    MilkdropPreset(std::istream& presetData, const Renderer::RenderContext& renderContext);
 
     /**
      * @brief Initializes the preset with rendering-related data.
-     * @param renderContext The initial render context.
      */
-    void Initialize(const Renderer::RenderContext& renderContext) override;
+    void Initialize() override;
 
     /**
      * @brief Renders the preset.
      * @param audioData The frame audio data.
-     * @param renderContext The current rendering context/information.
      */
-    void RenderFrame(const libprojectM::Audio::FrameAudioData& audioData,
-                     const Renderer::RenderContext& renderContext) override;
+    void RenderFrame(const libprojectM::Audio::FrameAudioData& audioData) override;
 
     auto OutputTexture() const -> std::shared_ptr<Renderer::Texture> override;
 
-    void DrawInitialImage(const std::shared_ptr<Renderer::Texture>& image, const Renderer::RenderContext& renderContext) override;
+    void DrawInitialImage(const std::shared_ptr<Renderer::Texture>& image) override;
 
     void BindFramebuffer() override;
 
@@ -107,7 +104,7 @@ private:
     std::string m_absoluteFilePath; //!< The absolute file path of the MilkdropPreset
     std::string m_absolutePath;     //!< The absolute path of the MilkdropPreset
 
-    Renderer::Framebuffer m_framebuffer{2};                           //!< Preset rendering framebuffer with two surfaces (last frame and current frame).
+    Renderer::Framebuffer m_framebuffer;                           //!< Preset rendering framebuffer with two surfaces (last frame and current frame).
     int m_currentFrameBuffer{0};                                      //!< Framebuffer ID of the current frame.
     int m_previousFrameBuffer{1};                                     //!< Framebuffer ID of the previous frame.
     std::shared_ptr<Renderer::TextureAttachment> m_motionVectorUVMap; //!< The UV map of the previous frame's warp mesh, used for motion vector reverse propagation.

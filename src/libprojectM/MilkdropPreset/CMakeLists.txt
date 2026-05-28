@@ -1,22 +1,22 @@
 set(SHADER_FILES
-        Shaders/Blur1FragmentShaderGlsl330.frag
-        Shaders/Blur2FragmentShaderGlsl330.frag
-        Shaders/BlurVertexShaderGlsl330.vert
-        Shaders/PresetCompVertexShaderGlsl330.vert
-        Shaders/PresetMotionVectorsVertexShaderGlsl330.vert
-        Shaders/PresetShaderHeaderGlsl330.inc
-        Shaders/PresetWarpFragmentShaderGlsl330.frag
-        Shaders/PresetWarpVertexShaderGlsl330.vert
-        Shaders/TexturedDrawFragmentShaderGlsl330.frag
-        Shaders/TexturedDrawVertexShaderGlsl330.vert
-        Shaders/UntexturedDrawFragmentShaderGlsl330.frag
-        Shaders/UntexturedDrawVertexShaderGlsl330.vert
+        Shaders/Blur1FragmentShader.frag
+        Shaders/Blur2FragmentShader.frag
+        Shaders/BlurVertexShader.vert
+        Shaders/PresetCompVertexShader.vert
+        Shaders/PresetMotionVectorsVertexShader.vert
+        Shaders/PresetShaderHeader.inc
+        Shaders/PresetWarpFragmentShader.frag
+        Shaders/PresetWarpVertexShader.vert
+        Shaders/TexturedDrawFragmentShader.frag
+        Shaders/TexturedDrawVertexShader.vert
+        Shaders/UntexturedDrawFragmentShader.frag
+        Shaders/UntexturedDrawVertexShader.vert
         )
 
 string(REPLACE ";" "\\;" SHADER_FILES_ARG "${SHADER_FILES}")
 add_custom_command(OUTPUT
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropBuiltinShaders.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropBuiltinShaders.hpp
 
         COMMAND ${CMAKE_COMMAND}
 
@@ -28,15 +28,15 @@ add_custom_command(OUTPUT
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS # Files watched for changes:
         ${SHADER_FILES}
-        MilkdropStaticShaders.cpp.in
-        MilkdropStaticShaders.hpp.in
+        MilkdropBuiltinShaders.cpp.in
+        MilkdropBuiltinShaders.hpp.in
         GenerateStaticShaders.cmake
         )
 
 add_library(MilkdropPreset OBJECT
         ${SHADER_FILES}
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropBuiltinShaders.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropBuiltinShaders.hpp
         BlurTexture.cpp
         BlurTexture.hpp
         Border.cpp
@@ -62,8 +62,8 @@ add_library(MilkdropPreset OBJECT
         MilkdropPresetExceptions.hpp
         MilkdropShader.cpp
         MilkdropShader.hpp
-        MilkdropStaticShaders.cpp.in
-        MilkdropStaticShaders.hpp.in
+        MilkdropBuiltinShaders.cpp.in
+        MilkdropBuiltinShaders.hpp.in
         MotionVectors.cpp
         MotionVectors.hpp
         PerFrameContext.cpp
