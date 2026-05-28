@@ -1,48 +1,32 @@
 set(SOURCES "")
 
-if (USE_GLES)
-    # GLES2 / EGL
-    list(APPEND SOURCES
-            include/glad/gles2.h
-            include/glad/egl.h
-            src/gles2.c
-            src/egl.c
-    )
-else()
-    # Desktop OpenGL
-    list(APPEND SOURCES
-            include/glad/gl.h
-            src/gl.c
-    )
-
-    if (WIN32)
-        list(APPEND SOURCES
-                include/glad/wgl.h
-                src/wgl.c
-        )
-    elseif(APPLE)
-        # macOS uses CGL. GLAD provides no separate loader file
-    else()
-        list(APPEND SOURCES
-                include/glad/glx.h
-                src/glx.c
-        )
-    endif()
-endif()
-
-# build glad objects
+# Build default glad objects, always include GL Core/GLES 3/EGL
 add_library(glad_obj
         OBJECT
-        ${SOURCES}
-        )
+        include/glad/egl.h
+        include/glad/gl.h
+        src/egl.c
+        src/gl.c
+)
+
+# Add OS-specific APIs
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_sources(glad_obj
+            PUBLIC
+            include/glad/wgl.h
+            src/wgl.c
+    )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_sources(glad_obj
+            PUBLIC
+            include/glad/glx.h
+            src/glx.c
+    )
+endif()
 
 target_include_directories(glad_obj
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        )
-
-set_target_properties(glad_obj PROPERTIES
-        POSITION_INDEPENDENT_CODE ON
         )
 
 # wrap the objects in a static library
@@ -55,12 +39,10 @@ target_include_directories(glad
         )
 
 target_compile_definitions(glad_obj
+        PUBLIC
+        GLAD_GLES2
         PRIVATE
         GLAD_GLX_NO_X11
-        )
-
-set_target_properties(glad PROPERTIES
-        POSITION_INDEPENDENT_CODE ON
         )
 
 # platform link dependencies
