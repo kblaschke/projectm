@@ -1,6 +1,6 @@
 set(SPRITE_SHADER_FILES
-        Shaders/MilkdropSpriteFragmentGlsl330.frag
-        Shaders/MilkdropSpriteVertexGlsl330.vert
+        Shaders/MilkdropSpriteFragmentShader.frag
+        Shaders/MilkdropSpriteVertexShader.vert
         )
 
 include(GenerateShaderResources)

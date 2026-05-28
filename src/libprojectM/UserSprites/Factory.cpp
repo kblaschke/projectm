@@ -7,13 +7,13 @@
 namespace libprojectM {
 namespace UserSprites {
 
-auto Factory::CreateSprite(const std::string& type) -> Sprite::Ptr
+auto Factory::CreateSprite(const std::string& type, const GladGLContext& glContext) -> Sprite::Ptr
 {
     const auto lowerCaseType = Utils::ToLower(type);
 
     if (lowerCaseType == "milkdrop")
     {
-        return std::make_unique<MilkdropSprite>();
+        return std::make_unique<MilkdropSprite>(glContext);
     }
 
     return {};

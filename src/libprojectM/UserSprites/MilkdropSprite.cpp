@@ -27,8 +27,10 @@
 namespace libprojectM {
 namespace UserSprites {
 
-MilkdropSprite::MilkdropSprite()
-    : m_mesh(Renderer::VertexBufferUsage::DynamicDraw, false, true)
+MilkdropSprite::MilkdropSprite(const GladGLContext& glContext)
+    : m_glContext(glContext)
+    , m_sampler(GL_REPEAT, GL_LINEAR, glContext)
+    , m_mesh(Renderer::VertexBufferUsage::DynamicDraw, false, true, glContext)
 {
     m_mesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleStrip);
     m_mesh.SetVertexCount(4);
@@ -44,7 +46,7 @@ void MilkdropSprite::Init(const std::string& spriteData, const Renderer::RenderC
     }
 
     // Load/compile shader
-    auto spriteShader = renderContext.shaderCache->Get("milkdrop_user_sprite");
+    auto spriteShader = renderContext.shaderCache.Get("milkdrop_user_sprite");
     if (!spriteShader)
     {
         // ToDo: Better handle this in the shader class to reduce duplicate code.
@@ -55,10 +57,10 @@ void MilkdropSprite::Init(const std::string& spriteData, const Renderer::RenderC
         constexpr char versionHeader[] = "#version 330\n\n";
 #endif
 
-        spriteShader = std::make_shared<Renderer::Shader>();
-        spriteShader->CompileProgram(static_cast<const char*>(versionHeader) + kMilkdropSpriteVertexGlsl330,
-                                     static_cast<const char*>(versionHeader) + kMilkdropSpriteFragmentGlsl330);
-        renderContext.shaderCache->Insert("milkdrop_user_sprite", spriteShader);
+        spriteShader = std::make_shared<Renderer::Shader>(m_glContext);
+        spriteShader->CompileProgram(static_cast<const char*>(versionHeader) + kMilkdropSpriteVertexShader,
+                                     static_cast<const char*>(versionHeader) + kMilkdropSpriteFragmentShader);
+        renderContext.shaderCache.Insert("milkdrop_user_sprite", spriteShader);
     }
 
     m_spriteShader = spriteShader;
@@ -93,11 +95,11 @@ void MilkdropSprite::Init(const std::string& spriteData, const Renderer::RenderC
     if (imageName.length() >= 6 &&
         imageName.substr(0, 4) == "rand" && std::isdigit(imageName.at(4), loc) && std::isdigit(imageName.at(5), loc))
     {
-        m_texture = renderContext.textureManager->GetRandomTexture(imageName).Texture();
+        m_texture = renderContext.textureManager.GetRandomTexture(imageName).Texture();
     }
     else
     {
-        m_texture = renderContext.textureManager->GetTexture(imageName).Texture();
+        m_texture = renderContext.textureManager.GetTexture(imageName).Texture();
     }
 }
 
@@ -235,26 +237,26 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
 
     m_mesh.Update();
 
-    glVertexAttrib4f(1, r, g, b, a);
+    m_glContext.VertexAttrib4f(1, r, g, b, a);
 
     switch (blendMode)
     {
         case 0:
         default:
-            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, m_glContext);
             break;
         case 1:
-            Renderer::BlendMode::SetBlendActive(false);
+            Renderer::BlendMode::SetBlendActive(false, m_glContext);
             break;
         case 2:
-            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::One);
+            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::One, m_glContext);
             break;
         case 3:
-            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceColor, Renderer::BlendMode::Function::OneMinusSourceColor);
+            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceColor, Renderer::BlendMode::Function::OneMinusSourceColor, m_glContext);
             break;
         case 4:
             // Milkdrop actually changed color keying to using texture alpha. The color key is ignored.
-            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);
+            Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha, m_glContext);
             break;
     }
 
@@ -276,13 +278,13 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
         }
 
         // Reset to original FBO
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(outputFramebufferObject));
+        m_glContext.BindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(outputFramebufferObject));
     }
 
     m_texture->Unbind(0);
-    Renderer::Mesh::Unbind();
-    Renderer::Shader::Unbind();
-    Renderer::BlendMode::SetBlendActive(false);
+    Renderer::Mesh::Unbind(m_glContext);
+    Renderer::Shader::Unbind(m_glContext);
+    Renderer::BlendMode::SetBlendActive(false, m_glContext);
 }
 
 auto MilkdropSprite::Done() const -> bool

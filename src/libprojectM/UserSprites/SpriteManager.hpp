@@ -22,6 +22,7 @@ public:
      * @brief Spawns a new sprite.
      * @param type The type name of the sprite.
      * @param spriteData The sprite code/data, depending on the type.
+     * @param renderContext The projectM preset render context to use for this sprite.
      * @return A unique, non-zero identifier if the sprite was successfully spawned, or zero if an error occurred.
      */
     auto Spawn(const std::string& type,

@@ -14,7 +14,13 @@ namespace UserSprites {
 class MilkdropSprite : public Sprite
 {
 public:
-    MilkdropSprite();
+    MilkdropSprite() = delete;
+
+    /**
+     * Constructor.
+     * @param glContext The OpenGL context to use.
+     */
+    explicit MilkdropSprite(const GladGLContext& glContext);
 
     ~MilkdropSprite() override = default;
 
@@ -90,12 +96,14 @@ private:
         PRJM_EVAL_F* a{};         //!< Modulation color used in some blending modes. Default: 1.0
     };
 
-    CodeContext m_codeContext;                         //!< Sprite init and per-frame code.
-    std::shared_ptr<Renderer::Texture> m_texture;      //!< The sprite image, loaded via a name like other textures in Milkdrop presets.
-    Renderer::Sampler m_sampler{GL_REPEAT, GL_LINEAR}; //!< Texture sampler settings
-    std::weak_ptr<Renderer::Shader> m_spriteShader;    //!< The shader used to draw the user sprite.
-    Renderer::Mesh m_mesh;                             //!< A simple quad.
-    bool m_spriteDone{false};                          //!< If true, the sprite will be removed from the list.
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
+
+    CodeContext m_codeContext;                      //!< Sprite init and per-frame code.
+    std::shared_ptr<Renderer::Texture> m_texture;   //!< The sprite image, loaded via a name like other textures in Milkdrop presets.
+    Renderer::Sampler m_sampler;                    //!< Texture sampler settings
+    std::weak_ptr<Renderer::Shader> m_spriteShader; //!< The shader used to draw the user sprite.
+    Renderer::Mesh m_mesh;                          //!< A simple quad.
+    bool m_spriteDone{false};                       //!< If true, the sprite will be removed from the list.
 };
 
 } // namespace UserSprites

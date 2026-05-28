@@ -20,7 +20,7 @@ auto SpriteManager::Spawn(const std::string& type,
         return 0;
     }
 
-    auto sprite = Factory::CreateSprite(type);
+    auto sprite = Factory::CreateSprite(type, renderContext.glContext);
 
     if (!sprite)
     {
