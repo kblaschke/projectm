@@ -32,10 +32,11 @@ public:
 
     /**
      * @brief Constructor. Creates a new sampler with the given modes.
-     * @param wrapMode
-     * @param filterMode
+     * @param wrapMode The wrap mode to use.
+     * @param filterMode The filtering mode to use.
+     * @param glContext The OpenGL context to use.
      */
-    Sampler(GLint wrapMode, GLint filterMode);
+    Sampler(GLint wrapMode, GLint filterMode, const GladGLContext& glContext);
 
     Sampler(Sampler&& other) = default;
     auto operator=(Sampler&& other) -> Sampler& = default;
@@ -52,7 +53,14 @@ public:
      * @brief Unbinds a previously bound sampler from the given texture unit.
      * @param unit The texture unit to unbind the sampler from.
      */
-    static void Unbind(GLuint unit);
+    void Unbind(GLuint unit) const;
+
+    /**
+     * @brief Unbinds a previously bound sampler from the given texture unit.
+     * @param unit The texture unit to unbind the sampler from.
+     * @param glContext The OpenGL context to use.
+     */
+    static void Unbind(GLuint unit, const GladGLContext& glContext);
 
     /**
      * @brief Returns the sampler wrap mode.
@@ -82,6 +90,8 @@ private:
     GLuint m_samplerId{0}; //!< the OpenGL Sampler name/ID.
     GLint m_wrapMode{0}; //!< The texture wrap mode.
     GLint m_filterMode{0}; //!< The texture filtering mode.
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
 };
 
 } // namespace Renderer

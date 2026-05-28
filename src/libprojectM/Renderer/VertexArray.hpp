@@ -14,10 +14,12 @@ class VertexArray
 public:
     /**
      * Constructor. Creates a new VAO.
+     * @param glContext The OpenGL context to use.
      */
-    VertexArray()
+    VertexArray(const GladGLContext& glContext)
+        : m_glContext(glContext)
     {
-        glGenVertexArrays(1, &m_vaoID);
+        m_glContext.GenVertexArrays(1, &m_vaoID);
     }
 
     /**
@@ -25,7 +27,7 @@ public:
      */
     virtual ~VertexArray()
     {
-        glDeleteVertexArrays(1, &m_vaoID);
+        m_glContext.DeleteVertexArrays(1, &m_vaoID);
         m_vaoID = 0;
     }
 
@@ -34,20 +36,30 @@ public:
      */
     void Bind() const
     {
-        glBindVertexArray(m_vaoID);
+        m_glContext.BindVertexArray(m_vaoID);
     }
 
     /**
      * Binds the default VAO with ID 0.
      */
-    static void Unbind()
+    void Unbind() const
     {
-        glBindVertexArray(0);
+        m_glContext.BindVertexArray(0);
+    }
+
+    /**
+     * Binds the default VAO with ID 0.
+     * @param glContext The OpenGL context to use.
+     */
+    static void Unbind(const GladGLContext& glContext)
+    {
+        glContext.BindVertexArray(0);
     }
 
 private:
     GLuint m_vaoID{0}; //!< The vertex array object ID for this mesh's vertex data.
 
+    const GladGLContext& m_glContext; //!< The glad OpenGL context information used for rendering.
 };
 
 

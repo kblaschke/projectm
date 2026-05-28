@@ -3,31 +3,37 @@
 namespace libprojectM {
 namespace Renderer {
 
-Sampler::Sampler(const GLint wrapMode, const GLint filterMode)
+Sampler::Sampler(const GLint wrapMode, const GLint filterMode, const GladGLContext& glContext)
     : m_wrapMode(wrapMode)
     , m_filterMode(filterMode)
+    , m_glContext(glContext)
 {
-    glGenSamplers(1, &m_samplerId);
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_MIN_FILTER, filterMode);
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_MAG_FILTER, filterMode);
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_S, wrapMode);
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_T, wrapMode);
+    m_glContext.GenSamplers(1, &m_samplerId);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_MIN_FILTER, filterMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_MAG_FILTER, filterMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_S, wrapMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_T, wrapMode);
 }
 
 
 Sampler::~Sampler()
 {
-    glDeleteSamplers(1, &m_samplerId);
+    m_glContext.DeleteSamplers(1, &m_samplerId);
 }
 
 void Sampler::Bind(GLuint unit) const
 {
-    glBindSampler(unit, m_samplerId);
+    m_glContext.BindSampler(unit, m_samplerId);
 }
 
-void Sampler::Unbind(GLuint unit)
+void Sampler::Unbind(GLuint unit) const
 {
-    glBindSampler(unit, 0);
+    m_glContext.BindSampler(unit, 0);
+}
+
+void Sampler::Unbind(GLuint unit, const GladGLContext& glContext)
+{
+    glContext.BindSampler(unit, 0);
 }
 
 auto Sampler::WrapMode() const -> GLint
@@ -44,8 +50,8 @@ void Sampler::WrapMode(GLint wrapMode)
 
     m_wrapMode = wrapMode;
 
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_S, wrapMode);
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_T, wrapMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_S, wrapMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_WRAP_T, wrapMode);
 }
 
 auto Sampler::FilterMode() const -> GLint
@@ -62,8 +68,8 @@ void Sampler::FilterMode(GLint filterMode)
 
     m_filterMode = filterMode;
 
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_MIN_FILTER, filterMode);
-    glSamplerParameteri(m_samplerId, GL_TEXTURE_MAG_FILTER, filterMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_MIN_FILTER, filterMode);
+    m_glContext.SamplerParameteri(m_samplerId, GL_TEXTURE_MAG_FILTER, filterMode);
 }
 
 } // namespace Renderer

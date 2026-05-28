@@ -19,13 +19,15 @@ namespace Renderer {
 class Texture
 {
 public:
+    Texture() = delete;
     Texture(const Texture&) = delete;
     auto operator=(const Texture&) -> Texture& = delete;
 
     /**
      * @brief Constructor. Creates an empty texture with zero size.
+     * @param glContext The OpenGL context to use.
      */
-    Texture() = default;
+    explicit Texture(const GladGLContext& glContext);
 
     /**
      * @brief Constructor. Allocates a new, empty texture with the given size.
@@ -33,8 +35,10 @@ public:
      * @param width Width in pixels.
      * @param height Height in pixels.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
+     * @param glContext The OpenGL context to use.
      */
-    explicit Texture(std::string name, int width, int height, bool isUserTexture);
+    explicit Texture(std::string name, int width, int height, bool isUserTexture,
+                     const GladGLContext& glContext);
 
     /**
      * @brief Constructor. Allocates a new, empty texture with the given size and format.
@@ -47,9 +51,11 @@ public:
      * @param format OpenGL texture format.
      * @param type Storage type for each color channel.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
+     * @param glContext The OpenGL context to use.
      */
     explicit Texture(std::string name, GLenum target, int width, int height, int depth,
-                     GLint internalFormat, GLenum format, GLenum type, bool isUserTexture);
+                     GLint internalFormat, GLenum format, GLenum type, bool isUserTexture,
+                     const GladGLContext& glContext);
 
     /**
      * @brief Constructor. Creates a new texture instance from an existing OpenGL texture.
@@ -59,12 +65,14 @@ public:
      * @param width Width in pixels.
      * @param height Height in pixels.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
-     * @param owned If true (default), the class takes ownership and will delete the texture when destroyed.
+     * @param owned If true, the class takes ownership and will delete the texture when destroyed.
      *              If false, the texture is managed externally and won't be deleted.
+     * @param glContext The OpenGL context to use.
      */
     explicit Texture(std::string name, GLuint texID, GLenum target,
                      int width, int height,
-                     bool isUserTexture, bool owned = true);
+                     bool isUserTexture, bool owned,
+                     const GladGLContext& glContext);
 
     /**
      * @brief Constructor. Creates a new texture from image data with the given size and format.
@@ -78,9 +86,11 @@ public:
      * @param format OpenGL texture format.
      * @param type Storage type for each color channel.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
+     * @param glContext The OpenGL context to use.
      */
     explicit Texture(std::string name, const void* data, GLenum target, int width, int height, int depth,
-                     GLint internalFormat, GLenum format, GLenum type, bool isUserTexture);
+                     GLint internalFormat, GLenum format, GLenum type, bool isUserTexture,
+                     const GladGLContext& glContext);
 
     Texture(Texture&& other) = default;
     auto operator=(Texture&& other) -> Texture& = default;
@@ -175,6 +185,8 @@ private:
     GLint m_internalFormat{}; //!< OpenGL internal format, e.g. GL_RGBA8
     GLenum m_format{};        //!< OpenGL color format, e.g. GL_RGBA
     GLenum m_type{};          //!< OpenGL component storage type, e.g. GL_UNSIGNED _BYTE
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
 };
 
 } // namespace Renderer

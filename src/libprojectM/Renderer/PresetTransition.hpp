@@ -25,10 +25,12 @@ public:
      * @param transitionShader The transition shader program.
      * @param durationSeconds Transition duration in seconds.
      * @param transitionStartTime The time in seconds since start of projectM.
+     * @param glContext The OpenGL context to use.
      */
     explicit PresetTransition(const std::shared_ptr<Shader>& transitionShader,
                               double durationSeconds,
-                              double transitionStartTime);
+                              double transitionStartTime,
+                              const GladGLContext& glContext);
 
     /**
      * @brief Returns true if the transition is done.
@@ -70,9 +72,11 @@ private:
                                                  "noisevol_hq",
                                                  "pw_noisevol_hq"}; //!< Names of noise textures to retrieve from TextureManager.
 
-    Mesh m_mesh;                                                                                      //!< The mesh used to draw the transition effect.
-    std::shared_ptr<Shader> m_transitionShader;                                                       //!< The compiled shader used for this transition.
-    std::shared_ptr<Sampler> m_presetSampler{std::make_shared<Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR)}; //!< Sampler for preset textures. Uses bilinear interpolation and no repeat.
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
+
+    Mesh m_mesh;                                //!< The mesh used to draw the transition effect.
+    std::shared_ptr<Shader> m_transitionShader; //!< The compiled shader used for this transition.
+    std::shared_ptr<Sampler> m_presetSampler;   //!< Sampler for preset textures. Uses bilinear interpolation and no repeat.
 
     double m_durationSeconds{3.0};  //!< Transition duration in seconds.
     double m_transitionStartTime{}; //!< Start time of this transition. Duration is measured from this point.

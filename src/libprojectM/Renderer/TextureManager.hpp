@@ -18,8 +18,9 @@ public:
     /**
      * Constructor.
      * @param textureSearchPaths List of paths to search for textures. These paths are searched in the given order.
+     * @param glContext The OpenGL context to use.
      */
-    TextureManager(const std::vector<std::string>& textureSearchPaths);
+    TextureManager(const std::vector<std::string>& textureSearchPaths, const GladGLContext& glContext);
 
     ~TextureManager() = default;
 
@@ -98,6 +99,8 @@ private:
     void ScanTextures();
 
     static uint32_t TextureFormatFromChannels(int channels);
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
 
     std::vector<std::string> m_textureSearchPaths;  //!< Search paths to scan for textures.
     std::string m_currentPresetDir;                 //!< Path of the current preset to add to the search list.

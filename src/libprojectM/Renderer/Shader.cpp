@@ -8,8 +8,9 @@
 namespace libprojectM {
 namespace Renderer {
 
-Shader::Shader()
-    : m_shaderProgram(glCreateProgram())
+Shader::Shader(const GladGLContext& glContext)
+    : m_shaderProgram(glContext.CreateProgram())
+    , m_glContext(glContext)
 {
 }
 
@@ -17,7 +18,7 @@ Shader::~Shader()
 {
     if (m_shaderProgram)
     {
-        glDeleteProgram(m_shaderProgram);
+        m_glContext.DeleteProgram(m_shaderProgram);
     }
 }
 
@@ -27,28 +28,28 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
     auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
     auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
 
-    glAttachShader(m_shaderProgram, vertexShader);
-    glAttachShader(m_shaderProgram, fragmentShader);
+    m_glContext.AttachShader(m_shaderProgram, vertexShader);
+    m_glContext.AttachShader(m_shaderProgram, fragmentShader);
 
-    glLinkProgram(m_shaderProgram);
+    m_glContext.LinkProgram(m_shaderProgram);
 
     // Shader objects are no longer needed after linking, free the memory.
-    glDetachShader(m_shaderProgram, vertexShader);
-    glDetachShader(m_shaderProgram, fragmentShader);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    m_glContext.DetachShader(m_shaderProgram, vertexShader);
+    m_glContext.DetachShader(m_shaderProgram, fragmentShader);
+    m_glContext.DeleteShader(vertexShader);
+    m_glContext.DeleteShader(fragmentShader);
 
     GLint programLinked;
-    glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
+    m_glContext.GetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
     if (programLinked == GL_TRUE)
     {
         return;
     }
 
     GLint infoLogLength{};
-    glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
+    m_glContext.GetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
     std::vector<char> message(infoLogLength + 1);
-    glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
+    m_glContext.GetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
 
     std::string linkError = "[Shader] Error linking compiled shader program: " + std::string(message.data());
     LOG_ERROR(linkError);
@@ -62,14 +63,14 @@ bool Shader::Validate(std::string& validationMessage) const
     GLint result{GL_FALSE};
     int infoLogLength;
 
-    glValidateProgram(m_shaderProgram);
+    m_glContext.ValidateProgram(m_shaderProgram);
 
-    glGetProgramiv(m_shaderProgram, GL_VALIDATE_STATUS, &result);
-    glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
+    m_glContext.GetProgramiv(m_shaderProgram, GL_VALIDATE_STATUS, &result);
+    m_glContext.GetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
     if (infoLogLength > 0)
     {
         std::vector<char> validationErrorMessage(infoLogLength + 1);
-        glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, validationErrorMessage.data());
+        m_glContext.GetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, validationErrorMessage.data());
         validationMessage = std::string(validationErrorMessage.data());
     }
 
@@ -80,136 +81,141 @@ void Shader::Bind() const
 {
     if (m_shaderProgram > 0)
     {
-        glUseProgram(m_shaderProgram);
+        m_glContext.UseProgram(m_shaderProgram);
     }
 }
 
-void Shader::Unbind()
+void Shader::Unbind() const
 {
-    glUseProgram(0);
+    m_glContext.UseProgram(0);
+}
+
+void Shader::Unbind(const GladGLContext& glContext)
+{
+    glContext.UseProgram(0);
 }
 
 void Shader::SetUniformFloat(const char* uniform, float value) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform1fv(location, 1, &value);
+    m_glContext.Uniform1fv(location, 1, &value);
 }
 
 void Shader::SetUniformInt(const char* uniform, int value) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform1iv(location, 1, &value);
+    m_glContext.Uniform1iv(location, 1, &value);
 }
 
 void Shader::SetUniformFloat2(const char* uniform, const glm::vec2& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform2fv(location, 1, glm::value_ptr(values));
+    m_glContext.Uniform2fv(location, 1, glm::value_ptr(values));
 }
 
 void Shader::SetUniformInt2(const char* uniform, const glm::ivec2& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform2iv(location, 1, glm::value_ptr(values));
+    m_glContext.Uniform2iv(location, 1, glm::value_ptr(values));
 }
 
 void Shader::SetUniformFloat3(const char* uniform, const glm::vec3& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform3fv(location, 1, glm::value_ptr(values));
+    m_glContext.Uniform3fv(location, 1, glm::value_ptr(values));
 }
 
 void Shader::SetUniformInt3(const char* uniform, const glm::ivec3& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform3iv(location, 1, glm::value_ptr(values));
+    m_glContext.Uniform3iv(location, 1, glm::value_ptr(values));
 }
 
 void Shader::SetUniformFloat4(const char* uniform, const glm::vec4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform4fv(location, 1, glm::value_ptr(values));
+    m_glContext.Uniform4fv(location, 1, glm::value_ptr(values));
 }
 
 void Shader::SetUniformInt4(const char* uniform, const glm::ivec4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniform4iv(location, 1, glm::value_ptr(values));
+    m_glContext.Uniform4iv(location, 1, glm::value_ptr(values));
 }
 
 void Shader::SetUniformMat3x4(const char* uniform, const glm::mat3x4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniformMatrix3x4fv(location, 1, GL_FALSE, glm::value_ptr(values));
+    m_glContext.UniformMatrix3x4fv(location, 1, GL_FALSE, glm::value_ptr(values));
 }
 
 void Shader::SetUniformMat4x4(const char* uniform, const glm::mat4x4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    auto location = m_glContext.GetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
     }
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(values));
+    m_glContext.UniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(values));
 }
 
 GLuint Shader::CompileShader(const std::string& source, GLenum type)
 {
     GLint shaderCompiled{};
 
-    auto shader = glCreateShader(type);
+    auto shader = m_glContext.CreateShader(type);
     const auto* shaderSourceCStr = source.c_str();
-    glShaderSource(shader, 1, &shaderSourceCStr, nullptr);
+    m_glContext.ShaderSource(shader, 1, &shaderSourceCStr, nullptr);
 
-    glCompileShader(shader);
+    m_glContext.CompileShader(shader);
 
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderCompiled);
+    m_glContext.GetShaderiv(shader, GL_COMPILE_STATUS, &shaderCompiled);
     if (shaderCompiled == GL_TRUE)
     {
         return shader;
     }
 
     GLint infoLogLength{};
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+    m_glContext.GetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
     std::vector<char> message(infoLogLength + 1);
-    glGetShaderInfoLog(shader, infoLogLength, nullptr, message.data());
-    glDeleteShader(shader);
+    m_glContext.GetShaderInfoLog(shader, infoLogLength, nullptr, message.data());
+    m_glContext.DeleteShader(shader);
 
     std::string compileError = "[Shader] Error compiling " + std::string(type == GL_VERTEX_SHADER ? "vertex" : "fragment") + " shader: " + std::string(message.data());
     LOG_ERROR(compileError);
@@ -217,9 +223,9 @@ GLuint Shader::CompileShader(const std::string& source, GLenum type)
     throw ShaderException(compileError);
 }
 
-auto Shader::GetShaderLanguageVersion() -> Shader::GlslVersion
+auto Shader::GetShaderLanguageVersion(const GladGLContext& glContext) -> Shader::GlslVersion
 {
-    const char* shaderLanguageVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+    const char* shaderLanguageVersion = reinterpret_cast<const char*>(glContext.GetString(GL_SHADING_LANGUAGE_VERSION));
 
     if (shaderLanguageVersion == nullptr)
     {

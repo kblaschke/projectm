@@ -62,8 +62,9 @@ public:
 
     /**
      * Creates a new shader.
+     * @param glContext The glad OpenGL context to use.
      */
-    Shader();
+    Shader(const GladGLContext& glContext);
 
     /**
      * Destructor.
@@ -93,8 +94,14 @@ public:
 
     /**
      * Unbinds the program.
+     **/
+    void Unbind() const;
+
+    /**
+     * Unbinds the program.
+     * @param glContext The glad OpenGL context to use.
      */
-    static void Unbind();
+    static void Unbind(const GladGLContext& glContext);
 
     /**
      * @brief Sets a single float uniform.
@@ -180,9 +187,10 @@ public:
      * @brief Parses the shading language version string returned from OpenGL.
      * If this function does not return a good version (e.g. "major" not >0), then OpenGL is probably
      * not properly initialized or the context not made current.
+     * @param glContext The glad OpenGL context to use.
      * @return The parsed version, or {0,0} if the version could not be parsed.
      */
-    static auto GetShaderLanguageVersion() -> GlslVersion;
+    static auto GetShaderLanguageVersion(const GladGLContext& glContext) -> GlslVersion;
 
 private:
     /**
@@ -195,6 +203,8 @@ private:
     auto CompileShader(const std::string& source, GLenum type) -> GLuint;
 
     GLuint m_shaderProgram{}; //!< The program ID.
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
 };
 
 } // namespace Renderer

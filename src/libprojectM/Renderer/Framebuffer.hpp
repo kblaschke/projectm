@@ -38,14 +38,16 @@ class Framebuffer
 public:
     /**
      * @brief Creates a new framebuffer object with one framebuffer.
+     * @param glContext The glad OpenGL context to use.
      */
-    Framebuffer();
+    Framebuffer(const GladGLContext& glContext);
 
     /**
      * @brief Creates a new framebuffer object with a given number of framebuffers.
      * @param framebufferCount The number of framebuffers to create. Must be at least 1.
+     * @param glContext The glad OpenGL context to use.
      */
-    explicit Framebuffer(int framebufferCount);
+    explicit Framebuffer(int framebufferCount, const GladGLContext& glContext);
 
     /**
      * @brief Destroys the framebuffer object and all attachments.
@@ -79,7 +81,13 @@ public:
     /**
      * @brief Binds the default framebuffer for both reading and writing.
      */
-    static void Unbind();
+    void Unbind() const;
+
+    /**
+     * @brief Binds the default framebuffer for both reading and writing.
+     * @param glContext The glad OpenGL context to use.
+     */
+    static void Unbind(const GladGLContext& glContext);
 
     /**
      * @brief Sets the framebuffer texture size.
@@ -238,6 +246,8 @@ private:
 
     int m_readFramebuffer{}; //!< Index of the framebuffer currently being read.
     int m_drawFramebuffer{}; //!< Index of the framebuffer currently being drawn to.
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
 };
 
 } // namespace Renderer

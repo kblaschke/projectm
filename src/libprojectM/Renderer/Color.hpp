@@ -164,11 +164,12 @@ public:
 
     /**
      * @brief Initializes the attribute array pointer for this storage type.
-     * @param attributeIndex the attribute index to use.
+     * @param attributeIndex The attribute index to use.
+     * @param glContext The OpenGL context to use.
      */
-    static void InitializeAttributePointer(uint32_t attributeIndex)
+    static void InitializeAttributePointer(uint32_t attributeIndex, const GladGLContext& glContext)
     {
-        glVertexAttribPointer(attributeIndex, sizeof(Color) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(Color), nullptr);
+        glContext.VertexAttribPointer(attributeIndex, sizeof(Color) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(Color), nullptr);
     }
 
 private:

@@ -40,8 +40,11 @@ void main(){
 
 )";
 
-CopyTexture::CopyTexture()
-    : m_mesh(VertexBufferUsage::StaticDraw, false, true)
+CopyTexture::CopyTexture(const GladGLContext& glContext)
+    : m_glContext(glContext)
+    , m_mesh(VertexBufferUsage::StaticDraw, false, true, glContext)
+    , m_framebuffer(1, glContext)
+    , m_sampler(GL_CLAMP_TO_EDGE, GL_NEAREST, glContext)
 {
     m_framebuffer.CreateColorAttachment(0, 0);
 
@@ -125,7 +128,7 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
         m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0)->Texture(internalTexture);
     }
 
-    Framebuffer::Unbind();
+    m_framebuffer.Unbind();
 }
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
@@ -161,8 +164,7 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
     framebuffer.SetAttachment(framebufferIndex, 0, m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0));
     m_framebuffer.RemoveColorAttachment(0, 0);
     m_framebuffer.SetAttachment(0, 0, tempAttachment);
-
-    Framebuffer::Unbind();
+    m_framebuffer.Unbind();
 }
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
@@ -199,8 +201,7 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 
     // Rebind our internal texture.
     m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0)->Texture(internalTexture);
-
-    Framebuffer::Unbind();
+    m_framebuffer.Unbind();
 }
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
@@ -225,8 +226,8 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
     m_height = viewportHeight;
 
     // Draw from original texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, originalTexture);
+    m_glContext.ActiveTexture(GL_TEXTURE0);
+    m_glContext.BindTexture(GL_TEXTURE_2D, originalTexture);
     Copy(shaderCache, left, top, width, height);
 
     m_width = oldWidth;
@@ -269,10 +270,10 @@ void CopyTexture::Copy(ShaderCache& shaderCache,
 
     m_mesh.Draw();
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    Mesh::Unbind();
-    Sampler::Unbind(0);
-    Shader::Unbind();
+    m_glContext.BindTexture(GL_TEXTURE_2D, 0);
+    m_mesh.Unbind();
+    Sampler::Unbind(0, m_glContext);
+    shader->Unbind();
 }
 
 void CopyTexture::Copy(ShaderCache& shaderCache,
@@ -294,9 +295,9 @@ void CopyTexture::Copy(ShaderCache& shaderCache,
 
     m_mesh.Draw();
 
-    Mesh::Unbind();
-    Sampler::Unbind(0);
-    Shader::Unbind();
+    m_mesh.Unbind();
+    Sampler::Unbind(0, m_glContext);
+    shader->Unbind();
 }
 
 std::shared_ptr<Shader> CopyTexture::BindShader(ShaderCache& shaderCache)
@@ -315,7 +316,7 @@ std::shared_ptr<Shader> CopyTexture::BindShader(ShaderCache& shaderCache)
         vertexShader.append(CopyTextureVertexShader);
         fragmentShader.append(CopyTextureFragmentShader);
 
-        shader = std::make_shared<Shader>();
+        shader = std::make_shared<Shader>(m_glContext);
         shader->CompileProgram(vertexShader, fragmentShader);
 
         m_shader = shader;

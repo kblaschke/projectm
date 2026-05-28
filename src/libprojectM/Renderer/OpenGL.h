@@ -4,8 +4,4 @@
  */
 #pragma once
 
-#ifdef USE_GLES
-   #include <glad/gles2.h>
-#else
-   #include <glad/gl.h>
-#endif
+#include <glad/gl.h>

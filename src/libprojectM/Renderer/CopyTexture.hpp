@@ -16,7 +16,11 @@ namespace Renderer {
 class CopyTexture
 {
 public:
-    CopyTexture();
+    /**
+     * Constructor.
+     * @param glContext The OpenGL context to use.
+     */
+    CopyTexture(const GladGLContext& glContext);
 
     /**
      * @brief Copies the original texture into the currently bound framebuffer.
@@ -109,14 +113,17 @@ private:
     void Copy(ShaderCache& shaderCache,
               int left, int top, int width, int height);
 
+    std::shared_ptr<Shader> BindShader(ShaderCache& shaderCache);
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
+
     Mesh m_mesh;
     std::weak_ptr<Shader> m_shader;                  //!< Simple textured shader
-    Framebuffer m_framebuffer{1};                    //!< Framebuffer for drawing the flipped texture
-    Sampler m_sampler{GL_CLAMP_TO_EDGE, GL_NEAREST}; //!< Texture sampler settings
+    Framebuffer m_framebuffer;                    //!< Framebuffer for drawing the flipped texture
+    Sampler m_sampler; //!< Texture sampler settings
 
     int m_width{};  //!< Last known framebuffer/texture width
     int m_height{}; //!< Last known framebuffer/texture height
-    std::shared_ptr<Shader> BindShader(ShaderCache& shaderCache);
 };
 
 } // namespace Renderer

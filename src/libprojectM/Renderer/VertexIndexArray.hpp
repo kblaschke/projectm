@@ -18,13 +18,16 @@ class VertexIndexArray
 public:
     /**
      * Constructor. Creates an empty index buffer with the default usage hint.
+     * @param glContext The OpenGL context to use.
      */
-    VertexIndexArray();
+    VertexIndexArray(const GladGLContext& glContext);
 
     /**
      * Constructor. Creates an empty index buffer with the specified usage hint.
+     * @param usage The buffer usage hint.
+     * @param glContext The OpenGL context to use.
      */
-    VertexIndexArray(VertexBufferUsage usage);
+    VertexIndexArray(VertexBufferUsage usage, const GladGLContext& glContext);
 
     /**
      * Destructor. Deleted the index buffer.
@@ -39,7 +42,13 @@ public:
     /**
      * Binds the default index buffer with ID 0.
      */
-    static void Unbind();
+    void Unbind() const;
+
+    /**
+     * Binds the default index buffer with ID 0.
+     * @param glContext The OpenGL context to use.
+     */
+    static void Unbind(const GladGLContext& glContext);
 
     /**
      * Return a reference to the internal vector storing the buffer's elements.
@@ -143,6 +152,8 @@ public:
 private:
     GLuint m_veabID{};   //!< The ID of the OpenGL vertex element array buffer object.
     size_t m_veabSize{}; //!< Stores the last number if items uploaded to the GPU.
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context information used for rendering.
 
     VertexBufferUsage m_vboUsage{VertexBufferUsage::StaticDraw}; //!< The buffer usage hint.
 

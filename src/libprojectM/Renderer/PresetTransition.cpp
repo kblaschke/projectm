@@ -10,9 +10,14 @@ namespace Renderer {
 
 constexpr double PI = 3.14159265358979323846;
 
-PresetTransition::PresetTransition(const std::shared_ptr<Shader>& transitionShader, double durationSeconds, double transitionStartTime)
-    : m_mesh(VertexBufferUsage::StaticDraw)
+PresetTransition::PresetTransition(const std::shared_ptr<Shader>& transitionShader,
+                                   double durationSeconds,
+                                   double transitionStartTime,
+                                   const GladGLContext& glContext)
+    : m_glContext(glContext)
+    , m_mesh(VertexBufferUsage::StaticDraw, glContext)
     , m_transitionShader(transitionShader)
+    , m_presetSampler(std::make_shared<Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR, glContext))
     , m_durationSeconds(durationSeconds)
     , m_transitionStartTime(transitionStartTime)
 {
@@ -110,8 +115,8 @@ void PresetTransition::Draw(const Preset& oldPreset,
     std::vector<TextureSamplerDescriptor> noiseDescriptors(m_noiseTextureNames.size());
     for (const auto& noiseTextureName : m_noiseTextureNames)
     {
-        noiseDescriptors[textureUnit - 2] = context.textureManager->GetTexture(noiseTextureName);
-        noiseDescriptors[textureUnit - 2].Bind(textureUnit, *m_transitionShader);
+        noiseDescriptors.at(textureUnit - 2) = context.textureManager.GetTexture(noiseTextureName);
+        noiseDescriptors.at(textureUnit - 2).Bind(textureUnit, *m_transitionShader);
         textureUnit++;
     }
 
@@ -127,8 +132,8 @@ void PresetTransition::Draw(const Preset& oldPreset,
         noiseDescriptors[i - 2].Unbind(textureUnit);
     }
 
-    Mesh::Unbind();
-    Shader::Unbind();
+    m_mesh.Unbind();
+    m_transitionShader->Unbind();
 
     // Update last frame time.
     m_lastFrameTime = currentFrameTime;

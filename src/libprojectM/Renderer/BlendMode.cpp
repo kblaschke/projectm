@@ -3,27 +3,27 @@
 namespace libprojectM {
 namespace Renderer {
 
-void BlendMode::Set(bool enable, Function srcFunc, Function dstFunc)
+void BlendMode::Set(bool enable, Function srcFunc, Function dstFunc, const GladGLContext& glContext)
 {
-    SetBlendActive(enable);
-    SetBlendFunction(srcFunc, dstFunc);
+    SetBlendActive(enable, glContext);
+    SetBlendFunction(srcFunc, dstFunc, glContext);
 }
 
-void BlendMode::SetBlendActive(bool enable)
+void BlendMode::SetBlendActive(bool enable, const GladGLContext& glContext)
 {
     if (enable)
     {
-        glEnable(GL_BLEND);
+        glContext.Enable(GL_BLEND);
     }
     else
     {
-        glDisable(GL_BLEND);
+        glContext.Disable(GL_BLEND);
     }
 }
 
-void BlendMode::SetBlendFunction(Function srcFunc, Function dstFunc)
+void BlendMode::SetBlendFunction(Function srcFunc, Function dstFunc, const GladGLContext& glContext)
 {
-    glBlendFunc(FunctionToGL(srcFunc), FunctionToGL(dstFunc));
+    glContext.BlendFunc(FunctionToGL(srcFunc), FunctionToGL(dstFunc));
 }
 
 auto BlendMode::FunctionToGL(Function func) -> GLuint

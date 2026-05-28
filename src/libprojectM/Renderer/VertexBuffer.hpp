@@ -26,14 +26,16 @@ class VertexBuffer
 public:
     /**
      * Constructor. Creates an empty buffer with the default usage hint.
+     * @param glContext The OpenGL context to use.
      */
-    VertexBuffer();
+    VertexBuffer(const GladGLContext& glContext);
 
     /**
      * Constructor. Creates an empty buffer with a specific usage hint.
      * @param usage The usage hint for this buffer.
+     * @param glContext The OpenGL context to use.
      */
-    explicit VertexBuffer(VertexBufferUsage usage);
+    explicit VertexBuffer(VertexBufferUsage usage, const GladGLContext& glContext);
 
     /**
      * Destructor. Deletes the GPU buffer.
@@ -48,7 +50,13 @@ public:
     /**
      * Binds the default vertex buffer object with ID 0.
      */
-    static void Unbind();
+    void Unbind() const;
+
+    /**
+     * Binds the default vertex buffer object with ID 0.
+     * @param glContext The OpenGL context to use.
+     */
+    static void Unbind(const GladGLContext& glContext);
 
     /**
      * Initializes the attribute array pointer for this buffer.
@@ -60,8 +68,9 @@ public:
      * Enables or disabled the use of the given attribute array index.
      * @param attributeIndex The index to enable or disable.
      * @param enable true to enable the given attribute array index, false to disable.
+     * @param glContext The OpenGL context to use.
      */
-    static void SetEnableAttributeArray(uint32_t attributeIndex, bool enable);
+    static void SetEnableAttributeArray(uint32_t attributeIndex, bool enable, const GladGLContext& glContext);
 
     /**
      * Return a reference to the internal vector storing the buffer's elements.
@@ -158,6 +167,8 @@ public:
     auto operator[](size_t index) const -> const VT&;
 
 private:
+    GladGLContext m_glContext; //!< The glad OpenGL context structure to use for rendering.
+
     GLuint m_vboID{};   //!< The ID of the OpenGL vertex buffer object.
     size_t m_vboSize{}; //!< Stores the last number if items uploaded to the GPU.
 
@@ -167,53 +178,61 @@ private:
 };
 
 template<class VT>
-VertexBuffer<VT>::VertexBuffer()
+VertexBuffer<VT>::VertexBuffer(const GladGLContext& glContext)
+    : m_glContext(glContext)
 {
-    glGenBuffers(1, &m_vboID);
+    m_glContext.GenBuffers(1, &m_vboID);
 }
 
 template<class VT>
-VertexBuffer<VT>::VertexBuffer(VertexBufferUsage usage)
-    : m_vboUsage(usage)
+VertexBuffer<VT>::VertexBuffer(VertexBufferUsage usage, const GladGLContext& glContext)
+    : m_glContext(glContext)
+    , m_vboUsage(usage)
 {
-    glGenBuffers(1, &m_vboID);
+    m_glContext.GenBuffers(1, &m_vboID);
 }
 
 template<class VT>
 VertexBuffer<VT>::~VertexBuffer()
 {
-    glDeleteBuffers(1, &m_vboID);
+    m_glContext.DeleteBuffers(1, &m_vboID);
 }
 
 template<class VT>
 void VertexBuffer<VT>::Bind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+    m_glContext.BindBuffer(GL_ARRAY_BUFFER, m_vboID);
 }
 
 template<class VT>
-void VertexBuffer<VT>::Unbind()
+void VertexBuffer<VT>::Unbind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    m_glContext.BindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+template<class VT>
+void VertexBuffer<VT>::Unbind(const GladGLContext& glContext)
+{
+    glContext.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 template<class VT>
 void VertexBuffer<VT>::InitializeAttributePointer(uint32_t attributeIndex) const
 {
     Bind();
-    VT::InitializeAttributePointer(attributeIndex);
+    VT::InitializeAttributePointer(attributeIndex, m_glContext);
 }
 
 template<class VT>
-void VertexBuffer<VT>::SetEnableAttributeArray(uint32_t attributeIndex, bool enable)
+void VertexBuffer<VT>::SetEnableAttributeArray(uint32_t attributeIndex, bool enable, const GladGLContext& glContext)
 {
     if (enable)
     {
-        glEnableVertexAttribArray(attributeIndex);
+        glContext.EnableVertexAttribArray(attributeIndex);
     }
     else
     {
-        glDisableVertexAttribArray(attributeIndex);
+        glContext.DisableVertexAttribArray(attributeIndex);
     }
 }
 
@@ -289,11 +308,11 @@ void VertexBuffer<VT>::Update()
 
     if (m_vboSize == m_vertices.size())
     {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizei>(sizeof(VT) * m_vertices.size()), m_vertices.data());
+        m_glContext.BufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizei>(sizeof(VT) * m_vertices.size()), m_vertices.data());
     }
     else
     {
-        glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(VT) * m_vertices.size()), m_vertices.data(), VertexBufferUsageToGL(m_vboUsage));
+        m_glContext.BufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(VT) * m_vertices.size()), m_vertices.data(), VertexBufferUsageToGL(m_vboUsage));
         m_vboSize = m_vertices.size();
     }
 }

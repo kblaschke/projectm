@@ -53,7 +53,10 @@ void TextureSamplerDescriptor::Unbind(GLint unit)
     {
         m_texture->Unbind(unit);
     }
-    Sampler::Unbind(unit);
+    if (m_sampler)
+    {
+        m_sampler->Unbind(unit);
+    }
 }
 
 auto TextureSamplerDescriptor::Texture() const -> std::shared_ptr<class Texture>

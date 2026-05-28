@@ -10,45 +10,46 @@
 namespace libprojectM {
 namespace Renderer {
 
-auto MilkdropNoise::LowQuality() -> std::shared_ptr<Texture>
+auto MilkdropNoise::LowQuality(const GladGLContext& glContext) -> std::shared_ptr<Texture>
 {
-    return std::make_shared<Texture>("noise_lq", generate2D(256, 1).data(), GL_TEXTURE_2D, 256, 256, 0, GL_RGBA8, GetPreferredInternalFormat(), GL_UNSIGNED_BYTE, false);
+    return std::make_shared<Texture>("noise_lq", generate2D(256, 1).data(), GL_TEXTURE_2D, 256, 256, 0, GL_RGBA8, GetPreferredInternalFormat(glContext), GL_UNSIGNED_BYTE, false, glContext);
 }
 
-auto MilkdropNoise::LowQualityLite() -> std::shared_ptr<Texture>
+auto MilkdropNoise::LowQualityLite(const GladGLContext& glContext) -> std::shared_ptr<Texture>
 {
-    return std::make_shared<Texture>("noise_lq_lite", generate2D(32, 1).data(), GL_TEXTURE_2D, 32, 32, 0, GL_RGBA8, GetPreferredInternalFormat(), GL_UNSIGNED_BYTE, false);
+    return std::make_shared<Texture>("noise_lq_lite", generate2D(32, 1).data(), GL_TEXTURE_2D, 32, 32, 0, GL_RGBA8, GetPreferredInternalFormat(glContext), GL_UNSIGNED_BYTE, false, glContext);
 }
 
-auto MilkdropNoise::MediumQuality() -> std::shared_ptr<Texture>
+auto MilkdropNoise::MediumQuality(const GladGLContext& glContext) -> std::shared_ptr<Texture>
 {
-    return std::make_shared<Texture>("noise_mq", generate2D(256, 4).data(), GL_TEXTURE_2D, 256, 256, 0, GL_RGBA8, GetPreferredInternalFormat(), GL_UNSIGNED_BYTE, false);
+    return std::make_shared<Texture>("noise_mq", generate2D(256, 4).data(), GL_TEXTURE_2D, 256, 256, 0, GL_RGBA8, GetPreferredInternalFormat(glContext), GL_UNSIGNED_BYTE, false, glContext);
 }
 
-auto MilkdropNoise::HighQuality() -> std::shared_ptr<Texture>
+auto MilkdropNoise::HighQuality(const GladGLContext& glContext) -> std::shared_ptr<Texture>
 {
-    return std::make_shared<Texture>("noise_hq", generate2D(256, 8).data(), GL_TEXTURE_2D, 256, 256, 0, GL_RGBA8, GetPreferredInternalFormat(), GL_UNSIGNED_BYTE, false);
+    return std::make_shared<Texture>("noise_hq", generate2D(256, 8).data(), GL_TEXTURE_2D, 256, 256, 0, GL_RGBA8, GetPreferredInternalFormat(glContext), GL_UNSIGNED_BYTE, false, glContext);
 }
 
-auto MilkdropNoise::LowQualityVolume() -> std::shared_ptr<Texture>
+auto MilkdropNoise::LowQualityVolume(const GladGLContext& glContext) -> std::shared_ptr<Texture>
 {
-    return std::make_shared<Texture>("noisevol_lq", generate3D(32, 1).data(), GL_TEXTURE_3D, 32, 32, 32, GL_RGBA8, GetPreferredInternalFormat(), GL_UNSIGNED_BYTE, false);
+    return std::make_shared<Texture>("noisevol_lq", generate3D(32, 1).data(), GL_TEXTURE_3D, 32, 32, 32, GL_RGBA8, GetPreferredInternalFormat(glContext), GL_UNSIGNED_BYTE, false, glContext);
 }
 
-auto MilkdropNoise::HighQualityVolume() -> std::shared_ptr<Texture>
+auto MilkdropNoise::HighQualityVolume(const GladGLContext& glContext) -> std::shared_ptr<Texture>
 {
-    return std::make_shared<Texture>("noisevol_hq", generate3D(32, 4).data(), GL_TEXTURE_3D, 32, 32, 32, GL_RGBA8, GetPreferredInternalFormat(), GL_UNSIGNED_BYTE, false);
+    return std::make_shared<Texture>("noisevol_hq", generate3D(32, 4).data(), GL_TEXTURE_3D, 32, 32, 32, GL_RGBA8, GetPreferredInternalFormat(glContext), GL_UNSIGNED_BYTE, false, glContext);
 }
 
-auto MilkdropNoise::GetPreferredInternalFormat() -> int
+auto MilkdropNoise::GetPreferredInternalFormat(const GladGLContext& glContext) -> int
 {
-#ifndef USE_GLES
+    if (glContext.ES_VERSION_3_0)
+    {
+        // GLES only supports GL_RGB and GL_RGBA, so we always use the latter.
+        return GL_RGBA;
+    }
+
     // We use GL_BGRA, as this is the best general-use format according to Khronos.
     return GL_BGRA;
-#else
-    // GLES only supports GL_RGB and GL_RGBA, so we always use the latter.
-    return GL_RGBA;
-#endif
 }
 
 auto MilkdropNoise::generate2D(int size, int zoomFactor) -> std::vector<uint32_t>

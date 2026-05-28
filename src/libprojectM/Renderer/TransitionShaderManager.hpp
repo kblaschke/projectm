@@ -13,7 +13,11 @@ namespace Renderer {
 class TransitionShaderManager
 {
 public:
-    TransitionShaderManager();
+    /**
+     * Constructor.
+     * @param glContext The glad OpenGL context to use.
+     */
+    TransitionShaderManager(const GladGLContext& glContext);
 
     /**
      * @brief Selects a random transition shader from the list.
@@ -26,12 +30,12 @@ private:
      * @brief Compiles a single transition shader program.
      * @param shaderBodyCode The mainImage() fragment shader code, without any headers etc.
      */
-    static auto CompileTransitionShader(const std::string& shaderBodyCode) -> std::shared_ptr<Shader>;
+    static auto CompileTransitionShader(const std::string& shaderBodyCode, const GladGLContext& glContext) -> std::shared_ptr<Shader>;
 
     std::vector<std::shared_ptr<Shader>> m_transitionShaders; //!< Currently loaded and compiled transition shaders.
 
     std::random_device m_randomDevice; //!< Seed for the random number generator
-    std::mt19937 m_mersenneTwister; //!< Random engine to select shader
+    std::mt19937 m_mersenneTwister;    //!< Random engine to select shader
 };
 
 } // namespace Renderer

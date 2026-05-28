@@ -31,43 +31,49 @@ public:
 
     /**
      * Low-quality (high frequency) 2D noise texture, 256x256 with zoom level 1
+     * @param glContext The OpenGL context to use.
      * @return A new noise texture ready for use in rendering.
      */
-    static auto LowQuality() -> std::shared_ptr<Texture>;
+    static auto LowQuality(const GladGLContext& glContext) -> std::shared_ptr<Texture>;
 
     /**
      * Low-quality (high frequency) 2D noise texture, 32x32 with zoom level 1
+     * @param glContext The OpenGL context to use.
      * @return A new noise texture ready for use in rendering.
      */
-    static auto LowQualityLite() -> std::shared_ptr<Texture>;
+    static auto LowQualityLite(const GladGLContext& glContext) -> std::shared_ptr<Texture>;
 
     /**
      * Medium-quality (medium frequency) 2D noise texture, 256x256 with zoom level 4
+     * @param glContext The OpenGL context to use.
      * @return A new noise texture ready for use in rendering.
      */
-    static auto MediumQuality() -> std::shared_ptr<Texture>;
+    static auto MediumQuality(const GladGLContext& glContext) -> std::shared_ptr<Texture>;
 
     /**
      * High-quality (low frequency) 2D noise texture, 256x256 with zoom level 8
+     * @param glContext The OpenGL context to use.
      * @return A new noise texture ready for use in rendering.
      */
-    static auto HighQuality() -> std::shared_ptr<Texture>;
+    static auto HighQuality(const GladGLContext& glContext) -> std::shared_ptr<Texture>;
 
     /**
      * Low-quality (high frequency) 3D noise texture, 32x32 with zoom level 1
+     * @param glContext The OpenGL context to use.
      * @return A new noise texture ready for use in rendering.
      */
-    static auto LowQualityVolume() -> std::shared_ptr<Texture>;
+    static auto LowQualityVolume(const GladGLContext& glContext) -> std::shared_ptr<Texture>;
 
     /**
      * High-quality (low frequency) 3D noise texture, 32x32 with zoom level 4
+     * @param glContext The OpenGL context to use.
      * @return A new noise texture ready for use in rendering.
      */
-    static auto HighQualityVolume() -> std::shared_ptr<Texture>;
+    static auto HighQualityVolume(const GladGLContext& glContext) -> std::shared_ptr<Texture>;
 
 protected:
 
-    static auto GetPreferredInternalFormat() -> int;
+    static auto GetPreferredInternalFormat(const GladGLContext& glContext) -> int;
 
     /**
      * @brief Milkdrop 2D noise algorithm

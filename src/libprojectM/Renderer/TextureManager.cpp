@@ -24,9 +24,10 @@
 namespace libprojectM {
 namespace Renderer {
 
-TextureManager::TextureManager(const std::vector<std::string>& textureSearchPaths)
-    : m_textureSearchPaths(textureSearchPaths)
-    , m_placeholderTexture(std::make_shared<Texture>("placeholder", 1, 1, false))
+TextureManager::TextureManager(const std::vector<std::string>& textureSearchPaths, const GladGLContext& glContext)
+    : m_glContext(glContext)
+    , m_textureSearchPaths(textureSearchPaths)
+    , m_placeholderTexture(std::make_shared<Texture>("placeholder", 1, 1, false, glContext))
 {
     Preload();
 }
@@ -64,10 +65,10 @@ auto TextureManager::GetSampler(const std::string& fullName) -> std::shared_ptr<
 void TextureManager::Preload()
 {
     // Create samplers
-    m_samplers.emplace(std::make_pair(GL_CLAMP_TO_EDGE, GL_LINEAR), std::make_shared<Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR));
-    m_samplers.emplace(std::make_pair(GL_CLAMP_TO_EDGE, GL_NEAREST), std::make_shared<Sampler>(GL_CLAMP_TO_EDGE, GL_NEAREST));
-    m_samplers.emplace(std::make_pair(GL_REPEAT, GL_LINEAR), std::make_shared<Sampler>(GL_REPEAT, GL_LINEAR));
-    m_samplers.emplace(std::make_pair(GL_REPEAT, GL_NEAREST), std::make_shared<Sampler>(GL_REPEAT, GL_NEAREST));
+    m_samplers.emplace(std::make_pair(GL_CLAMP_TO_EDGE, GL_LINEAR), std::make_shared<Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR, m_glContext));
+    m_samplers.emplace(std::make_pair(GL_CLAMP_TO_EDGE, GL_NEAREST), std::make_shared<Sampler>(GL_CLAMP_TO_EDGE, GL_NEAREST, m_glContext));
+    m_samplers.emplace(std::make_pair(GL_REPEAT, GL_LINEAR), std::make_shared<Sampler>(GL_REPEAT, GL_LINEAR, m_glContext));
+    m_samplers.emplace(std::make_pair(GL_REPEAT, GL_NEAREST), std::make_shared<Sampler>(GL_REPEAT, GL_NEAREST, m_glContext));
 
     int width{};
     int height{};
@@ -79,7 +80,7 @@ void TextureManager::Preload()
         if (imageData.get() != nullptr)
         {
             auto format = TextureFormatFromChannels(channels);
-            m_textures["idlem"] = std::make_shared<Texture>("idlem", reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, false);
+            m_textures["idlem"] = std::make_shared<Texture>("idlem", reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, false, m_glContext);
         }
     }
 
@@ -89,17 +90,17 @@ void TextureManager::Preload()
         if (imageData.get() != nullptr)
         {
             auto format = TextureFormatFromChannels(channels);
-            m_textures["idleheadphones"] = std::make_shared<Texture>("idleheadphones", reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, false);
+            m_textures["idleheadphones"] = std::make_shared<Texture>("idleheadphones", reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, false, m_glContext);
         }
     }
 
     // Noise textures
-    m_textures["noise_lq_lite"] = MilkdropNoise::LowQualityLite();
-    m_textures["noise_lq"] = MilkdropNoise::LowQuality();
-    m_textures["noise_mq"] = MilkdropNoise::MediumQuality();
-    m_textures["noise_hq"] = MilkdropNoise::HighQuality();
-    m_textures["noisevol_lq"] = MilkdropNoise::LowQualityVolume();
-    m_textures["noisevol_hq"] = MilkdropNoise::HighQualityVolume();
+    m_textures["noise_lq_lite"] = MilkdropNoise::LowQualityLite(m_glContext);
+    m_textures["noise_lq"] = MilkdropNoise::LowQuality(m_glContext);
+    m_textures["noise_mq"] = MilkdropNoise::MediumQuality(m_glContext);
+    m_textures["noise_hq"] = MilkdropNoise::HighQuality(m_glContext);
+    m_textures["noisevol_lq"] = MilkdropNoise::LowQualityVolume(m_glContext);
+    m_textures["noisevol_hq"] = MilkdropNoise::HighQualityVolume(m_glContext);
 }
 
 void TextureManager::PurgeTextures()
@@ -186,7 +187,7 @@ auto TextureManager::TryLoadingTexture(const std::string& name) -> TextureSample
         {
             // App-provided textures are not owned by projectM - pass false for ownership
             auto newTexture = std::make_shared<Texture>(unqualifiedName, loadData.textureId,
-                                                        GL_TEXTURE_2D, loadData.width, loadData.height, true, false);
+                                                        GL_TEXTURE_2D, loadData.width, loadData.height, true, false, m_glContext);
             m_textures[lowerCaseUnqualifiedName] = newTexture;
             uint32_t memoryBytes = loadData.width * loadData.height * (loadData.channels > 0 ? loadData.channels : 4);
             m_textureStats.insert({lowerCaseUnqualifiedName, {memoryBytes}});
@@ -209,7 +210,7 @@ auto TextureManager::TryLoadingTexture(const std::string& name) -> TextureSample
             auto newTexture = std::make_shared<Texture>(unqualifiedName,
                                                         reinterpret_cast<const void*>(loadData.data),
                                                         GL_TEXTURE_2D, width, height, 0,
-                                                        format, format, GL_UNSIGNED_BYTE, true);
+                                                        format, format, GL_UNSIGNED_BYTE, true, m_glContext);
             if (!newTexture->Empty())
             {
                 m_textures[lowerCaseUnqualifiedName] = newTexture;
@@ -269,7 +270,7 @@ auto TextureManager::LoadTexture(const ScannedFile& file) -> std::shared_ptr<Tex
     }
 
     auto format = TextureFormatFromChannels(4);
-    auto newTexture = std::make_shared<Texture>(file.lowerCaseBaseName, reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, true);
+    auto newTexture = std::make_shared<Texture>(file.lowerCaseBaseName, reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, true, m_glContext);
 
     imageData.reset();
 

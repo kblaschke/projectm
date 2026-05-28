@@ -3,27 +3,37 @@
 namespace libprojectM {
 namespace Renderer {
 
-Mesh::Mesh()
+Mesh::Mesh(const GladGLContext& glContext)
+    : m_vertexArray(glContext)
+    , m_vertices(glContext)
+    , m_colors(glContext)
+    , m_textureUVs(glContext)
+    , m_indices(glContext)
+    , m_glContext(glContext)
 {
     Initialize();
 }
 
-Mesh::Mesh(VertexBufferUsage usage)
-    : m_vertices(usage)
-    , m_colors(usage)
-    , m_textureUVs(usage)
-    , m_indices(usage)
+Mesh::Mesh(VertexBufferUsage usage, const GladGLContext& glContext)
+    : m_vertexArray(glContext)
+    , m_vertices(usage, glContext)
+    , m_colors(usage, glContext)
+    , m_textureUVs(usage, glContext)
+    , m_indices(usage, glContext)
+    , m_glContext(glContext)
 {
     Initialize();
 }
 
-Mesh::Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs)
+Mesh::Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs, const GladGLContext& glContext)
     : m_useColorAttributes(useColor)
     , m_useUVAttributes(useTextureUVs)
-    , m_vertices(usage)
-    , m_colors(usage)
-    , m_textureUVs(usage)
-    , m_indices(usage)
+    , m_vertexArray(glContext)
+    , m_vertices(usage, glContext)
+    , m_colors(usage, glContext)
+    , m_textureUVs(usage, glContext)
+    , m_indices(usage, glContext)
+    , m_glContext(glContext)
 {
     Initialize();
 }
@@ -84,11 +94,18 @@ void Mesh::Bind() const
     m_vertexArray.Bind();
 }
 
-void Mesh::Unbind()
+void Mesh::Unbind() const
 {
-    VertexArray::Unbind();
-    VertexBuffer<Point>::Unbind();
-    VertexIndexArray::Unbind();
+    m_vertexArray.Unbind();
+    m_vertices.Unbind();
+    m_indices.Unbind();
+}
+
+void Mesh::Unbind(const GladGLContext& glContext)
+{
+    VertexArray::Unbind(glContext);
+    VertexBuffer<Point>::Unbind(glContext);
+    VertexIndexArray::Unbind(glContext);
 }
 
 void Mesh::Update()
@@ -98,8 +115,8 @@ void Mesh::Update()
     m_colors.Update();
     m_textureUVs.Update();
 
-    VertexBuffer<class Color>::SetEnableAttributeArray(1, m_useColorAttributes);
-    VertexBuffer<TextureUV>::SetEnableAttributeArray(2, m_useUVAttributes);
+    VertexBuffer<class Color>::SetEnableAttributeArray(1, m_useColorAttributes, m_glContext);
+    VertexBuffer<TextureUV>::SetEnableAttributeArray(2, m_useUVAttributes, m_glContext);
 
     m_indices.Update();
 }
@@ -145,9 +162,9 @@ void Mesh::Draw()
             break;
     }
 
-    glDrawElements(primitiveType, m_indices.Size(), GL_UNSIGNED_INT, nullptr);
+    m_glContext.DrawElements(primitiveType, m_indices.Size(), GL_UNSIGNED_INT, nullptr);
 
-    VertexArray::Unbind();
+    VertexArray::Unbind(m_glContext);
 }
 
 void Mesh::Initialize()
@@ -159,12 +176,12 @@ void Mesh::Initialize()
     m_colors.InitializeAttributePointer(1);
     m_textureUVs.InitializeAttributePointer(2);
 
-    VertexBuffer<Point>::SetEnableAttributeArray(0, true);
+    VertexBuffer<Point>::SetEnableAttributeArray(0, true, m_glContext);
 
     m_indices.Bind();
 
-    VertexArray::Unbind();
-    VertexBuffer<Point>::Unbind();
+    VertexArray::Unbind(m_glContext);
+    VertexBuffer<Point>::Unbind(m_glContext);
 }
 
 } // namespace Renderer

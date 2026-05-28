@@ -3,30 +3,37 @@
 namespace libprojectM {
 namespace Renderer {
 
-VertexIndexArray::VertexIndexArray()
+VertexIndexArray::VertexIndexArray(const GladGLContext& glContext)
+    : m_glContext(glContext)
 {
-    glGenBuffers(1, &m_veabID);
+    m_glContext.GenBuffers(1, &m_veabID);
 }
 
-VertexIndexArray::VertexIndexArray(VertexBufferUsage usage)
-    : m_vboUsage(usage)
+VertexIndexArray::VertexIndexArray(VertexBufferUsage usage, const GladGLContext& glContext)
+    : m_glContext(glContext)
+    , m_vboUsage(usage)
 {
-    glGenBuffers(1, &m_veabID);
+    m_glContext.GenBuffers(1, &m_veabID);
 }
 
 VertexIndexArray::~VertexIndexArray()
 {
-    glDeleteBuffers(1, &m_veabID);
+    m_glContext.DeleteBuffers(1, &m_veabID);
 }
 
 void VertexIndexArray::Bind() const
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_veabID);
+    m_glContext.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_veabID);
 }
 
-void VertexIndexArray::Unbind()
+void VertexIndexArray::Unbind() const
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    m_glContext.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void VertexIndexArray::Unbind(const GladGLContext& glContext)
+{
+    glContext.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 auto VertexIndexArray::Get() -> std::vector<uint32_t>&
@@ -98,11 +105,11 @@ void VertexIndexArray::Update()
 
     if (m_veabSize == m_indices.size())
     {
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, static_cast<GLsizei>(sizeof(uint32_t) * m_indices.size()), m_indices.data());
+        m_glContext.BufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, static_cast<GLsizei>(sizeof(uint32_t) * m_indices.size()), m_indices.data());
     }
     else
     {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(uint32_t) * m_indices.size()), m_indices.data(), VertexBufferUsageToGL(m_vboUsage));
+        m_glContext.BufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(uint32_t) * m_indices.size()), m_indices.data(), VertexBufferUsageToGL(m_vboUsage));
         m_veabSize = m_indices.size();
     }
 }

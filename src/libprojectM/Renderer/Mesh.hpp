@@ -51,15 +51,17 @@ public:
 
     /**
      * Constructor. Creates the mesh with a default rendering mode of PrimitiveType::Lines.
+     * @param glContext The OpenGL context to use.
      */
-    Mesh();
+    Mesh(const GladGLContext& glContext);
 
     /**
      * Constructor. Creates the mesh with a default rendering mode of PrimitiveType::Lines.
      * Allows setting the buffer usage hint for the internal buffers.
      * @param usage The buffer usage hint.
+     * @param glContext The OpenGL context to use.
      */
-    explicit Mesh(VertexBufferUsage usage);
+    explicit Mesh(VertexBufferUsage usage, const GladGLContext& glContext);
 
     /**
      * Constructor. Creates the mesh with a default rendering mode of PrimitiveType::Lines.
@@ -68,8 +70,9 @@ public:
      * @param usage The buffer usage hint.
      * @param useColor If true, the color attribute array will be enabled by default.
      * @param useTextureUVs If true, the texture coordinate attribute array will be enabled by default.
+     * @param glContext The OpenGL context to use.
      */
-    Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs);
+    Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs, const GladGLContext& glContext);
 
     /**
      * Default destructor.
@@ -317,7 +320,13 @@ public:
     /**
      * Binds the default vertex array object with ID 0.
      */
-    static void Unbind();
+    void Unbind() const;
+
+    /**
+     * Binds the default vertex array object with ID 0.
+     * @param glContext The OpenGL context to use.
+     */
+    static void Unbind(const GladGLContext& glContext);
 
     /**
      * @brief Updates the data all enabled buffers, sending it to the GPU.
@@ -355,6 +364,8 @@ private:
     VertexBuffer<TextureUV> m_textureUVs; //!< Vertex texture coordinates.
 
     VertexIndexArray m_indices; //!< The vertex indices used for rendering.
+
+    const GladGLContext& m_glContext; //!< The glad OpenGL context used for rendering.
 };
 
 } // namespace Renderer

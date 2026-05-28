@@ -8,8 +8,11 @@
 namespace libprojectM {
 namespace Renderer {
 
-TextureAttachment::TextureAttachment(AttachmentType attachment, int width, int height)
+TextureAttachment::TextureAttachment(AttachmentType attachment, int width, int height,
+                                     const GladGLContext& glContext)
     : m_attachmentType(attachment)
+    , m_texture(std::make_shared<class Texture>(glContext))
+    , m_glContext(glContext)
 {
     if (width > 0 && height > 0)
     {
@@ -17,11 +20,13 @@ TextureAttachment::TextureAttachment(AttachmentType attachment, int width, int h
     }
 }
 
-TextureAttachment::TextureAttachment(GLint internalFormat, GLenum format, GLenum type, int width, int height)
-    : m_attachmentType(AttachmentType::Color)
+TextureAttachment::TextureAttachment(GLint internalFormat, GLenum format, GLenum type, int width, int height,
+                                     const GladGLContext& glContext)
+    : m_texture(std::make_shared<class Texture>(glContext))
     , m_internalFormat(internalFormat)
     , m_format(format)
     , m_type(type)
+    , m_glContext(glContext)
 {
     if (width > 0 && height > 0)
     {
@@ -52,7 +57,7 @@ void TextureAttachment::SetSize(int width, int height)
     }
     else
     {
-        m_texture = std::make_unique<class Texture>();
+        m_texture = std::make_unique<class Texture>(m_glContext);
     }
 }
 
@@ -68,7 +73,7 @@ void TextureAttachment::ReplaceTexture(int width, int height)
         return;
     }
 
-    switch(m_attachmentType)
+    switch (m_attachmentType)
     {
         case AttachmentType::Color:
             if (m_internalFormat == 0)
@@ -107,18 +112,18 @@ void TextureAttachment::ReplaceTexture(int width, int height)
     m_texture.reset();
 
     GLuint textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, textureFormat, pixelFormat, nullptr);
+    m_glContext.GenTextures(1, &textureId);
+    m_glContext.BindTexture(GL_TEXTURE_2D, textureId);
+    m_glContext.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, textureFormat, pixelFormat, nullptr);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_glContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_glContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_glContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_glContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    m_glContext.BindTexture(GL_TEXTURE_2D, 0);
 
-    m_texture = std::make_shared<class Texture>("", textureId, GL_TEXTURE_2D, width, height, false);
+    m_texture = std::make_shared<class Texture>("", textureId, GL_TEXTURE_2D, width, height, false, true, m_glContext);
 }
 
 } // namespace Renderer

@@ -46,21 +46,24 @@ public:
      * @param enable If true, blending is enabled, otherwise disabled.
      * @param srcFunc The blend function to determine the source color.
      * @param dstFunc the blend function to determine the destination color.
+     * @param glContext The OpenGL context to use.
      */
-    static void Set(bool enable, Function srcFunc, Function dstFunc);
+    static void Set(bool enable, Function srcFunc, Function dstFunc, const GladGLContext& glContext);
 
     /**
      * Enables or disables blending.
      * @param enable If true, blending is enabled, otherwise disabled.
+     * @param glContext The OpenGL context to use.
      */
-    static void SetBlendActive(bool enable);
+    static void SetBlendActive(bool enable, const GladGLContext& glContext);
 
     /**
      * Sets the blend functions.
      * @param srcFunc The blend function to determine the source color.
      * @param dstFunc the blend function to determine the destination color.
+     * @param glContext The OpenGL context to use.
      */
-    static void SetBlendFunction(Function srcFunc, Function dstFunc);
+    static void SetBlendFunction(Function srcFunc, Function dstFunc, const GladGLContext& glContext);
 
 private:
     /**
