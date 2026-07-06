@@ -110,7 +110,7 @@ void PlaylistCWrapper::SetPresetLoadCallback(projectm_playlist_preset_load_event
 }
 
 
-void PlaylistCWrapper::PlayPresetIndex(uint32_t index, bool hardCut, bool resetFailureCount)
+void PlaylistCWrapper::PlayPresetIndex(uint32_t index, bool hardCut, bool /* resetFailureCount */)
 {
     m_hardCutRequested = hardCut;
 

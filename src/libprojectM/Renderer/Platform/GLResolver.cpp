@@ -282,25 +282,12 @@ auto ShouldUseGlxGetProcAddressForName(const char* name) -> bool
 
 } // anonymous namespace
 
-
-auto GLResolver::Instance() -> GLResolver&
-{
-    static GLResolver instance;
-    return instance;
-}
-
 auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
 {
-
-    // Prevent concurrent Initialize()
-    std::unique_lock<std::mutex> lock(m_mutex);
-
     if (m_loaded)
     {
         return true;
     }
-
-    m_initCv.wait(lock, [this]() { return !m_initializing; });
 
     if (m_loaded)
     {
@@ -312,12 +299,10 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
     // Use RAII-style guard for safe clean up
     struct InitGuard {
         GLResolver& self;
-        std::unique_lock<std::mutex>& lock;
         bool committed = false;
 
-        explicit InitGuard(GLResolver& s, std::unique_lock<std::mutex>& l)
+        explicit InitGuard(GLResolver& s)
             : self(s)
-            , lock(l)
         {
         }
 
@@ -327,49 +312,24 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
             {
                 return;
             }
-            // Ensure we hold the lock before modifying state.
-            // Guard against the lock being held already (e.g. if an exception
-            // is thrown after lock.lock() but before CommitSuccess()).
-            if (!lock.owns_lock())
-            {
-                try
-                {
-                    lock.lock();
-                }
-                catch (...)
-                {
-                    // If we cannot acquire the lock during cleanup, we cannot
-                    // safely modify state. Best-effort: leave m_initializing
-                    // set, which will block future callers. This should not
-                    // happen under normal operation.
-                    return;
-                }
-            }
+
             self.m_initializing = false;
-            self.m_initCv.notify_all();
         }
 
         void CommitSuccess()
         {
-            if (!lock.owns_lock())
-            {
-                lock.lock();
-            }
             self.m_initializing = false;
             self.m_loaded = true;
-            self.m_initCv.notify_all();
             committed = true;
         }
     };
 
-    InitGuard initGuard(*this, lock);
+    InitGuard initGuard(*this);
 
     ResolverState state{};
 
     state.m_userResolver = resolver;
     state.m_userData = userData;
-
-    lock.unlock();
 
 #ifndef __EMSCRIPTEN__
 
@@ -396,8 +356,6 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
                  " cgl_available=\"" + (currentContext.cglAvailable ? "yes" : "no") + "\"" +
                  " webgl_available=\"" + (currentContext.webglAvailable ? "yes" : "no") + "\"");
     }
-
-    lock.lock();
 
     // Precondition: caller must have a current context on this thread.
     {
@@ -480,19 +438,16 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
 
 auto GLResolver::IsInitialized() const -> bool
 {
-    const std::lock_guard<std::mutex> lock(m_mutex);
     return m_loaded;
 }
 
 auto GLResolver::CurrentBackend() const -> Backend
 {
-    const std::lock_guard<std::mutex> lock(m_mutex);
     return m_state == nullptr ? Backend::None : m_state->m_backend;
 }
 
 auto GLResolver::HasUserResolver() const -> bool
 {
-    const std::lock_guard<std::mutex> lock(m_mutex);
     return m_state == nullptr ? false : m_state->m_userResolver != nullptr;
 }
 
@@ -540,7 +495,6 @@ auto GLResolver::VerifyBeforeUse(std::string& reason) const -> bool
 {
     std::shared_ptr<const ResolverState> state = nullptr;
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
         if (!m_loaded || m_state == nullptr)
         {
             return false;
@@ -586,17 +540,12 @@ auto GLResolver::GetProcAddress(const char* name) const -> void*
         return nullptr;
     }
 
-    // Avoid holding m_mutex while calling user callbacks or driver/loader code.
-    // Only hold m_mutex while reading internal state and coordinating initialization.
-    std::unique_lock<std::mutex> lock(m_mutex);
-
     if (m_initializing)
     {
         if (EnableGLResolverTraceLogging())
         {
             LOG_INFO(std::string("[GLResolver] GetProcAddress called while initialization is in-flight; waiting"));
         }
-        m_initCv.wait(lock, [this]() { return !m_initializing; });
     }
 
     if (!m_loaded)
@@ -607,8 +556,6 @@ auto GLResolver::GetProcAddress(const char* name) const -> void*
 
     // Local state copy to use once the lock is released.
     auto state = m_state;
-
-    lock.unlock();
 
     {
         std::string reason;
@@ -1142,9 +1089,9 @@ auto GLResolver::DetectBackend(const CurrentContextProbe& probe) -> Backend
 }
 
 
-auto GLResolver::GetProcAddressThunk(const char* name) -> void*
+auto GLResolver::GetProcAddressThunk(const char* name) const -> void*
 {
-    return Instance().GetProcAddress(name);
+    return GetProcAddress(name);
 }
 
 auto GLResolver::ResolveProcAddress(const ResolverState& state, const char* name) -> void*

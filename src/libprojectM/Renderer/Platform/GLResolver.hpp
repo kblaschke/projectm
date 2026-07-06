@@ -254,11 +254,6 @@ public:
     auto operator=(GLResolver&&) -> GLResolver& = delete;
 
     /**
-     * @brief Returns the process-wide resolver instance.
-     */
-    static auto Instance() -> GLResolver&;
-
-    /**
      * @brief Initializes the resolver.
      *
      * This method must be called at least once before GetProcAddress() is used.
@@ -311,7 +306,7 @@ public:
      * @param name Function name.
      * @return Procedure address or nullptr.
      */
-    static auto GetProcAddressThunk(const char* name) -> void*;
+    auto GetProcAddressThunk(const char* name) const -> void*;
 
     /**
      * @brief Verify that the resolver is ready to use from the current thread.
@@ -425,10 +420,8 @@ private:
     static auto VerifyBeforeUse(const ResolverState& state, std::string& reason) -> bool;
     static auto ResolveProcAddress(const ResolverState& state, const char* name) -> void*;
 
-    mutable std::mutex m_mutex;               //!< Mutex to synchronize initialization and access.
     bool m_loaded{false};                     //!< True if the resolver is initialized.
     bool m_initializing{false};               //!< True while an Initialize() attempt is in-flight.
-    mutable std::condition_variable m_initCv; //!< Signals completion of Initialize().
 
     std::shared_ptr<const ResolverState> m_state; //!< Resolver properties and resolved pointers.
 };

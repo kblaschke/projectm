@@ -76,7 +76,7 @@ void MilkdropShader::LoadTexturesAndCompile()
         if (lowerCaseName == "main")
         {
             Renderer::TextureSamplerDescriptor desc(m_presetState.mainTexture.lock(),
-                                                    m_presetState.renderContext.textureManager.GetSampler(name),
+                                                    m_presetState.renderContext.textureManager->GetSampler(name),
                                                     name,
                                                     "main");
             m_mainTextureDescriptors.push_back(std::move(desc));
@@ -124,7 +124,7 @@ void MilkdropShader::LoadTexturesAndCompile()
                 }
 
                 // Slot empty, request a new random texture.
-                auto desc = m_presetState.renderContext.textureManager.GetRandomTexture(name);
+                auto desc = m_presetState.renderContext.textureManager->GetRandomTexture(name);
 
                 // Also store a copy in preset state!
                 m_presetState.randomTextureDescriptors.insert({randomSlot, desc});
@@ -136,7 +136,7 @@ void MilkdropShader::LoadTexturesAndCompile()
             // Fall through if slot number is out of range and treat as normal texture.
         }
 
-        auto desc = m_presetState.renderContext.textureManager.GetTexture(name);
+        auto desc = m_presetState.renderContext.textureManager->GetTexture(name);
         m_textureSamplerDescriptors.push_back(std::move(desc));
     }
 
@@ -317,7 +317,7 @@ void MilkdropShader::LoadVariables(const PerFrameContext& perFrameContext)
     {
         if (desc.Empty())
         {
-            desc.TryUpdate(m_presetState.renderContext.textureManager);
+            desc.TryUpdate(*m_presetState.renderContext.textureManager);
         }
         desc.Bind(textureUnit, m_shader);
         textureUnit++;

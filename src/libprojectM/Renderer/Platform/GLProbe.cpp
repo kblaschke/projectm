@@ -27,11 +27,8 @@ enum : std::uint16_t
     PM_GL_MAJOR_VERSION = 0x821B,
     PM_GL_MINOR_VERSION = 0x821C,
     PM_GL_CONTEXT_FLAGS = 0x821E,
-    PM_GL_NUM_EXTENSIONS = 0x821D
-#ifndef USE_GLES
-    ,
+    PM_GL_NUM_EXTENSIONS = 0x821D,
     PM_GL_CONTEXT_PROFILE_MASK = 0x9126
-#endif
 };
 
 /**
@@ -670,7 +667,8 @@ auto GLProbe::InfoBuilder::Build(GLInfo& info, std::string& reason) -> bool
     return true;
 }
 
-GLProbe::CheckBuilder::CheckBuilder()
+GLProbe::CheckBuilder::CheckBuilder(GladGLContext& context)
+    : m_glContext(context)
 {
     m_req.api = GLApi::Any;
     m_req.minMajor = 0;
@@ -680,9 +678,9 @@ GLProbe::CheckBuilder::CheckBuilder()
     m_req.minShaderMinor = 0;
 }
 
-auto GLProbe::CheckBuilder::WithGLFunctions(const GLFunctions& glFunctions) -> CheckBuilder&
+auto GLProbe::CheckBuilder::WithUserGLFunctionResolver(GLADapiproc resolver) -> CheckBuilder&
 {
-    m_gl = glFunctions;
+    m_customResolver = resolver;
     return *this;
 }
 

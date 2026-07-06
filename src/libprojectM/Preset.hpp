@@ -17,17 +17,14 @@ public:
 
     /**
      * @brief Initializes additional preset resources.
-     * @param renderContext A render context with the initial data.
      */
-    virtual void Initialize(const Renderer::RenderContext& renderContext) = 0;
+    virtual void Initialize() = 0;
 
     /**
      * @brief Renders the preset into the current framebuffer.
      * @param audioData Audio data to be used by the preset.
-     * @param renderContext The current render context data.
      */
-    virtual void RenderFrame(const libprojectM::Audio::FrameAudioData& audioData,
-                             const Renderer::RenderContext& renderContext) = 0;
+    virtual void RenderFrame(const Audio::FrameAudioData& audioData) = 0;
 
     /**
      * @brief Returns a pointer to the current rendering output texture.
@@ -42,10 +39,8 @@ public:
      * It's not guaranteed a preset supports using a previously rendered image. If not
      * supported, this call is simply a no-op.
      * @param image The texture to be copied as the initial preset image.
-     * @param renderContext The current render context data.
      */
-    virtual void DrawInitialImage(const std::shared_ptr<Renderer::Texture>& image,
-                                  const Renderer::RenderContext& renderContext) = 0;
+    virtual void DrawInitialImage(const std::shared_ptr<Renderer::Texture>& image) = 0;
 
     /**
      * @brief Bind the preset's internal framebuffer.
@@ -60,12 +55,12 @@ public:
      */
     virtual void BindFramebuffer() = 0;
 
-    inline void SetFilename(const std::string& filename)
+    void SetFilename(const std::string& filename)
     {
         m_filename = filename;
     }
 
-    inline auto Filename() const -> const std::string&
+    auto Filename() const -> const std::string&
     {
         return m_filename;
     }

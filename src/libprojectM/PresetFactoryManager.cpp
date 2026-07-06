@@ -29,15 +29,15 @@ void PresetFactoryManager::ClearFactories()
     m_factoryList.clear();
 }
 
-void PresetFactoryManager::initialize()
+void PresetFactoryManager::Initialize()
 {
     ClearFactories();
 
     auto* milkdropFactory = new MilkdropPreset::Factory();
-    registerFactory(milkdropFactory->supportedExtensions(), milkdropFactory);
+    RegisterFactory(milkdropFactory->supportedExtensions(), milkdropFactory);
 }
 
-void PresetFactoryManager::registerFactory(const std::string& extensions, PresetFactory* factory)
+void PresetFactoryManager::RegisterFactory(const std::string& extensions, PresetFactory* factory)
 {
     // Current behavior if an extension conflict occurs is to override the previous once
     std::stringstream ss(extensions);
@@ -59,13 +59,13 @@ void PresetFactoryManager::registerFactory(const std::string& extensions, Preset
 }
 
 
-std::unique_ptr<Preset> PresetFactoryManager::CreatePresetFromFile(const std::string& filename)
+std::unique_ptr<Preset> PresetFactoryManager::CreatePresetFromFile(const std::string& filename, const Renderer::RenderContext& renderContext)
 {
     try
     {
         const std::string extension = "." + ParseExtension(filename);
 
-        return factory(extension).LoadPresetFromFile(filename);
+        return Factory(extension).LoadPresetFromFile(filename, renderContext);
     }
     catch (const PresetFactoryException&)
     {
@@ -81,11 +81,11 @@ std::unique_ptr<Preset> PresetFactoryManager::CreatePresetFromFile(const std::st
     }
 }
 
-std::unique_ptr<Preset> PresetFactoryManager::CreatePresetFromStream(const std::string& extension, std::istream& data)
+std::unique_ptr<Preset> PresetFactoryManager::CreatePresetFromStream(const std::string& extension, std::istream& data, const Renderer::RenderContext& renderContext)
 {
     try
     {
-        return factory(extension).LoadPresetFromStream(data);
+        return Factory(extension).LoadPresetFromStream(data, renderContext);
     }
     catch (const PresetFactoryException&)
     {
@@ -101,9 +101,9 @@ std::unique_ptr<Preset> PresetFactoryManager::CreatePresetFromStream(const std::
     }
 }
 
-PresetFactory& PresetFactoryManager::factory(const std::string& extension)
+PresetFactory& PresetFactoryManager::Factory(const std::string& extension)
 {
-    if (!extensionHandled(extension))
+    if (!ExtensionHandled(extension))
     {
         std::string error = "[PresetFactoryManager] No preset factory associated with extension \"";
         error += extension;
@@ -115,12 +115,12 @@ PresetFactory& PresetFactoryManager::factory(const std::string& extension)
     return *m_factoryMap[extension];
 }
 
-bool PresetFactoryManager::extensionHandled(const std::string& extension) const
+bool PresetFactoryManager::ExtensionHandled(const std::string& extension) const
 {
     return m_factoryMap.count(extension);
 }
 
-std::vector<std::string> PresetFactoryManager::extensionsHandled() const
+std::vector<std::string> PresetFactoryManager::ExtensionsHandled() const
 {
     std::vector<std::string> retval;
     for (auto const& element : m_factoryMap)

@@ -163,7 +163,7 @@ void CustomShape::Draw()
             }
             else
             {
-                auto desc = m_presetState.renderContext.textureManager.GetTexture(m_image);
+                auto desc = m_presetState.renderContext.textureManager->GetTexture(m_image);
                 if (!desc.Empty())
                 {
                     desc.Bind(0, *shader);

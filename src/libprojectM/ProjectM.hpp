@@ -290,7 +290,7 @@ private:
 
     void LoadIdlePreset();
 
-    auto GetRenderContext() -> Renderer::RenderContext;
+    void UpdateRenderContext();
 
     uint32_t m_meshX{32};            //!< Per-point mesh horizontal resolution.
     uint32_t m_meshY{24};            //!< Per-point mesh vertical resolution.
@@ -309,7 +309,7 @@ private:
     float m_texelOffsetX{0.0};       //!< Horizontal warp shader texel offset
     float m_texelOffsetY{0.0};       //!< Vertical warp shader texel offset
 
-    std::vector<std::string> m_textureSearchPaths;     ///!< List of paths to search for texture files
+    std::vector<std::string> m_textureSearchPaths;       ///!< List of paths to search for texture files
     Renderer::TextureLoadCallback m_textureLoadCallback; //!< Optional callback for loading textures from non-filesystem sources.
 
     /** Timing information */
@@ -321,8 +321,10 @@ private:
 
     std::unique_ptr<PresetFactoryManager> m_presetFactoryManager; //!< Provides access to all available preset factories.
 
+    std::unique_ptr<GladGLContext> m_glContext; //!< The OpenGL context used to render the visuals.
+
     Audio::PCM m_audioStorage;                                                    //!< Audio data buffer and analyzer instance.
-    std::unique_ptr<Renderer::TextureManager> m_textureManager;                   //!< The texture manager.
+    std::shared_ptr<Renderer::TextureManager> m_textureManager;                   //!< The texture manager.
     std::unique_ptr<Renderer::ShaderCache> m_shaderCache;                         //!< The global shader cache.
     std::unique_ptr<Renderer::TransitionShaderManager> m_transitionShaderManager; //!< The transition shader manager.
     std::unique_ptr<Renderer::CopyTexture> m_textureCopier;                       //!< Class that copies textures 1:1 to another texture or framebuffer.
@@ -331,6 +333,7 @@ private:
     std::unique_ptr<Renderer::PresetTransition> m_transition;                     //!< Transition effect used for blending.
     std::unique_ptr<TimeKeeper> m_timeKeeper;                                     //!< Keeps the different timers used to render and switch presets.
     std::unique_ptr<UserSprites::SpriteManager> m_spriteManager;                  //!< Manages all types of user sprites.
+    std::unique_ptr<Renderer::RenderContext> m_renderContext;                     //!< The rendering context, contains all data required to render a preset.
 };
 
 } // namespace libprojectM

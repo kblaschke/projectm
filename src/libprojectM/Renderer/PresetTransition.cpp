@@ -115,7 +115,7 @@ void PresetTransition::Draw(const Preset& oldPreset,
     std::vector<TextureSamplerDescriptor> noiseDescriptors(m_noiseTextureNames.size());
     for (const auto& noiseTextureName : m_noiseTextureNames)
     {
-        noiseDescriptors.at(textureUnit - 2) = context.textureManager.GetTexture(noiseTextureName);
+        noiseDescriptors.at(textureUnit - 2) = context.textureManager->GetTexture(noiseTextureName);
         noiseDescriptors.at(textureUnit - 2).Bind(textureUnit, *m_transitionShader);
         textureUnit++;
     }

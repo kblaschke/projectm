@@ -1,5 +1,8 @@
 #pragma once
 
+#include "glad/gl.h"
+
+
 #include <mutex>
 
 namespace libprojectM {
@@ -24,28 +27,20 @@ public:
     auto operator=(GladLoader&&) -> GladLoader& = delete;
 
     /**
-     * @brief Returns the process-wide instance.
-     */
-    static auto Instance() -> GladLoader&;
-
-    /**
      * @brief Load GLAD using the GLResolver. Loading is performed only if GLAD has not been loaded already.
-     *
+     * @param context The GladGLContext structure to populate.
      * @return true if GLAD was loaded successfully, or was already loaded.
      */
-    auto Initialize() -> bool;
+    static auto GetGladGlContext(GladGLContext& context) -> bool;
 
 private:
     /**
-     * @brief Check if GL requirements are met. Checks are performed only if GLAD has not been loaded already.
-     *
-     * @return true if the check was successful or GLAD has already been loaded.
+     * @brief Check if the required GL context requirements are met.
+     * @param checkGLES If true, checks for a GLES 3.0 context, otherwise for a 3.3 Core profile.
+     * @param context The GladGLContext structure to populate.
+     * @return true if the check was successful and the context structure was populated.
      */
-    auto CheckGLRequirements() -> bool;
-
-
-    bool m_isLoaded{false};     //!< Flag indicating whether GLAD has been loaded.
-    mutable std::mutex m_mutex; //!< Mutex to synchronize initialization.
+    static auto CheckGLRequirements(bool checkGLES, GladGLContext& context) -> bool;
 };
 
 } // namespace Platform

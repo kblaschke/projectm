@@ -29,13 +29,7 @@ namespace libprojectM {
 namespace Renderer {
 namespace Platform {
 
-auto GladLoader::Instance() -> GladLoader&
-{
-    static GladLoader instance;
-    return instance;
-}
-
-auto GladLoader::CheckGLRequirements() -> bool
+auto GladLoader::CheckGLRequirements(bool checkGLES, GladGLContext& context) -> bool
 {
 #ifdef __EMSCRIPTEN__
     return true;
@@ -43,27 +37,26 @@ auto GladLoader::CheckGLRequirements() -> bool
 
     GLProbe::CheckBuilder glCheck;
 
-#ifdef USE_GLES
-
-    glCheck
-        .WithApi(GLApi::OpenGLES)
-        .WithMinimumVersion(3, 0)
-        .WithMinimumShaderLanguageVersion(3, 0)
-        //        .WithRequiredExtension("GL_OES_texture_float")
-        //        .WithRequiredExtension("GL_OES_standard_derivatives")
-        .WithRequireCoreProfile(false);
-
-#else
-
-    glCheck
-        .WithApi(GLApi::OpenGL)
-        .WithMinimumVersion(3, 3)
-        .WithMinimumShaderLanguageVersion(3, 30)
-        // Accept both core and compatibility contexts. A 3.3+ compatibility context is a valid
-        // configuration on many drivers/stacks, and profile filtering would reject it unnecessarily.
-        .WithRequireCoreProfile(false);
-
-#endif
+    if (checkGLES)
+    {
+        glCheck
+            .WithApi(GLApi::OpenGLES)
+            .WithMinimumVersion(3, 0)
+            .WithMinimumShaderLanguageVersion(3, 0)
+            //        .WithRequiredExtension("GL_OES_texture_float")
+            //        .WithRequiredExtension("GL_OES_standard_derivatives")
+            .WithRequireCoreProfile(false);
+    }
+    else
+    {
+        glCheck
+            .WithApi(GLApi::OpenGL)
+            .WithMinimumVersion(3, 3)
+            .WithMinimumShaderLanguageVersion(3, 30)
+            // Accept both core and compatibility contexts. A 3.3+ compatibility context is a valid
+            // configuration on many drivers/stacks, and profile filtering would reject it unnecessarily.
+            .WithRequireCoreProfile(false);
+    }
 
     auto glDetails = glCheck.Check();
 
@@ -82,8 +75,7 @@ auto GladLoader::CheckGLRequirements() -> bool
 #endif // #ifndef __EMSCRIPTEN__
 }
 
-
-auto GladLoader::Initialize() -> bool
+auto GladLoader::GetGladGlContext(GladGLContext& context) -> bool
 {
     // make sure GLResolver is ready to use for this thread
     {
@@ -101,52 +93,42 @@ auto GladLoader::Initialize() -> bool
         return false;
     }
 
-    // Hold the mutex across the entire GLAD loading call to prevent concurrent
-    // gladLoadGL/gladLoadGLES2 invocations, which write to GLAD's global function
-    {
-        const std::unique_lock<std::mutex> lock(m_mutex);
-        if (m_isLoaded)
-        {
-            return true;
-        }
-
 #ifndef USE_GLES
 
-        const int result = gladLoadGL(&GladBridgeGetProcAddressThunk);
-        if (result != 0)
+    const int result = gladLoadGL(&GladBridgeGetProcAddressThunk);
+    if (result != 0)
+    {
+        if (EnableGLResolverTraceLogging())
         {
-            if (EnableGLResolverTraceLogging())
-            {
-                LOG_INFO("[GladLoader] GLAD    GL API was loaded successfully");
-            }
-            m_isLoaded = true;
-            return true;
+            LOG_INFO("[GladLoader] GLAD    GL API was loaded successfully");
         }
+        m_isLoaded = true;
+        return true;
+    }
 
-        LOG_ERROR(std::string("[GladLoader] GLAD    Loading GL API failed (backend=") +
-                  BackendToString(GLResolver::Instance().CurrentBackend()) + ")");
-        return false;
+    LOG_ERROR(std::string("[GladLoader] GLAD    Loading GL API failed (backend=") +
+              BackendToString(GLResolver::Instance().CurrentBackend()) + ")");
+    return false;
 
 #else // #ifndef USE_GLES
 
-        const int result = gladLoadGLES2(&GladBridgeGetProcAddressThunk);
-        if (result != 0)
+    const int result = gladLoadGLES2(&GladBridgeGetProcAddressThunk);
+    if (result != 0)
+    {
+        if (EnableGLResolverTraceLogging())
         {
-            if (EnableGLResolverTraceLogging())
-            {
-                LOG_INFO("[GladLoader] GLAD    GLES2 API was loaded successfully");
-            }
-            m_isLoaded = true;
-            return true;
+            LOG_INFO("[GladLoader] GLAD    GLES2 API was loaded successfully");
         }
+        m_isLoaded = true;
+        return true;
+    }
 
-        LOG_ERROR(std::string("[GladLoader] GLAD    Loading GLES2 API failed (backend=") +
-                  BackendToString(GLResolver::Instance().CurrentBackend()) + ")");
+    LOG_ERROR(std::string("[GladLoader] GLAD    Loading GLES2 API failed (backend=") +
+              BackendToString(GLResolver::Instance().CurrentBackend()) + ")");
 
-        return false;
+    return false;
 
 #endif // #ifndef USE_GLES else
-    }
 }
 
 } // namespace Platform

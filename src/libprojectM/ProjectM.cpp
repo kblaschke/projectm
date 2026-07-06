@@ -62,7 +62,7 @@ void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTran
     try
     {
         m_textureManager->PurgeTextures();
-        StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
+        StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename, *m_renderContext), !smoothTransition);
     }
     catch (const std::exception& ex)
     {
@@ -76,7 +76,7 @@ void ProjectM::LoadPresetData(std::istream& presetData, bool smoothTransition)
     try
     {
         m_textureManager->PurgeTextures();
-        StartPresetTransition(m_presetFactoryManager->CreatePresetFromStream(".milk", presetData), !smoothTransition);
+        StartPresetTransition(m_presetFactoryManager->CreatePresetFromStream(".milk", presetData, *m_renderContext), !smoothTransition);
     }
     catch (const std::exception& ex)
     {
@@ -88,7 +88,7 @@ void ProjectM::LoadPresetData(std::istream& presetData, bool smoothTransition)
 void ProjectM::SetTexturePaths(std::vector<std::string> texturePaths)
 {
     m_textureSearchPaths = std::move(texturePaths);
-    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths);
+    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths, *m_glContext);
     if (m_textureLoadCallback)
     {
         m_textureManager->SetTextureLoadCallback(m_textureLoadCallback);
@@ -97,7 +97,7 @@ void ProjectM::SetTexturePaths(std::vector<std::string> texturePaths)
 
 void ProjectM::ResetTextures()
 {
-    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths);
+    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths, *m_glContext);
     if (m_textureLoadCallback)
     {
         m_textureManager->SetTextureLoadCallback(m_textureLoadCallback);
@@ -147,6 +147,8 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
         }
     }
 
+    UpdateRenderContext();
+
     // If no preset is active, load the idle preset.
     if (!m_activePreset)
     {
@@ -156,7 +158,7 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
             return;
         }
 
-        m_activePreset->Initialize(GetRenderContext());
+        m_activePreset->Initialize();
     }
 
     if (m_timeKeeper->IsSmoothing() && m_transitioningPreset != nullptr)
@@ -169,8 +171,6 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
         }
     }
 
-    auto renderContext = GetRenderContext();
-
     if (m_transition != nullptr && m_transitioningPreset != nullptr)
     {
         if (m_transition->IsDone(m_timeKeeper->GetFrameTime()))
@@ -181,39 +181,40 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
         }
         else
         {
-            m_transitioningPreset->RenderFrame(audioData, renderContext);
+            m_transitioningPreset->RenderFrame(audioData);
         }
     }
 
 
     // ToDo: Call the to-be-implemented render method in Renderer
-    m_activePreset->RenderFrame(audioData, renderContext);
+    m_activePreset->RenderFrame(audioData);
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(targetFramebufferObject));
-    glViewport(0, 0, renderContext.viewportSizeX, renderContext.viewportSizeY);
+    m_glContext->BindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(targetFramebufferObject));
+    m_glContext->Viewport(0, 0, m_renderContext->viewportSizeX, m_renderContext->viewportSizeY);
 
-#ifdef USE_GLES
     // On WebGL2 / Chrome ANGLE, the default framebuffer's draw buffer must
     // be explicitly set to GL_BACK after preset rendering, which may leave
     // per-FBO draw buffer state that leaks into FBO 0 on some drivers.
-    if (targetFramebufferObject == 0)
+    if (m_glContext->ES_VERSION_3_0)
     {
-        GLenum backBuf = GL_BACK;
-        glDrawBuffers(1, &backBuf);
+        if (targetFramebufferObject == 0)
+        {
+            GLenum backBuf = GL_BACK;
+            m_glContext->DrawBuffers(1, &backBuf);
+        }
     }
-#endif
 
     if (m_transition != nullptr && m_transitioningPreset != nullptr)
     {
-        m_transition->Draw(*m_activePreset, *m_transitioningPreset, renderContext, audioData, m_timeKeeper->GetFrameTime());
+        m_transition->Draw(*m_activePreset, *m_transitioningPreset, *m_renderContext, audioData, m_timeKeeper->GetFrameTime());
     }
     else
     {
-        m_textureCopier->Draw(*renderContext.shaderCache, m_activePreset->OutputTexture(), false, false);
+        m_textureCopier->Draw(m_renderContext->shaderCache, m_activePreset->OutputTexture(), false, false);
     }
 
     // Draw user sprites
-    m_spriteManager->Draw(audioData, renderContext, targetFramebufferObject, {m_activePreset, m_transitioningPreset});
+    m_spriteManager->Draw(audioData, *m_renderContext, targetFramebufferObject, {m_activePreset, m_transitioningPreset});
 
     m_frameCount++;
     m_previousFrameVolume = audioData.vol;
@@ -229,16 +230,16 @@ void ProjectM::Initialize()
                                                 m_hardCutDuration,
                                                 m_easterEgg);
 
-    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths);
+    m_textureManager = std::make_shared<Renderer::TextureManager>(m_textureSearchPaths, *m_glContext);
     m_shaderCache = std::make_unique<Renderer::ShaderCache>();
-
-    m_transitionShaderManager = std::make_unique<Renderer::TransitionShaderManager>();
-
-    m_textureCopier = std::make_unique<Renderer::CopyTexture>();
-
+    m_transitionShaderManager = std::make_unique<Renderer::TransitionShaderManager>(*m_glContext);
+    m_textureCopier = std::make_unique<Renderer::CopyTexture>(*m_glContext);
     m_spriteManager = std::make_unique<UserSprites::SpriteManager>();
+    m_renderContext = std::make_unique<Renderer::RenderContext>(*m_glContext,
+                                                                m_textureManager,
+                                                                *m_shaderCache);
 
-    m_presetFactoryManager->initialize();
+    m_presetFactoryManager->Initialize();
 
     LoadIdlePreset();
 
@@ -247,7 +248,7 @@ void ProjectM::Initialize()
 
 void ProjectM::CheckGLSLVersion()
 {
-    auto glslVersion = Renderer::Shader::GetShaderLanguageVersion();
+    auto glslVersion = Renderer::Shader::GetShaderLanguageVersion(*m_glContext);
 
     if (glslVersion.major == 0)
     {
@@ -294,7 +295,9 @@ void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hard
         return;
     }
 
-    preset->Initialize(GetRenderContext());
+    UpdateRenderContext();
+
+    preset->Initialize();
 
     // If already in a transition, force immediate completion.
     if (m_transitioningPreset != nullptr)
@@ -305,7 +308,7 @@ void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hard
 
     if (m_activePreset && !m_presetStartClean)
     {
-        preset->DrawInitialImage(m_activePreset->OutputTexture(), GetRenderContext());
+        preset->DrawInitialImage(m_activePreset->OutputTexture());
     }
 
     if (hardCut)
@@ -317,7 +320,7 @@ void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hard
     {
         m_transitioningPreset = std::move(preset);
         m_timeKeeper->StartSmoothing();
-        m_transition = std::make_unique<Renderer::PresetTransition>(m_transitionShaderManager->RandomTransition(), m_softCutDuration, m_timeKeeper->GetFrameTime());
+        m_transition = std::make_unique<Renderer::PresetTransition>(m_transitionShaderManager->RandomTransition(), m_softCutDuration, m_timeKeeper->GetFrameTime(), *m_glContext);
     }
 }
 
@@ -333,7 +336,8 @@ auto ProjectM::WindowHeight() -> int
 
 auto ProjectM::AddUserSprite(const std::string& type, const std::string& spriteData) -> uint32_t
 {
-    return m_spriteManager->Spawn(type, spriteData, GetRenderContext());
+    UpdateRenderContext();
+    return m_spriteManager->Spawn(type, spriteData, *m_renderContext);
 }
 
 void ProjectM::DestroyUserSprite(uint32_t spriteIdentifier)
@@ -380,7 +384,7 @@ void ProjectM::BurnInTexture(uint32_t openGlTextureId, int left, int top, int wi
         m_textureCopier->Draw(*m_shaderCache, openGlTextureId, m_windowWidth, m_windowHeight, left, top, width, height);
     }
 
-    Renderer::Framebuffer::Unbind();
+    Renderer::Framebuffer::Unbind(*m_glContext);
 }
 
 void ProjectM::SetPresetLocked(bool locked)
@@ -573,39 +577,36 @@ void ProjectM::TouchDestroyAll()
     // UNIMPLEMENTED
 }
 
-auto ProjectM::GetRenderContext() -> Renderer::RenderContext
+void ProjectM::UpdateRenderContext()
 {
-    Renderer::RenderContext ctx{};
-    ctx.viewportSizeX = m_windowWidth;
-    ctx.viewportSizeY = m_windowHeight;
-    ctx.time = static_cast<float>(m_timeKeeper->GetRunningTime());
-    ctx.progress = static_cast<float>(m_timeKeeper->PresetProgressA());
-    ctx.fps = static_cast<float>(m_targetFps);
-    ctx.frame = m_frameCount;
-    ctx.aspectX = (m_windowHeight > m_windowWidth) ? static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight) : 1.0f;
-    ctx.aspectY = (m_windowWidth > m_windowHeight) ? static_cast<float>(m_windowHeight) / static_cast<float>(m_windowWidth) : 1.0f;
-    ctx.invAspectX = 1.0f / ctx.aspectX;
-    ctx.invAspectY = 1.0f / ctx.aspectY;
+    m_renderContext->viewportSizeX = m_windowWidth;
+    m_renderContext->viewportSizeY = m_windowHeight;
+    m_renderContext->time = static_cast<float>(m_timeKeeper->GetRunningTime());
+    m_renderContext->progress = static_cast<float>(m_timeKeeper->PresetProgressA());
+    m_renderContext->fps = static_cast<float>(m_targetFps);
+    m_renderContext->frame = m_frameCount;
+    m_renderContext->aspectX = (m_windowHeight > m_windowWidth) ? static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight) : 1.0f;
+    m_renderContext->aspectY = (m_windowWidth > m_windowHeight) ? static_cast<float>(m_windowHeight) / static_cast<float>(m_windowWidth) : 1.0f;
+    m_renderContext->invAspectX = 1.0f / m_renderContext->aspectX;
+    m_renderContext->invAspectY = 1.0f / m_renderContext->aspectY;
 
-    ctx.perPixelMeshX = static_cast<int>(m_meshX);
-    ctx.perPixelMeshY = static_cast<int>(m_meshY);
+    m_renderContext->perPixelMeshX = static_cast<int>(m_meshX);
+    m_renderContext->perPixelMeshY = static_cast<int>(m_meshY);
 
-    ctx.texelOffsetX = m_texelOffsetX;
-    ctx.texelOffsetY = m_texelOffsetY;
+    m_renderContext->texelOffsetX = m_texelOffsetX;
+    m_renderContext->texelOffsetY = m_texelOffsetY;
 
-    ctx.textureManager = m_textureManager.get();
-    ctx.shaderCache = m_shaderCache.get();
+    m_renderContext->textureManager = m_textureManager;
+    m_renderContext->shaderCache = *m_shaderCache;
 
     if (m_transition)
     {
-        ctx.blendProgress = m_transition->Progress(ctx.time);
+        m_renderContext->blendProgress = m_transition->Progress(m_renderContext->time);
     }
     else
     {
-        ctx.blendProgress = 0.0;
+        m_renderContext->blendProgress = 0.0;
     }
-
-    return ctx;
 }
 
 } // namespace libprojectM

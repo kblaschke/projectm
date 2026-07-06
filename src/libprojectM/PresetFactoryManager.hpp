@@ -45,18 +45,22 @@ public:
     /**
      * @brief Initializes the manager.
      */
-    void initialize();
+    void Initialize();
 
-    /// Requests a factory given a preset extension type
-    /// \param extension a string denoting the preset suffix type
-    /// \throws PresetFactoryException if the extension is unhandled
-    /// \returns a valid preset factory associated with the extension
-    PresetFactory& factory(const std::string& extension);
+    /**
+     * Requests a factory given a preset extension type
+     * @param extension a string denoting the preset suffix type
+     * @throws PresetFactoryException if the extension is unhandled
+     * @returns a valid preset factory associated with the extension
+     **/
+    PresetFactory& Factory(const std::string& extension);
 
-    /// Tests if an extension has been registered with a factory
-    /// \param extension the file name extension to verify
-    /// \returns true if a factory exists, false otherwise
-    bool extensionHandled(const std::string& extension) const;
+    /**
+     *  Tests if an extension has been registered with a factory
+     *  @param extension the file name extension to verify
+     *  @returns true if a factory exists, false otherwise
+     **/
+    bool ExtensionHandled(const std::string& extension) const;
 
     /**
      * @brief Loads a preset by a given filename or URL.
@@ -65,27 +69,31 @@ public:
      * throw an exception.
      *
      * @param filename The filename/URL to load.
+     * @param renderContext The projectM preset render context.
      * @throws PresetFactoryException If any error occurs during preset loading. Exception message
      *                                contains additional details.
      * @return A valid pointer to the loaded preset.
      */
-    std::unique_ptr<Preset> CreatePresetFromFile(const std::string& filename);
+    std::unique_ptr<Preset> CreatePresetFromFile(const std::string& filename,
+                                                 const Renderer::RenderContext& renderContext);
 
     /**
      * @brief Loads a preset from a stream.
      * @param extension The "original" extension. Used to determine preset data format.
      * @param data A stream with preset data to load.
+     * @param renderContext The projectM preset render context.
      * @throws PresetFactoryException If any error occurs during preset loading. Exception message
      *                                contains additional details.
      * @return A valid pointer to the loaded preset.
      */
-    std::unique_ptr<Preset> CreatePresetFromStream(const std::string& extension, std::istream& data);
+    std::unique_ptr<Preset> CreatePresetFromStream(const std::string& extension, std::istream& data,
+                                                   const Renderer::RenderContext& renderContext);
 
-    std::vector<std::string> extensionsHandled() const;
+    std::vector<std::string> ExtensionsHandled() const;
 
 
 private:
-    void registerFactory(const std::string& extension, PresetFactory* factory);
+    void RegisterFactory(const std::string& extension, PresetFactory* factory);
 
     auto ParseExtension(const std::string& filename) -> std::string;
 

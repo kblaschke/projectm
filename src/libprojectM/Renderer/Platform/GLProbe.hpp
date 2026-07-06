@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glad/gl.h>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -115,14 +117,15 @@ public:
     public:
         /**
          * @brief Constructs a builder with default (permissive) requirements.
+         * @param context The GladGLContext structure to populate.
          */
-        CheckBuilder();
+        CheckBuilder(GladGLContext& context);
 
         /**
-         * @brief Sets the GL function pointers to use for the checks.
-         * Optional, uses the resolver to discover functions if not provided.
+         * @brief Sets a custom GL function resolver, provided from the external application.
+         * Optional, uses the default glad loader to discover functions if not provided.
          */
-        auto WithGLFunctions(const GLFunctions& glFunctions) -> CheckBuilder&;
+        auto WithUserGLFunctionResolver(GLADapiproc resolver) -> CheckBuilder&;
 
         /**
          * @brief Sets the required API (Any/OpenGL/OpenGLES).
@@ -173,8 +176,9 @@ public:
         [[nodiscard]] auto Check() const -> GLProbeResult;
 
     private:
-        GLFunctions m_gl;     //!< GL functions used for checks.
-        GLRequirements m_req; //!< Requirements being built.
+        GladGLContext& m_glContext;            //!< The glad GL context struct
+        GLADapiproc m_customResolver{nullptr}; //!< The custom user-defined GL resolver callback.
+        GLRequirements m_req;                  //!< Requirements being built.
     };
 
     /**

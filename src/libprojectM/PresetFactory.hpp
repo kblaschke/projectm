@@ -30,16 +30,18 @@ public:
     /**
      * @brief Constructs a new preset from a local file
      * @param filename The preset filename
+     * @param renderContext The projectM preset render context.
      * @returns A valid preset object
      */
-    virtual std::unique_ptr<Preset> LoadPresetFromFile(const std::string& filename) = 0;
+    virtual std::unique_ptr<Preset> LoadPresetFromFile(const std::string& filename, const Renderer::RenderContext& renderContext) = 0;
 
     /**
      * @brief Constructs a new preset from a stream
      * @param data The preset data stream
+     * @param renderContext The projectM preset render context.
      * @returns A valid preset object
      */
-    virtual std::unique_ptr<Preset> LoadPresetFromStream(std::istream& data) = 0;
+    virtual std::unique_ptr<Preset> LoadPresetFromStream(std::istream& data, const Renderer::RenderContext& renderContext) = 0;
 
     /**
      * Returns a space separated list of supported extensions

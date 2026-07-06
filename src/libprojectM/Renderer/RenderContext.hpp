@@ -5,6 +5,7 @@
 #pragma once
 
 #include <glad/gl.h>
+#include <memory>
 
 #include <projectM-4/projectM_cxx_export.h>
 
@@ -20,7 +21,7 @@ class TextureManager;
 class PROJECTM_CXX_EXPORT RenderContext
 {
 public:
-    RenderContext(const GladGLContext& glContextInit, TextureManager& textureManagerInit, ShaderCache& shaderCacheInit)
+    RenderContext(const GladGLContext& glContextInit, std::shared_ptr<TextureManager> textureManagerInit, ShaderCache& shaderCacheInit)
         : glContext(glContextInit)
         , textureManager(textureManagerInit)
         , shaderCache(shaderCacheInit)
@@ -45,9 +46,9 @@ public:
     float texelOffsetX{0.0f}; //!< Horizontal texel offset in the warp shader.
     float texelOffsetY{0.0f}; //!< Vertical texel offset in the warp shader.
 
-    const GladGLContext& glContext; //!< The OpenGL context used for rendering.
-    TextureManager& textureManager; //!< Holds all loaded textures for shader access.
-    ShaderCache& shaderCache;       //!< The shader cache of this projectM instance.
+    const GladGLContext& glContext;                 //!< The OpenGL context used for rendering.
+    std::shared_ptr<TextureManager> textureManager; //!< Holds all loaded textures for shader access.
+    ShaderCache& shaderCache;                       //!< The shader cache of this projectM instance.
 };
 
 } // namespace Renderer
