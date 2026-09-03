@@ -156,7 +156,10 @@ development team. Please report bugs in those applications to their respective d
 
 # Building from source
 
-See [BUILDING.md](BUILDING.md) and
+See [the build guide](https://github.com/projectM-visualizer/projectm/blob/master/docs/building.rst) for
+instructions on building libprojectM from source, including the full CMake reference,
+[the Emscripten guide](https://github.com/projectM-visualizer/projectm/blob/master/docs/emscripten.rst) for
+WebAssembly builds, and
 the [developer documentation in the wiki](https://github.com/projectM-visualizer/projectm/wiki/Building-libprojectM).
 
 # Using the library

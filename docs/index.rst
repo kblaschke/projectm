@@ -241,8 +241,7 @@ Architecture
 Building from source
 --------------------
 
-See `BUILDING.md <https://github.com/projectM-visualizer/projectm/blob/master/BUILDING.md>`__
-and the `developer documentation in the
+See :doc:`building` and the `developer documentation in the
 wiki <https://github.com/projectM-visualizer/projectm/wiki/Building-libprojectM>`__.
 
 Using the library

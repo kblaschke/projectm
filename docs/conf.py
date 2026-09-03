@@ -100,7 +100,7 @@ html_context = {
 # -- Extension configuration -------------------------------------------------
 # Path to the Doxygen XML output. Override with the PROJECTM_DOXYGEN_XML
 # environment variable, e.g. point it at <build-dir>/xml after running the
-# "projectm_doxygen" target (see BUILD_DOCS in BUILDING-cmake.md).
+# "projectm_doxygen" target (see BUILD_DOCS in docs/building.rst).
 breathe_projects = {"projectm_doxygen": os.environ.get(
     "PROJECTM_DOXYGEN_XML", "/home/dwagner/git/cmake-build-projectm/xml")}
 breathe_default_project = 'projectm_doxygen'
