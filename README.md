@@ -29,23 +29,20 @@ source-code and binary releases of the projectM development libraries and header
 
 ### End-User Applications
 
-**Important**: projectM is currently undergoing heavy development, so the available end-user frontends are either
-outdated or unavailable. We've released a few development previews, which are not feature-complete and may have bugs. As
-soon as we've finished the current modernization of libprojectM, we'll release new and tested versions of most of the
-frontends listed below, while we may remove or replace some of those which are no longer maintained by their original
-developers.
+**Important**: projectM is currently undergoing heavy development. The available end-user frontends are
+development previews, which are not feature-complete and may have bugs.
 
 #### Windows
 
-- Standalone (currently only available as
-  a [development preview](https://github.com/kblaschke/frontend-sdl2/releases/tag/2.0-windows-pre3))
+- Standalone ([projectMSDL 2.0 pre-release](https://github.com/projectM-visualizer/frontend-sdl-cpp/releases))
 - [Steam](https://store.steampowered.com/app/1358800/projectM_Music_Visualizer/) (Same as standalone development
   preview)
+- [Windows Store](https://www.microsoft.com/store/apps/9NDCVH0VCWJN) (Old 3.1.12 release)
 
 #### macOS
 
 - Standalone
-  - [C++ app development preview](https://github.com/kblaschke/frontend-sdl2/releases/tag/2.0-macos-pre1)
+  - [C++ app pre-release](https://github.com/projectM-visualizer/frontend-sdl-cpp/releases)
   - [Rust app development preview (signed)](https://github.com/projectM-visualizer/frontend-sdl-rust/releases/tag/v0.1.0)
 - [Steam](https://store.steampowered.com/app/1358800/projectM_Music_Visualizer/) (Old 3.1.12 release)
 - Music.app Plugin  (currently only available as an
@@ -54,9 +51,8 @@ developers.
 
 #### Linux
 
-- Standalone (currently only available as
-  a [development preview](https://github.com/kblaschke/frontend-sdl2/releases/tag/2.0-linux-pre2) for Ubuntu 22.04 and
-  compatible distributions)
+- Standalone ([projectMSDL 2.0 pre-release](https://github.com/projectM-visualizer/frontend-sdl-cpp/releases), also
+  available as `.deb` and `.tar.gz`)
 - [Steam](https://store.steampowered.com/app/1358800/projectM_Music_Visualizer/) (Same as standalone development
   preview)
 
@@ -81,9 +77,9 @@ Source code and other resources, mostly aimed at developers.
 
 - [Library source code](https://github.com/projectM-visualizer/projectm/) (this repository)
 - [GStreamer plugin](https://github.com/projectM-visualizer/gst-projectm/)
-- [Qt5](https://www.qt.io/) based [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/) and JACK desktop
-  apps [as source code for Linux](https://github.com/projectM-visualizer/frontend-qt), currently broken and needs some
-  updating (help wanted!).
+- [Qt](https://www.qt.io/) based (Qt5/Qt6) desktop apps for Linux with
+  [PipeWire](https://pipewire.org/), [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/) and JACK audio
+  backends ([source code](https://github.com/projectM-visualizer/frontend-qt), requires libprojectM 4.x).
 - [ALSA, XMMS, Winamp, JACK](https://sourceforge.net/projects/projectm/files/) (legacy 2.x sources for historic
   purposes, unmaintained since 2012)
 
@@ -226,8 +222,8 @@ If you maintain packages of libprojectM, we are happy to work with you! Please n
 - Many of the frontend applications are likely outdated and of less utility than the core library. If you desire to use
   them or depend on them, please file an issue in the respective repository so we can help update them.
 - The "canonical" application for actually viewing the visualizations is
-  now [projectM-SDL](https://github.com/projectM-visualizer/frontend-sdl2), based on libSDL2 because it supports audio
-  input and is completely cross-platform.
+  now [projectMSDL](https://github.com/projectM-visualizer/frontend-sdl-cpp), based on libSDL2 because it supports
+  audio input and is completely cross-platform.
 - If you like Rust, there is a [SDL3 rust frontend](https://github.com/projectM-visualizer/frontend-sdl-rust) in the works looking for contributors.
 - This is an open source project! If you don't like something, feel free to contribute improvements!
 - Yes, you are looking at the official version. This is not a fork.

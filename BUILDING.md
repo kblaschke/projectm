@@ -17,8 +17,9 @@ Mandatory packages:
 sudo apt install build-essential cmake libgl1-mesa-dev mesa-common-dev
 ```
 
-**Important:** Depending on your distribution, the CMake package might be too old to build projectM, e.g. Debian 11 (
-bookworm) only provides CMake 3.18 while CMake 3.21 is required. In this case, get the latest CMake
+**Important:** projectM requires CMake 3.21 or newer. Current stable distributions already ship a new enough
+CMake (e.g. Debian 12 "bookworm" with CMake 3.25, Ubuntu 22.04 and newer with CMake 3.22+). Only end-of-life releases
+like Debian 11 "bullseye" (CMake 3.18) need a manual install, in which case get the latest CMake
 release [from Kitware's download page](https://cmake.org/download/).
 
 Optional packages:
@@ -49,9 +50,6 @@ git submodule update
 
 ### Build and install projectM
 
-Older projectM releases use autoconf/automake for building. If your repository has a `CMakeLists.txt` file on the top
-level, skip to the CMake part right below.
-
 Replace `/usr/local` with your preferred installation prefix.
 
 #### Configure the project using CMake
@@ -78,7 +76,9 @@ cmake --build . -- -j && sudo cmake --build . --target install
 
 #### Test projectM
 
-If you have a desktop environment installed, you can now run `[prefix]/bin/projectMSDL`.
+The SDL-based developer test UI is off by default. To build it, add `-DENABLE_SDL_UI=ON` to the configure command
+above (requires SDL2, e.g. `sudo apt install libsdl2-dev`). It is not installed; after building, run it from the build
+directory, e.g. `./src/sdl-test-ui/projectM-Test-UI`.
 
 ## Dependencies
 
@@ -88,7 +88,7 @@ development files. To build projectM, both binaries and development files need t
 #### General build dependencies for all platforms:
 
 * A working build toolchain (compiler, linker).
-* CMake 3.21 or highter.
+* CMake 3.21 or higher.
 * **OpenGL**: 3D graphics library. Used to render the visualizations.
 * **GLES3**: OpenGL libraries for embedded systems, version 3. Required to build projectM on mobile devices, Raspberry
   Pi and Emscripten.
@@ -284,7 +284,7 @@ libprojectM builds at least on the following platforms:
 - Windows
 - Linux
 - macOS (iOS/tvOS as well, but be aware that Apple's TOS may prevent its use in Store apps!)
-- BSD derivates
+- BSD derivatives
 - Android
 - WebGL/WASM (using emscripten)
 
@@ -320,9 +320,10 @@ automatically (e.g. OpenGL libraries) and have to be added manually depending on
 
 ### Frontends and audio capturing
 
-Previous projectM versions (before 4.0) came with several UIs and audio capture implementations. To reduce the size of
-the code base and separate the release cycles and development of the core library and the frontends, these have been
-removed from libprojectM and either being rewritten or moved into their own, separate Git repository.
+Previous projectM versions (before 4.0) shipped several UIs and audio capture implementations in this repository.
+To reduce the size of the code base and separate the release cycles of the core library and the frontends, these were
+moved into their own repositories under the [projectM-visualizer organization](https://github.com/projectM-visualizer)
+(e.g. the SDL-based desktop app and the Qt-based desktop app with PipeWire/PulseAudio/JACK backends).
 
 libprojectM on its own does not have any means of capturing audio, it simply takes PCM data via the API. Applications
 using projectM can supply this data from their own audio sources, e.g. music playing in an audio player or capturing

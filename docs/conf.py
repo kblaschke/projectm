@@ -10,7 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -22,10 +22,10 @@ copyright = '2024, libprojectM committers'
 author = 'libprojectM committers'
 
 # The short X.Y version
-version = '4.1.0'
+version = '4.2.0'
 
 # The full version, including alpha/beta/rc tags
-release = '4.1.0'
+release = '4.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -98,5 +98,9 @@ html_context = {
 }
 
 # -- Extension configuration -------------------------------------------------
-breathe_projects = { "projectm_doxygen": "/home/dwagner/git/cmake-build-projectm/xml" }
+# Path to the Doxygen XML output. Override with the PROJECTM_DOXYGEN_XML
+# environment variable, e.g. point it at <build-dir>/xml after running the
+# "projectm_doxygen" target (see BUILD_DOCS in BUILDING-cmake.md).
+breathe_projects = {"projectm_doxygen": os.environ.get(
+    "PROJECTM_DOXYGEN_XML", "/home/dwagner/git/cmake-build-projectm/xml")}
 breathe_default_project = 'projectm_doxygen'

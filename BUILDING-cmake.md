@@ -9,7 +9,7 @@ Want to build it fast?
 Required tools and dependencies:
 
 - CMake 3.21 or higher.
-- A working toolchain, e.g. Visual Studio on Windows or the `build-essentials` package on Ubuntu Linux.
+- A working toolchain, e.g. Visual Studio on Windows or the `build-essential` package on Ubuntu Linux.
 - Main OpenGL libraries and development files.
 
 To use the library in other projects, it is required to install it. Use `CMAKE_INSTALL_PREFIX` to specify the
@@ -27,7 +27,7 @@ cmake --build . --target install --config Release
 If the build succeeded, you should now have the projectM libraries and include files in the specified install dir.
 
 To use the library in other CMake projects, simply point the build to your install dir by adding it
-to `CMAKE_PREFIX_PATH` and call `find_package(libprojectM)` in the other project's `CMakeLists.txt`.
+to `CMAKE_PREFIX_PATH` and call `find_package(projectM4)` in the other project's `CMakeLists.txt`.
 
 If you use other build systems, you have to specify the include and library paths manually.
 
@@ -75,12 +75,12 @@ cmake -G Xcode -S /path/to/source/dir -B /path/to/build/dir
 
 If you develop on Windows, you will possibly use Visual Studio. While recent visual Studio versions have CMake support
 built-in, you can still pre-generate the solution and project files and open the `.sln` file from the build directory.
-CMake provides a separate generator for each Visual Studio release. For Visual Studio 2019 you would use
-the [`Visual Studio 16 2019`](https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.html) generator
+CMake provides a separate generator for each Visual Studio release. For Visual Studio 2022 you would use
+the [`Visual Studio 17 2022`](https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2017%202022.html) generator
 and provide an additional architecture parameter:
 
 ```shell
-cmake -G "Visual Studio 16 2019" -A "X64" -S /path/to/source/dir -B /path/to/build/dir
+cmake -G "Visual Studio 17 2022" -A "X64" -S /path/to/source/dir -B /path/to/build/dir
 ```
 
 It is not possible to generate multi-arch solutions with CMake though. You need to create separate build directories and
@@ -102,9 +102,10 @@ using the `-D` switch.
 | CMake option        | Default | Required dependencies | Description                                                                                 |
 |---------------------|---------|-----------------------|---------------------------------------------------------------------------------------------|
 | `BUILD_TESTING`     | `OFF`   |                       | Builds the unit tests.                                                                      |
+| `BUILD_DOCS`        | `OFF`   | `Doxygen`, `Sphinx`   | Builds the API/developer documentation in `docs/`.                                          |
 | `BUILD_SHARED_LIBS` | `ON`    |                       | Build projectM as shared libraries. If `OFF`, build static libraries.                       |
 | `ENABLE_PLAYLIST`   | `ON`    |                       | Builds and installs the playlist library.                                                   |
-| `ENABLE_EMSCRIPTEN` | `OFF`   | `Emscripten`          | Build for the web using Emscripten. Only supports build as a static library and using GLES. |
+| `ENABLE_EMSCRIPTEN` | (auto)  | `Emscripten`          | Forced `ON` when building with the Emscripten toolchain, otherwise `OFF`. Not user-settable. |
 | `ENABLE_GLES`       | `OFF`   | `GLES`                | Use OpenGL ES 3 profile for rendering instead of the Core profile.                          |
 
 Note that `ENABLE_GLES` will be forcibly set to `ON` for Emscripten and Android builds, making it mandatory.
@@ -114,14 +115,17 @@ Note that `ENABLE_GLES` will be forcibly set to `ON` for Emscripten and Android 
 The following table contains a list of build options which are only useful in special circumstances, e.g. when
 developing libprojectM, trying experimental features or building the library for a special use-case/environment.
 
-| CMake option             | Default | Required dependencies          | Description                                                                                                                                                                                                                                      |
-|--------------------------|---------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ENABLE_SDL_UI`          | `ON`    | `SDL2`                         | Builds the SDL-based test application. Only used for development testing, will not be installed.                                                                                                                                                 |
-| `ENABLE_INSTALL`         | `OFF`   | Building as a CMake subproject | Enable projectM install targets when built as a subproject via `add_subdirectory()`.                                                                                                                                                             |
-| `ENABLE_DEBUG_POSTFIX`   | `ON`    |                                | Adds `d` (by default) to the name of any binary file in debug builds.                                                                                                                                                                            |
-| `ENABLE_SYSTEM_GLM`      | `OFF`   |                                | Builds against a system-installed GLM library.                                                                                                                                                                                                   |
-| `ENABLE_CXX_INTERFACE`   | `OFF`   |                                | Exports symbols for the `ProjectM` and `PCM` C++ classes and installs the additional the headers. Using the C++ interface is not recommended and unsupported.                                                                                    |
-| `ENABLE_VERBOSE_LOGGING` | `OFF`   |                                | Enables code for `TRACE` and `DEBUG` log levels in release builds. By default, these will only be compiled for `Debug` builds. Enabling this will negatively affect performance, even if the actual log level is set to `INFORMATION` or higher. |
+| CMake option                 | Default                          | Required dependencies          | Description                                                                                                                                                                                                                                      |
+|------------------------------|----------------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ENABLE_SDL_UI`              | `OFF`                            | `SDL2`                         | Builds the SDL-based test application. Only used for development testing, will not be installed.                                                                                                                                                 |
+| `ENABLE_INSTALL`             | `ON` (top-level) / `OFF` (subproject) |                           | Enable projectM install targets. Automatically `ON` when built standalone, `OFF` when added via `add_subdirectory()`.                                                                                                                            |
+| `ENABLE_DEBUG_POSTFIX`       | `ON`                             |                                | Adds `d` (by default) to the name of any binary file in debug builds.                                                                                                                                                                            |
+| `ENABLE_SYSTEM_GLM`          | `OFF`                            |                                | Builds against a system-installed GLM library.                                                                                                                                                                                                   |
+| `ENABLE_SYSTEM_PROJECTM_EVAL`| `ON`                             |                                | Uses a system-installed projectM-eval library if found, otherwise the bundled sources in `vendor/`.                                                                                                                                              |
+| `ENABLE_BOOST_FILESYSTEM`    | `OFF`                            | `Boost`                        | Forces the use of `boost::filesystem` instead of `std::filesystem`. Only needed on toolchains without C++17 filesystem support.                                                                                                                  |
+| `ENABLE_MACOS_FRAMEWORK`     | `OFF`                            | macOS                          | Build as macOS Framework bundles instead of plain shared libraries.                                                                                                                                                                              |
+| `ENABLE_CXX_INTERFACE`       | `OFF`                            |                                | Exports symbols for the `ProjectM` and `PCM` C++ classes and installs the additional the headers. Using the C++ interface is not recommended and unsupported.                                                                                    |
+| `ENABLE_VERBOSE_LOGGING`     | `OFF`                            |                                | Enables code for `TRACE` and `DEBUG` log levels in release builds. By default, these will only be compiled for `Debug` builds. Enabling this will negatively affect performance, even if the actual log level is set to `INFORMATION` or higher. |
 
 ### Path options
 
@@ -236,7 +240,7 @@ Build targets - shared/static libraries and executables - are created in the sam
 the `CMakeLists.txt` file that defines the target in the source tree (which, in most cases, resides in the same
 directory as the source files). Depending on the generator used, the binaries are created directly in the directory for
 single-configuration generators (like `Unix Makefiles` or `Ninja`) and in a subdirectory with the configuration name,
-e.g. `Debug` or `Release`, for multi-configuration generators like `Xcode` or `Visual Studio 16 2019`.
+e.g. `Debug` or `Release`, for multi-configuration generators like `Xcode` or `Visual Studio 17 2022`.
 
 You may also find additional files and symbolic links in the same location depending on the platform, e.g. `.pdb` files
 on Windows.

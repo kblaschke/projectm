@@ -5,7 +5,7 @@ OpenGL ES, but not identical, so a few additional considerations apply to get pr
 
 ## Additional Build Settings
 
-A few additional build settings will be required when building an Emscripten wrapper. Pass these flags/parameterrs to
+A few additional build settings will be required when building an Emscripten wrapper. Pass these flags/parameters to
 the Emscripten linker:
 
 - `-sUSE_SDL=2`: It is highly recommended to use Emscripten's built-in SDL2 port to set up the rendering context. This
@@ -18,7 +18,7 @@ the Emscripten linker:
 ## Initializing Emscripten's OpenGL Context
 
 In addition to the above linker flags, some additional initialization steps must be performed to set up the OpenGL
-rendering context for projectM. Specifically, the `OES_texture_float` WenGL extension must be loaded explicitly to
+rendering context for projectM. Specifically, the `OES_texture_float` WebGL extension must be loaded explicitly to
 support the required texture format for the motion vector grid. The following code template can be used to set up a
 proper SDL2/WebGL context for projectM:
 
