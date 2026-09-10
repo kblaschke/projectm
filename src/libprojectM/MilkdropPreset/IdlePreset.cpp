@@ -196,7 +196,7 @@ std::unique_ptr<Preset>
 IdlePresets::allocate()
 {
     std::istringstream in(presetText());
-    return std::unique_ptr<Preset>(new MilkdropPreset(in));
+    return std::make_unique<MilkdropPreset>(in);
 }
 
 } // namespace MilkdropPreset

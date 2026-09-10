@@ -47,7 +47,7 @@ public:
     /**
      * @brief Compiles and runs the preset init code.
      * @throws MilkdropCompileException Thrown if the per-frame init code couldn't be compiled.
-     * @param perFrameInitCode The init code.
+     * @param state The preset state container.
      */
     void EvaluateInitCode(PresetState& state);
 

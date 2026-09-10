@@ -31,7 +31,7 @@ public:
      * those marked as "read-only". All other variables are assigned/reset for each rendered point.
      * @param presetPerFrameContext The preset per-frame context.
      */
-    void LoadReadOnlyStateVariables(const PerFrameContext& presetPerFrameContext);
+    void LoadReadOnlyStateVariables(const PerFrameContext& presetPerFrameContext) const;
 
     /**
      * @brief Compiles the per-point code and stores the code handle in the class.
@@ -43,7 +43,7 @@ public:
     /**
      * @brief Executes the per-point code with the current state.
      */
-    void ExecutePerPointCode();
+    void ExecutePerPointCode() const;
 
     projectm_eval_context* perPointCodeContext{nullptr}; //!< The code runtime context, holds memory buffers and variables.
     projectm_eval_code* perPointCodeHandle{nullptr}; //!< The compiled waveform per-point code handle.

@@ -30,8 +30,8 @@ Border::Border(PresetState& presetState)
 void Border::Draw(const PerFrameContext& presetPerFrameContext)
 {
     // Draw Borders
-    float const outerBorderSize = static_cast<float>(*presetPerFrameContext.ob_size);
-    float const innerBorderSize = static_cast<float>(*presetPerFrameContext.ib_size);
+    const auto outerBorderSize = static_cast<float>(*presetPerFrameContext.ob_size);
+    const auto innerBorderSize = static_cast<float>(*presetPerFrameContext.ib_size);
 
     // No additive drawing for borders
     Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::SourceAlpha, Renderer::BlendMode::Function::OneMinusSourceAlpha);

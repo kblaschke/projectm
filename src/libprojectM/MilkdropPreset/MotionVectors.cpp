@@ -18,7 +18,7 @@ MotionVectors::MotionVectors(PresetState& presetState)
     m_motionVectorMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Lines);
 }
 
-void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shared_ptr<Renderer::Texture> motionTexture)
+void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, const std::shared_ptr<Renderer::Texture>& motionTexture)
 {
     // Don't draw if invisible.
     if (*presetPerFrameContext.mv_a < 0.0001f)
@@ -57,9 +57,9 @@ void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
 
     // Tweaked this a bit to ensure lines are always at least a bit more than 1px long.
     // Line smoothing makes some of them disappear otherwise.
-    float const inverseWidth = 1.25f / static_cast<float>(m_presetState.renderContext.viewportSizeX);
-    float const inverseHeight = 1.25f / static_cast<float>(m_presetState.renderContext.viewportSizeY);
-    float const minimumLength = sqrtf(inverseWidth * inverseWidth + inverseHeight * inverseHeight);
+    const float inverseWidth = 1.25f / static_cast<float>(m_presetState.renderContext.viewportSizeX);
+    const float inverseHeight = 1.25f / static_cast<float>(m_presetState.renderContext.viewportSizeY);
+    const float minimumLength = sqrtf(inverseWidth * inverseWidth + inverseHeight * inverseHeight);
 
     m_motionVectorMesh.SetVertexCount(static_cast<std::size_t>(countX + 1) * 2); // countX + 1 lines for each grid row, 2 vertices each.
 
@@ -90,14 +90,14 @@ void MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
 
     for (int y = 0; y < countY; y++)
     {
-        float const posY = (static_cast<float>(y) + 0.25f) / (static_cast<float>(countY) + divertY + 0.25f - 1.0f) - divertY2;
+        const float posY = (static_cast<float>(y) + 0.25f) / (static_cast<float>(countY) + divertY + 0.25f - 1.0f) - divertY2;
 
         if (posY > 0.0001f && posY < 0.9999f)
         {
             int vertex = 0;
             for (int x = 0; x < countX; x++)
             {
-                float const posX = (static_cast<float>(x) + 0.25f) / (static_cast<float>(countX) + divertX + 0.25f - 1.0f) + divertX2;
+                const float posX = (static_cast<float>(x) + 0.25f) / (static_cast<float>(countX) + divertX + 0.25f - 1.0f) + divertX2;
 
                 if (posX > 0.0001f && posX < 0.9999f)
                 {
@@ -133,7 +133,7 @@ std::shared_ptr<Renderer::Shader> MotionVectors::GetShader()
     if (!shader)
     {
         // First use, compile and cache.
-        auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
+        auto staticShaders = MilkdropStaticShaders::Get();
 
         shader = std::make_shared<Renderer::Shader>();
         shader->CompileProgram(staticShaders->GetPresetMotionVectorsVertexShader(),

@@ -38,19 +38,19 @@ public:
      * Returns the GLSLGenerator version enum value corresponding to the queried OpenGL shader version.
      * @return The GLSLGenerator version enum value corresponding to the queried OpenGL shader version.
      */
-    M4::GLSLGenerator::Version GetGlslGeneratorVersion()
+    M4::GLSLGenerator::Version GetGlslGeneratorVersion() const
     {
         return m_GLSLGeneratorVersion;
     }
 
     // Accessors for the named static GL shader resources.
-@STATIC_SHADER_ACCESSOR_DECLARATIONS@
+    #include "MilkdropStaticShaders_Declarations.hpp"
 
 private:
     /**
      * @brief Constructor, overriding the version to GLES3 if `use_gles` is true.
      * Note - this happens after GlslVersion is called, because it uses the version to determine things.
-     * @param use_gles Set to true if GLES is being used.
+     * @param useGLES Set to true if GLES is being used.
      */
     MilkdropStaticShaders(bool useGLES);
 
@@ -61,7 +61,7 @@ private:
      * @param shader_text The shader text to prepend the header to.
      * @return A "full" shader with header prepended.
      */
-    std::string AddVersionHeader(std::string shader_text);
+    std::string AddVersionHeader(const std::string& shader_text) const;
 
     bool m_useGLES{false};                             //!< Whether or not to use GLES shaders.
     std::string m_versionHeader;                       //!< The version header to prepended by AddVersionHeader.

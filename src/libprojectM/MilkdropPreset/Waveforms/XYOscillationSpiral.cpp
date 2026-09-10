@@ -25,8 +25,8 @@ void XYOscillationSpiral::GenerateVertices(const PresetState& presetState,
 
     for (int i = 0; i < m_samples; i++)
     {
-        float const radius = (0.53f + 0.43f * m_pcmDataR[i] + m_mysteryWaveParam);
-        float const angle = m_pcmDataL[i + 32] * 1.57f + presetState.renderContext.time * 2.3f;
+        const float radius = (0.53f + 0.43f * m_pcmDataR[i] + m_mysteryWaveParam);
+        const float angle = m_pcmDataL[i + 32] * 1.57f + presetState.renderContext.time * 2.3f;
 
         m_wave1Vertices[i] = {radius * cosf(angle) * m_aspectY + m_waveX,
                               radius * sinf(angle) * m_aspectX + m_waveY};

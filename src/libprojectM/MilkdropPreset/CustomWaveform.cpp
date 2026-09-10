@@ -29,8 +29,8 @@ CustomWaveform::CustomWaveform(PresetState& presetState)
 
 void CustomWaveform::Initialize(PresetFileParser& parsedFile, int index)
 {
-    std::string const wavecodePrefix = "wavecode_" + std::to_string(index) + "_";
-    std::string const wavePrefix = "wave_" + std::to_string(index) + "_";
+    const std::string wavecodePrefix = "wavecode_" + std::to_string(index) + "_";
+    const std::string wavePrefix = "wave_" + std::to_string(index) + "_";
 
     m_index = index;
     m_enabled = parsedFile.GetBool(wavecodePrefix + "enabled", m_enabled);
@@ -74,7 +74,7 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
         return;
     }
 
-    int const maxSampleCount{m_spectrum ? Audio::SpectrumSamples : Audio::WaveformSamples};
+    const int maxSampleCount{m_spectrum ? Audio::SpectrumSamples : Audio::WaveformSamples};
 
     int sampleCount = std::min(maxSampleCount, static_cast<int>(*m_perFrameContext.samples));
     sampleCount -= m_sep;
@@ -119,8 +119,8 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     // Smooth forward
     for (int sample = 1; sample < sampleCount; sample++)
     {
-        sampleDataL[sample] = pcmL[static_cast<int>(sample * t) + offset1] * mix2 + sampleDataL[sample - 1] * mix1;
-        sampleDataR[sample] = pcmR[static_cast<int>(sample * t) + offset2] * mix2 + sampleDataR[sample - 1] * mix1;
+        sampleDataL[sample] = pcmL[static_cast<int>(static_cast<float>(sample) * t) + offset1] * mix2 + sampleDataL[sample - 1] * mix1;
+        sampleDataR[sample] = pcmR[static_cast<int>(static_cast<float>(sample) * t) + offset2] * mix2 + sampleDataR[sample - 1] * mix1;
     }
 
     // Smooth backwards (this fixes the asymmetry of the beginning & end)
@@ -140,10 +140,10 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     std::vector<Renderer::Point> points(sampleCount);
     std::vector<Renderer::Color> colors(sampleCount);
 
-    float const sampleMultiplicator = sampleCount > 1 ? 1.0f / static_cast<float>(sampleCount - 1) : 0.0f;
+    const float sampleMultiplicator = sampleCount > 1 ? 1.0f / static_cast<float>(sampleCount - 1) : 0.0f;
     for (int sample = 0; sample < sampleCount; sample++)
     {
-        float const sampleIndex = static_cast<float>(sample) * sampleMultiplicator;
+        const float sampleIndex = static_cast<float>(sample) * sampleMultiplicator;
         LoadPerPointEvaluationVariables(sampleIndex, sampleDataL[sample], sampleDataR[sample]);
 
         m_perPointContext.ExecutePerPointCode();
@@ -225,7 +225,7 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
         m_mesh.Draw();
     }
 
-    m_mesh.Unbind();
+    Renderer::Mesh::Unbind();
     Renderer::Shader::Unbind();
     Renderer::BlendMode::SetBlendActive(false);
 }
@@ -236,7 +236,7 @@ void CustomWaveform::LoadPerFrameEvaluationVariables(const PerFrameContext& pres
     m_perPointContext.LoadReadOnlyStateVariables(presetPerFrameContext);
 }
 
-void CustomWaveform::InitPerPointEvaluationVariables()
+void CustomWaveform::InitPerPointEvaluationVariables() const
 {
     for (int q = 0; q < QVarCount; q++)
     {
@@ -248,7 +248,7 @@ void CustomWaveform::InitPerPointEvaluationVariables()
     }
 }
 
-void CustomWaveform::LoadPerPointEvaluationVariables(float sample, float value1, float value2)
+void CustomWaveform::LoadPerPointEvaluationVariables(const float sample, const float value1, const float value2) const
 {
     *m_perPointContext.sample = static_cast<double>(sample);
     *m_perPointContext.value1 = static_cast<double>(value1);
@@ -280,7 +280,7 @@ void CustomWaveform::SmoothWave(const std::vector<Renderer::Point>& points, cons
 
     for (size_t inputIndex = 0; inputIndex < vertexCount - 1; inputIndex++)
     {
-        size_t const iAbove = iAbove2;
+        const size_t iAbove = iAbove2;
         iAbove2 = std::min(vertexCount - 1, inputIndex + 2);
         outVertices[outputIndex] = points[inputIndex];
         outColors[outputIndex] = colors[inputIndex];

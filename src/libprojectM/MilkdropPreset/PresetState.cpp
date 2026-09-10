@@ -141,7 +141,7 @@ void PresetState::Initialize(PresetFileParser& parsedFile)
     // Custom waveform code:
     for (int i = 0; i < CustomWaveformCount; i++)
     {
-        std::string const wavePrefix = "wave_" + std::to_string(i) + "_";
+        const std::string wavePrefix = "wave_" + std::to_string(i) + "_";
         customWaveInitCode[i] = parsedFile.GetCode(wavePrefix + "init");
         customWavePerFrameCode[i] = parsedFile.GetCode(wavePrefix + "per_frame");
         customWavePerPointCode[i] = parsedFile.GetCode(wavePrefix + "per_point");
@@ -150,7 +150,7 @@ void PresetState::Initialize(PresetFileParser& parsedFile)
     // Custom shape code:
     for (int i = 0; i < CustomShapeCount; i++)
     {
-        std::string const shapePrefix = "shape_" + std::to_string(i) + "_";
+        const std::string shapePrefix = "shape_" + std::to_string(i) + "_";
         customShapeInitCode[i] = parsedFile.GetCode(shapePrefix + "init");
         customShapePerFrameCode[i] = parsedFile.GetCode(shapePrefix + "per_frame");
     }

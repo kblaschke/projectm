@@ -26,13 +26,13 @@ public:
      * @brief Reads the preset file into an internal map to prepare for parsing.
      * @return True if the file was parsed successfully, false if an error occurred or no line could be parsed.
      */
-    [[nodiscard]] auto Read(const std::string& presetFile) -> bool;
+    auto Read(const std::string& presetFile) -> bool;
 
     /**
      * @brief Reads the data stream into an internal map to prepare for parsing.
      * @return True if the stream was parsed successfully, false if an error occurred or no line could be parsed.
      */
-    [[nodiscard]] auto Read(std::istream& presetStream) -> bool;
+    auto Read(std::istream& presetStream) -> bool;
 
     /**
      * @brief Returns a block of code, ready for parsing or use in shader compilation.
@@ -48,7 +48,7 @@ public:
      * @param keyPrefix The key prefix for the code block to be returned.
      * @return The code that was parsed from the given prefix. Empty if no code was found.
      */
-    [[nodiscard]] auto GetCode(const std::string& keyPrefix) const -> std::string;
+    auto GetCode(const std::string& keyPrefix) const -> std::string;
 
     /**
      * @brief Returns the given key value as an integer.
@@ -61,7 +61,7 @@ public:
      * @param defaultValue The default value to return if key is not found.
      * @return The converted value or the default value.
      */
-    [[nodiscard]] auto GetInt(const std::string& key, int defaultValue) -> int;
+    auto GetInt(const std::string& key, int defaultValue) -> int;
 
     /**
      * @brief Returns the given key value as a floating-point value.
@@ -74,7 +74,7 @@ public:
      * @param defaultValue The default value to return if key is not found.
      * @return The converted value or the default value.
      */
-    [[nodiscard]] auto GetFloat(const std::string& key, float defaultValue) -> float;
+    auto GetFloat(const std::string& key, float defaultValue) -> float;
 
     /**
      * @brief Returns the given key value as a boolean.
@@ -87,7 +87,7 @@ public:
      * @param defaultValue The default value to return if key is not found.
      * @return True if the value is non-zero, false otherwise.
      */
-    [[nodiscard]] auto GetBool(const std::string& key, bool defaultValue) -> bool;
+    auto GetBool(const std::string& key, bool defaultValue) -> bool;
 
     /**
      * @brief Returns the given key value as a string.
@@ -98,7 +98,7 @@ public:
      * @param defaultValue The default value to return if key is not found.
      * @return the string content of the key, or the default value.
      */
-    [[nodiscard]] auto GetString(const std::string& key, const std::string& defaultValue) -> std::string;
+    auto GetString(const std::string& key, const std::string& defaultValue) -> std::string;
 
     /**
      * @brief Returns a reference to the internal value map.

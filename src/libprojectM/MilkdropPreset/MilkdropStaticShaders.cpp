@@ -1,16 +1,14 @@
 #include "MilkdropStaticShaders.hpp"
 
-#include <Renderer/OpenGL.h>
-
-#include <cstring>
-#include <stdexcept>
+#include <string>
 
 namespace libprojectM {
 namespace MilkdropPreset {
 
-@STATIC_SHADER_CONTENTS@
+// Shader program string constants
+#include "MilkdropStaticShaders_Content.hpp"
 
-MilkdropStaticShaders::MilkdropStaticShaders(bool useGLES)
+MilkdropStaticShaders::MilkdropStaticShaders(const bool useGLES)
     : m_useGLES(useGLES)
 {
     if (m_useGLES)
@@ -26,7 +24,7 @@ MilkdropStaticShaders::MilkdropStaticShaders(bool useGLES)
     }
 }
 
-std::string MilkdropStaticShaders::AddVersionHeader(std::string shader_text)
+std::string MilkdropStaticShaders::AddVersionHeader(const std::string& shader_text) const
 {
     return m_versionHeader + "\n" + shader_text;
 }
@@ -43,7 +41,7 @@ std::string MilkdropStaticShaders::AddVersionHeader(std::string shader_text)
         return k##name##Glsl330;                \
     }
 
-@STATIC_SHADER_ACCESSOR_DEFINITIONS@
+#include "MilkdropStaticShaders_Implementations.hpp"
 
 } // namespace MilkdropPreset
 } // namespace libprojectM

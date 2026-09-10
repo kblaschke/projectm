@@ -15,8 +15,9 @@ set(SHADER_FILES
 
 string(REPLACE ";" "\\;" SHADER_FILES_ARG "${SHADER_FILES}")
 add_custom_command(OUTPUT
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders_Content.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders_Declarations.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders_Implementations.hpp
 
         COMMAND ${CMAKE_COMMAND}
 
@@ -28,15 +29,14 @@ add_custom_command(OUTPUT
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS # Files watched for changes:
         ${SHADER_FILES}
-        MilkdropStaticShaders.cpp.in
-        MilkdropStaticShaders.hpp.in
         GenerateStaticShaders.cmake
         )
 
 add_library(MilkdropPreset OBJECT
         ${SHADER_FILES}
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders_Content.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders_Declarations.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/MilkdropStaticShaders_Implementations.hpp
         BlurTexture.cpp
         BlurTexture.hpp
         Border.cpp
@@ -62,8 +62,8 @@ add_library(MilkdropPreset OBJECT
         MilkdropPresetExceptions.hpp
         MilkdropShader.cpp
         MilkdropShader.hpp
-        MilkdropStaticShaders.cpp.in
-        MilkdropStaticShaders.hpp.in
+        MilkdropStaticShaders.cpp
+        MilkdropStaticShaders.hpp
         MotionVectors.cpp
         MotionVectors.hpp
         PerFrameContext.cpp

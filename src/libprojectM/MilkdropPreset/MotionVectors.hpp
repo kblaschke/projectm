@@ -30,7 +30,7 @@ public:
      * @param presetPerFrameContext The per-frame context variables.
      * @param motionTexture The u/v "motion" texture written by the warp shader.
      */
-    void Draw(const PerFrameContext& presetPerFrameContext, std::shared_ptr<Renderer::Texture> motionTexture);
+    void Draw(const PerFrameContext& presetPerFrameContext, const std::shared_ptr<Renderer::Texture>& motionTexture);
 
 private:
     std::shared_ptr<Renderer::Shader> GetShader();

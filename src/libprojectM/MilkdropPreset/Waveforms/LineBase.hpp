@@ -11,7 +11,7 @@ class LineBase : public WaveformMath
 protected:
     /**
      * @brief Calculates the waveform x/y coordinates and distances and clips them to the screen.
-     * @param initialAngle
+     * @param angle The waveform angle
      */
     void ClipWaveformEdges(float angle);
 

@@ -61,6 +61,8 @@ void LineBase::ClipWaveformEdges(const float angle)
                         clip = true;
                     }
                     break;
+
+                default:;
             }
 
             if (clip)

@@ -41,13 +41,13 @@ void WaveformPerPointContext::RegisterBuiltinVariables()
 
     for (int q = 0; q < QVarCount; q++)
     {
-        std::string const qvar = "q" + std::to_string(q + 1);
+        const std::string qvar = "q" + std::to_string(q + 1);
         q_vars[q] = projectm_eval_context_register_variable(perPointCodeContext, qvar.c_str());
     }
 
     for (int t = 0; t < TVarCount; t++)
     {
-        std::string const tvar = "t" + std::to_string(t + 1);
+        const std::string tvar = "t" + std::to_string(t + 1);
         t_vars[t] = projectm_eval_context_register_variable(perPointCodeContext, tvar.c_str());
     }
 
@@ -68,7 +68,7 @@ void WaveformPerPointContext::RegisterBuiltinVariables()
     REG_VAR(a);
 }
 
-void WaveformPerPointContext::LoadReadOnlyStateVariables(const PerFrameContext& presetPerFrameContext)
+void WaveformPerPointContext::LoadReadOnlyStateVariables(const PerFrameContext& presetPerFrameContext) const
 {
     *time = *presetPerFrameContext.time;
     *frame = *presetPerFrameContext.frame;
@@ -114,7 +114,7 @@ void WaveformPerPointContext::CompilePerPointCode(const std::string& perPointCod
     }
 }
 
-void WaveformPerPointContext::ExecutePerPointCode()
+void WaveformPerPointContext::ExecutePerPointCode() const
 {
     if (perPointCodeHandle != nullptr)
     {

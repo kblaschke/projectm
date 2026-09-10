@@ -26,7 +26,7 @@ void Filters::Draw()
 
     BlendMode::SetBlendActive(true);
 
-    auto shader = m_presetState.untexturedShader.lock();
+    const auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
     shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
     shader->SetUniformFloat("vertex_point_size", 1.0f);
@@ -98,8 +98,8 @@ void Filters::UpdateMesh()
     m_viewportWidth = m_presetState.renderContext.viewportSizeX;
     m_viewportHeight = m_presetState.renderContext.viewportSizeY;
 
-    float const fOnePlusInvWidth = 1.0f + 1.0f / static_cast<float>(m_viewportWidth);
-    float const fOnePlusInvHeight = 1.0f + 1.0f / static_cast<float>(m_viewportHeight);
+    const float fOnePlusInvWidth = 1.0f + 1.0f / static_cast<float>(m_viewportWidth);
+    const float fOnePlusInvHeight = 1.0f + 1.0f / static_cast<float>(m_viewportHeight);
     m_filterMesh.Vertices().Set({{-fOnePlusInvWidth, fOnePlusInvHeight},
                                  {fOnePlusInvWidth, fOnePlusInvHeight},
                                  {-fOnePlusInvWidth, -fOnePlusInvHeight},

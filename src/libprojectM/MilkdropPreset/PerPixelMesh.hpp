@@ -44,7 +44,7 @@ public:
     /**
      * @brief Renders the transformation mesh.
      * @param presetState The preset state to retrieve the configuration values from.
-     * @param presetPerFrameContext The per-frame context to retrieve the initial vars from.
+     * @param perFrameContext The per-frame context to retrieve the initial vars from.
      * @param perPixelContext The per-pixel code context to use.
      */
     void Draw(const PresetState& presetState,
@@ -60,7 +60,7 @@ private:
         float radius{};
         float angle{};
 
-        static void InitializeAttributePointer(uint32_t attributeIndex)
+        static void InitializeAttributePointer(const uint32_t attributeIndex)
         {
             glVertexAttribPointer(attributeIndex, sizeof(RadiusAngle) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(RadiusAngle), nullptr);
         }
@@ -75,7 +75,7 @@ private:
         float rot{};
         float warp{};
 
-        static void InitializeAttributePointer(uint32_t attributeIndex)
+        static void InitializeAttributePointer(const uint32_t attributeIndex)
         {
             glVertexAttribPointer(attributeIndex, sizeof(ZoomRotWarp) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(ZoomRotWarp), nullptr);
         }
@@ -95,7 +95,7 @@ private:
      * @brief Executes the per-pixel code and calculates the u/v coordinates.
      * The x/y coordinates are either a static grid or computed by the per-vertex expression.
      * @param presetState The preset state to retrieve the configuration values from.
-     * @param presetPerFrameContext The per-frame context to retrieve the initial vars from.
+     * @param perFrameContext The per-frame context to retrieve the initial vars from.
      * @param perPixelContext The per-pixel code context to use.
      */
     void CalculateMesh(const PresetState& presetState,

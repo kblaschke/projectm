@@ -102,7 +102,7 @@ private:
      */
     void LoadShaderCode();
 
-    auto ParseFilename(const std::string& filename) -> std::string;
+    static auto ParseFilename(const std::string& filename) -> std::string;
 
     std::string m_absoluteFilePath; //!< The absolute file path of the MilkdropPreset
     std::string m_absolutePath;     //!< The absolute path of the MilkdropPreset
