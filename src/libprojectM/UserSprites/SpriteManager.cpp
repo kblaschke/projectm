@@ -3,6 +3,8 @@
 #include "UserSprites/Factory.hpp"
 #include "UserSprites/SpriteException.hpp"
 
+#include <Logging.hpp>
+
 #include <Renderer/Shader.hpp>
 
 #include <algorithm>
@@ -33,14 +35,17 @@ auto SpriteManager::Spawn(const std::string& type,
     }
     catch (SpriteException& ex)
     {
+        LOG_ERROR("Could not initialize user sprite: " + ex.message());
         return 0;
     }
     catch (Renderer::ShaderException& ex)
     {
+        LOG_ERROR("Shader exception while initializing user sprite: " + ex.message());
         return 0;
     }
     catch (...)
     {
+        LOG_ERROR("Unknown error while initializing user sprite");
         return 0;
     }
 
@@ -60,8 +65,8 @@ auto SpriteManager::Spawn(const std::string& type,
 
 void SpriteManager::Draw(const Audio::FrameAudioData& audioData,
                          const Renderer::RenderContext& renderContext,
-                         uint32_t outputFramebufferObject,
-                         Sprite::PresetList presets)
+                         const uint32_t outputFramebufferObject,
+                         const Sprite::PresetList& presets)
 {
     std::vector<SpriteIdentifier> toDestroy;
 
@@ -75,7 +80,7 @@ void SpriteManager::Draw(const Audio::FrameAudioData& audioData,
         }
     }
 
-    for (auto id : toDestroy)
+    for (const auto id : toDestroy)
     {
         Destroy(id);
     }
@@ -116,7 +121,7 @@ auto SpriteManager::ActiveSpriteIdentifiers() const -> std::vector<SpriteIdentif
     return identifierList;
 }
 
-void SpriteManager::SpriteSlots(uint32_t slots)
+void SpriteManager::SpriteSlots(const uint32_t slots)
 {
     m_spriteSlots = slots;
 
@@ -133,7 +138,8 @@ auto SpriteManager::SpriteSlots() const -> uint32_t
     return m_spriteSlots;
 }
 
-auto SpriteManager::GetSpriteVariableValue(SpriteIdentifier spriteIdentifier, const std::string& variableName) const -> double
+auto SpriteManager::GetSpriteVariableValue(const SpriteIdentifier spriteIdentifier,
+                                           const std::string& variableName) const -> double
 {
     if (m_spriteIdentifiers.find(spriteIdentifier) == m_spriteIdentifiers.end())
     {
@@ -151,7 +157,9 @@ auto SpriteManager::GetSpriteVariableValue(SpriteIdentifier spriteIdentifier, co
     return 0.0;
 }
 
-void SpriteManager::SetSpriteVariableValue(SpriteIdentifier spriteIdentifier, const std::string& variableName, double value)
+void SpriteManager::SetSpriteVariableValue(const SpriteIdentifier spriteIdentifier,
+                                           const std::string& variableName,
+                                           const double value)
 {
     if (m_spriteIdentifiers.find(spriteIdentifier) == m_spriteIdentifiers.end())
     {
@@ -167,7 +175,7 @@ void SpriteManager::SetSpriteVariableValue(SpriteIdentifier spriteIdentifier, co
     }
 }
 
-auto SpriteManager::GetLowestFreeIdentifier() -> SpriteIdentifier
+auto SpriteManager::GetLowestFreeIdentifier() const -> SpriteIdentifier
 {
     SpriteIdentifier lowestId = 0;
 

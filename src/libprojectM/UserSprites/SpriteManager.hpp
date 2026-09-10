@@ -22,6 +22,7 @@ public:
      * @brief Spawns a new sprite.
      * @param type The type name of the sprite.
      * @param spriteData The sprite code/data, depending on the type.
+     * @param renderContext The current preset rendering context.
      * @return A unique, non-zero identifier if the sprite was successfully spawned, or zero if an error occurred.
      */
     auto Spawn(const std::string& type,
@@ -38,7 +39,7 @@ public:
     void Draw(const Audio::FrameAudioData& audioData,
               const Renderer::RenderContext& renderContext,
               uint32_t outputFramebufferObject,
-              Sprite::PresetList presets);
+              const Sprite::PresetList& presets);
 
     /**
      * @brief Destroys a single active sprite.
@@ -105,7 +106,7 @@ private:
      * Returns the lowest free ID, starting at 1.
      * @return The lowest available/unused sprite ID.
      */
-    SpriteIdentifier GetLowestFreeIdentifier();
+    SpriteIdentifier GetLowestFreeIdentifier() const;
 
     uint32_t m_spriteSlots{16};                     //!< Max number of active sprites.
     std::set<SpriteIdentifier> m_spriteIdentifiers; //!< Set to keep track of ordered sprite IDs.

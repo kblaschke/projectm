@@ -58,7 +58,7 @@ private:
          * @param renderContext The frame rendering context data.
          */
         void RunPerFrameCode(const Audio::FrameAudioData& audioData,
-                             const Renderer::RenderContext& renderContext);
+                             const Renderer::RenderContext& renderContext) const;
 
         projectm_eval_context* spriteCodeContext{nullptr}; //!< The code runtime context, holds memory buffers and variables.
         projectm_eval_code* perFrameCodeHandle{nullptr};   //!< The compiled per-frame code handle.

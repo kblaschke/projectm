@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <exception>
+#include <string>
 
 namespace libprojectM {
 namespace UserSprites {
@@ -12,12 +12,12 @@ namespace UserSprites {
 class SpriteException : public std::exception
 {
 public:
-    SpriteException(std::string message)
+    explicit SpriteException(std::string message)
         : m_message(std::move(message))
     {
     }
 
-    virtual ~SpriteException() = default;
+    ~SpriteException() override = default;
 
     const char* what() const noexcept override
     {
