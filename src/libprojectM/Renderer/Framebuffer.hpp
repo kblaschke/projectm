@@ -212,7 +212,7 @@ public:
      * @param bufferIndex The index of the buffer to set the mask flag on.
      * @param masked true if the attachment should be masked, false if not.
      */
-    void MaskDrawBuffer(int bufferIndex, bool masked);
+    static void MaskDrawBuffer(int bufferIndex, bool masked);
 
 private:
     /**
@@ -220,7 +220,7 @@ private:
      * Note that when calling this function, the framebuffer must already be bound.
      * @param framebufferIndex The framebuffer index.
      */
-    void UpdateDrawBuffers(int framebufferIndex);
+    void UpdateDrawBuffers(int framebufferIndex) const;
 
     /**
      * @brief Removes the given attachment type from the framebuffer.

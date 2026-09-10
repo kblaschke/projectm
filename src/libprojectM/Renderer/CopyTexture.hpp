@@ -95,7 +95,7 @@ public:
      *
      * @return The flipped texture.
      */
-    auto Texture() -> std::shared_ptr<Texture>;
+    auto Texture() const -> std::shared_ptr<Texture>;
 
 private:
     /**

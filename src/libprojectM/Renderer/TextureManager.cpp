@@ -76,7 +76,7 @@ void TextureManager::Preload()
     {
         std::unique_ptr<stbi_uc, decltype(&free)> const imageData(stbi_load_from_memory(M_data, M_bytes, &width, &height, &channels, 0), free);
 
-        if (imageData.get() != nullptr)
+        if (imageData != nullptr)
         {
             auto format = TextureFormatFromChannels(channels);
             m_textures["idlem"] = std::make_shared<Texture>("idlem", reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, false);
@@ -86,7 +86,7 @@ void TextureManager::Preload()
     {
         std::unique_ptr<stbi_uc, decltype(&free)> const imageData(stbi_load_from_memory(headphones_data, headphones_bytes, &width, &height, &channels, 0), free);
 
-        if (imageData.get() != nullptr)
+        if (imageData != nullptr)
         {
             auto format = TextureFormatFromChannels(channels);
             m_textures["idleheadphones"] = std::make_shared<Texture>("idleheadphones", reinterpret_cast<const void*>(imageData.get()), GL_TEXTURE_2D, width, height, 0, format, format, GL_UNSIGNED_BYTE, false);
@@ -142,8 +142,8 @@ void TextureManager::PurgeTextures()
     {
         if (stat.second.sizeBytes > 0 && stat.second.age > 1)
         {
-            auto sizeMultiplicator = 1.0f + static_cast<float>(stat.second.age - newest) / static_cast<float>(oldest - newest);
-            auto scaledSize = static_cast<uint32_t>(stat.second.sizeBytes * sizeMultiplicator);
+            const auto sizeMultiplicator = 1.0f + static_cast<float>(stat.second.age - newest) / static_cast<float>(oldest - newest);
+            const auto scaledSize = static_cast<uint32_t>(static_cast<float>(stat.second.sizeBytes) * sizeMultiplicator);
             if (scaledSize > biggestBytes)
             {
                 biggestBytes = scaledSize;
@@ -189,11 +189,12 @@ auto TextureManager::TryLoadingTexture(const std::string& name) -> TextureSample
                                                         GL_TEXTURE_2D, loadData.width, loadData.height, true, false);
             m_textures[lowerCaseUnqualifiedName] = newTexture;
             uint32_t memoryBytes = loadData.width * loadData.height * (loadData.channels > 0 ? loadData.channels : 4);
-            m_textureStats.insert({lowerCaseUnqualifiedName, {memoryBytes}});
+            m_textureStats.insert({lowerCaseUnqualifiedName, UsageStats(memoryBytes)});
             LOG_DEBUG("[TextureManager] Loaded texture \"" + unqualifiedName + "\" from callback (texture ID)");
             return {newTexture, m_samplers.at({wrapMode, filterMode}), name, unqualifiedName};
         }
-        else if (loadData.textureId != 0)
+
+        if (loadData.textureId != 0)
         {
             LOG_WARN("[TextureManager] Callback provided texture ID for \"" + unqualifiedName + "\" but width/height are invalid; falling back to filesystem");
         }
@@ -203,7 +204,7 @@ auto TextureManager::TryLoadingTexture(const std::string& name) -> TextureSample
         {
             int width = static_cast<int>(loadData.width);
             int height = static_cast<int>(loadData.height);
-            int channels = static_cast<int>(loadData.channels > 0 ? loadData.channels : 4);
+            const int channels = static_cast<int>(loadData.channels > 0 ? loadData.channels : 4);
 
             auto format = TextureFormatFromChannels(channels);
             auto newTexture = std::make_shared<Texture>(unqualifiedName,
@@ -214,14 +215,12 @@ auto TextureManager::TryLoadingTexture(const std::string& name) -> TextureSample
             {
                 m_textures[lowerCaseUnqualifiedName] = newTexture;
                 uint32_t memoryBytes = width * height * channels;
-                m_textureStats.insert({lowerCaseUnqualifiedName, {memoryBytes}});
+                m_textureStats.insert({lowerCaseUnqualifiedName, UsageStats(memoryBytes)});
                 LOG_DEBUG("[TextureManager] Loaded texture \"" + unqualifiedName + "\" from callback (pixel data)");
                 return {newTexture, m_samplers.at({wrapMode, filterMode}), name, unqualifiedName};
             }
-            else
-            {
-                LOG_WARN("[TextureManager] Failed to create OpenGL texture from callback pixel data for \"" + unqualifiedName + "\"; falling back to filesystem");
-            }
+
+            LOG_WARN("[TextureManager] Failed to create OpenGL texture from callback pixel data for \"" + unqualifiedName + "\"; falling back to filesystem");
         }
     }
 
@@ -262,7 +261,7 @@ auto TextureManager::LoadTexture(const ScannedFile& file) -> std::shared_ptr<Tex
 
     std::unique_ptr<stbi_uc, decltype(&free)> imageData(stbi_load(file.filePath.c_str(), &width, &height, nullptr, 4), free);
 
-    if (imageData.get() == nullptr)
+    if (imageData == nullptr)
     {
         LOG_DEBUG("[TextureManager] Failed to decode image data.");
         return {};
@@ -275,7 +274,7 @@ auto TextureManager::LoadTexture(const ScannedFile& file) -> std::shared_ptr<Tex
 
     uint32_t const memoryBytes = width * height * 4; // RGBA, unsigned byte color channels.
     m_textures[file.lowerCaseBaseName] = newTexture;
-    m_textureStats.insert({file.lowerCaseBaseName, {memoryBytes}});
+    m_textureStats.insert({file.lowerCaseBaseName, UsageStats(memoryBytes)});
 
     return newTexture;
 }
@@ -289,7 +288,7 @@ auto TextureManager::GetRandomTexture(const std::string& randomName) -> TextureS
 
     ScanTextures();
 
-    std::string lowerCaseName = Utils::ToLower(randomName);
+    const std::string lowerCaseName = Utils::ToLower(randomName);
 
     if (m_scannedTextureFiles.empty())
     {
@@ -335,7 +334,7 @@ auto TextureManager::GetRandomTexture(const std::string& randomName) -> TextureS
     }
 
     // Use selected filename to load the texture.
-    auto desc = GetTexture(selectedFilename);
+    const auto desc = GetTexture(selectedFilename);
 
     // Create new descriptor with the original "rand00[_prefix]" name.
     return {desc.Texture(), desc.Sampler(), randomName, randomName};
@@ -343,7 +342,7 @@ auto TextureManager::GetRandomTexture(const std::string& randomName) -> TextureS
 
 void TextureManager::AddTextureFile(const std::string& fileName, const std::string& baseName)
 {
-    std::string lowerCaseBaseName = Utils::ToLower(baseName);
+    const std::string lowerCaseBaseName = Utils::ToLower(baseName);
 
     ScannedFile file;
     file.filePath = fileName;
@@ -362,49 +361,46 @@ void TextureManager::ExtractTextureSettings(const std::string& qualifiedName, GL
         return;
     }
 
-    std::string lowerQualifiedName = Utils::ToLower(qualifiedName);
-
-    // Default mode for user textures is "fw" (bilinear filtering + wrap).
-    wrapMode = GL_REPEAT;
-    filterMode = GL_LINEAR;
+    const std::string lowerQualifiedName = Utils::ToLower(qualifiedName);
 
     if (lowerQualifiedName.substr(0, 3) == "fc_" || lowerQualifiedName.substr(0, 3) == "cf_")
     {
         name = qualifiedName.substr(3);
         filterMode = GL_LINEAR;
         wrapMode = GL_CLAMP_TO_EDGE;
+        return;
     }
-    else if (lowerQualifiedName.substr(0, 3) == "fw_" || lowerQualifiedName.substr(0, 3) == "wf_")
-    {
-        name = qualifiedName.substr(3);
-        filterMode = GL_LINEAR;
-        wrapMode = GL_REPEAT;
-    }
-    else if (lowerQualifiedName.substr(0, 3) == "pc_" || lowerQualifiedName.substr(0, 3) == "cp_")
+
+    if (lowerQualifiedName.substr(0, 3) == "pc_" || lowerQualifiedName.substr(0, 3) == "cp_")
     {
         name = qualifiedName.substr(3);
         filterMode = GL_NEAREST;
         wrapMode = GL_CLAMP_TO_EDGE;
+        return;
     }
-    else if (lowerQualifiedName.substr(0, 3) == "pw_" || lowerQualifiedName.substr(0, 3) == "wp_")
+
+    if (lowerQualifiedName.substr(0, 3) == "pw_" || lowerQualifiedName.substr(0, 3) == "wp_")
     {
         name = qualifiedName.substr(3);
         filterMode = GL_NEAREST;
         wrapMode = GL_REPEAT;
+        return;
     }
-    else
+
+    // Default mode for user textures is "fw" (bilinear filtering + wrap).
+    if (lowerQualifiedName.substr(0, 3) == "fw_" || lowerQualifiedName.substr(0, 3) == "wf_")
     {
-        name = qualifiedName.substr(3); // Milkdrop also removes the XY_ prefix in the case nothing matches.
-        filterMode = GL_LINEAR;
-        wrapMode = GL_REPEAT;
+        name = qualifiedName.substr(3);
     }
+    filterMode = GL_LINEAR;
+    wrapMode = GL_REPEAT;
 }
 
 void TextureManager::ScanTextures()
 {
     if (!m_filesScanned)
     {
-        FileScanner fileScanner = FileScanner(m_textureSearchPaths, m_extensions);
+        const auto fileScanner = FileScanner(m_textureSearchPaths, m_extensions);
 
         using namespace std::placeholders;
         fileScanner.Scan(std::bind(&TextureManager::AddTextureFile, this, _1, _2));
@@ -412,7 +408,7 @@ void TextureManager::ScanTextures()
     }
 }
 
-uint32_t TextureManager::TextureFormatFromChannels(int channels)
+uint32_t TextureManager::TextureFormatFromChannels(const int channels)
 {
     switch (channels)
     {

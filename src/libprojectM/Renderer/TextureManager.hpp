@@ -19,7 +19,7 @@ public:
      * Constructor.
      * @param textureSearchPaths List of paths to search for textures. These paths are searched in the given order.
      */
-    TextureManager(const std::vector<std::string>& textureSearchPaths);
+    explicit TextureManager(const std::vector<std::string>& textureSearchPaths);
 
     ~TextureManager() = default;
 
@@ -51,7 +51,7 @@ public:
      * @param fullName The name of the sampler as used in the preset.
      * @return A sampler with the prefixed mode, or the default settings.
      */
-    auto GetSampler(const std::string& fullName) -> std::shared_ptr<class Sampler>;
+    auto GetSampler(const std::string& fullName) -> std::shared_ptr<Sampler>;
 
     /**
      * @brief Purges unused textures and increments the age counter of all stored textures.
@@ -70,8 +70,10 @@ private:
      * Texture usage statistics. Used to determine when to purge a texture.
      */
     struct UsageStats {
-        UsageStats(uint32_t size)
-            : sizeBytes(size){};
+        explicit UsageStats(const uint32_t size)
+            : sizeBytes(size)
+        {
+        }
 
         uint32_t age{};       //!< Age of the texture. Represents the number of presets loaded since it was last retrieved.
         uint32_t sizeBytes{}; //!< The texture in-memory size in bytes.

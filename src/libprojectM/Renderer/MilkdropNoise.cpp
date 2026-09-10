@@ -1,6 +1,5 @@
 #include "Renderer/MilkdropNoise.hpp"
 
-#include "Renderer/OpenGL.h"
 #include "Renderer/Texture.hpp"
 
 #include <chrono>
@@ -51,9 +50,9 @@ auto MilkdropNoise::GetPreferredInternalFormat() -> int
 #endif
 }
 
-auto MilkdropNoise::generate2D(int size, int zoomFactor) -> std::vector<uint32_t>
+auto MilkdropNoise::generate2D(const int size, const int zoomFactor) -> std::vector<uint32_t>
 {
-    uint32_t randomSeed = static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count());
+    const uint32_t randomSeed = static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count());
     std::default_random_engine randomGenerator(randomSeed);
     std::uniform_int_distribution<int> randomDistribution(0, INT32_MAX);
 
@@ -62,15 +61,15 @@ auto MilkdropNoise::generate2D(int size, int zoomFactor) -> std::vector<uint32_t
 
     // write to the bits...
     auto dst = textureData.data();
-    auto RANGE = (zoomFactor > 1) ? 216 : 256;
+    const auto range = (zoomFactor > 1) ? 216 : 256;
     for (auto y = 0; y < size; y++)
     {
         for (auto x = 0; x < size; x++)
         {
-            dst[x] = (static_cast<uint32_t>((randomDistribution(randomGenerator) % RANGE) + RANGE / 2) << 24) |
-                     (static_cast<uint32_t>((randomDistribution(randomGenerator) % RANGE) + RANGE / 2) << 16) |
-                     (static_cast<uint32_t>((randomDistribution(randomGenerator) % RANGE) + RANGE / 2) << 8) |
-                     (static_cast<uint32_t>((randomDistribution(randomGenerator) % RANGE) + RANGE / 2));
+            dst[x] = (static_cast<uint32_t>((randomDistribution(randomGenerator) % range) + range / 2) << 24) |
+                     (static_cast<uint32_t>((randomDistribution(randomGenerator) % range) + range / 2) << 16) |
+                     (static_cast<uint32_t>((randomDistribution(randomGenerator) % range) + range / 2) << 8) |
+                     (static_cast<uint32_t>((randomDistribution(randomGenerator) % range) + range / 2));
         }
         // swap some pixels randomly, to improve 'randomness'
         for (auto x = 0; x < size; x++)
@@ -96,16 +95,16 @@ auto MilkdropNoise::generate2D(int size, int zoomFactor) -> std::vector<uint32_t
             {
                 if (x % zoomFactor)
                 {
-                    auto base_x = (x / zoomFactor) * zoomFactor + size;
-                    auto base_y = y * size;
-                    auto y0 = dst[base_y + ((base_x - zoomFactor) % size)];
-                    auto y1 = dst[base_y + ((base_x) % size)];
-                    auto y2 = dst[base_y + ((base_x + zoomFactor) % size)];
-                    auto y3 = dst[base_y + ((base_x + zoomFactor * 2) % size)];
+                    const auto base_x = (x / zoomFactor) * zoomFactor + size;
+                    const auto base_y = y * size;
+                    const auto y0 = dst[base_y + ((base_x - zoomFactor) % size)];
+                    const auto y1 = dst[base_y + ((base_x) % size)];
+                    const auto y2 = dst[base_y + ((base_x + zoomFactor) % size)];
+                    const auto y3 = dst[base_y + ((base_x + zoomFactor * 2) % size)];
 
-                    auto t = static_cast<float>(x % zoomFactor) / static_cast<float>(zoomFactor);
+                    const auto t = static_cast<float>(x % zoomFactor) / static_cast<float>(zoomFactor);
 
-                    auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
+                    const auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
 
                     dst[y * size + x] = result;
                 }
@@ -119,15 +118,15 @@ auto MilkdropNoise::generate2D(int size, int zoomFactor) -> std::vector<uint32_t
             {
                 if (y % zoomFactor)
                 {
-                    auto base_y = (y / zoomFactor) * zoomFactor + size;
-                    auto y0 = dst[((base_y - zoomFactor) % size) * size + x];
-                    auto y1 = dst[((base_y) % size) * size + x];
-                    auto y2 = dst[((base_y + zoomFactor) % size) * size + x];
-                    auto y3 = dst[((base_y + zoomFactor * 2) % size) * size + x];
+                    const auto base_y = (y / zoomFactor) * zoomFactor + size;
+                    const auto y0 = dst[((base_y - zoomFactor) % size) * size + x];
+                    const auto y1 = dst[((base_y) % size) * size + x];
+                    const auto y2 = dst[((base_y + zoomFactor) % size) * size + x];
+                    const auto y3 = dst[((base_y + zoomFactor * 2) % size) * size + x];
 
-                    auto t = static_cast<float>(y % zoomFactor) / static_cast<float>(zoomFactor);
+                    const auto t = static_cast<float>(y % zoomFactor) / static_cast<float>(zoomFactor);
 
-                    auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
+                    const auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
 
                     dst[y * size + x] = result;
                 }
@@ -138,18 +137,17 @@ auto MilkdropNoise::generate2D(int size, int zoomFactor) -> std::vector<uint32_t
     return textureData;
 }
 
-auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t>
+auto MilkdropNoise::generate3D(const int size, const int zoomFactor) -> std::vector<uint32_t>
 {
-    uint32_t randomSeed = static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count());
+    const uint32_t randomSeed = static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count());
     std::default_random_engine randomGenerator(randomSeed);
     std::uniform_int_distribution<int> randomDistribution(0, INT32_MAX);
-
 
     std::vector<uint32_t> textureData;
     textureData.resize(size * size * size);
 
     // write to the bits...
-    int RANGE = (zoomFactor > 1) ? 216 : 256;
+    const int range = (zoomFactor > 1) ? 216 : 256;
     for (auto z = 0; z < size; z++)
     {
         auto dst = (textureData.data()) + z * size * size;
@@ -157,17 +155,17 @@ auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t
         {
             for (auto x = 0; x < size; x++)
             {
-                dst[x] = ((static_cast<uint32_t>(randomDistribution(randomGenerator) % RANGE) + RANGE / 2) << 24) |
-                         ((static_cast<uint32_t>(randomDistribution(randomGenerator) % RANGE) + RANGE / 2) << 16) |
-                         ((static_cast<uint32_t>(randomDistribution(randomGenerator) % RANGE) + RANGE / 2) << 8) |
-                         ((static_cast<uint32_t>(randomDistribution(randomGenerator) % RANGE) + RANGE / 2));
+                dst[x] = ((static_cast<uint32_t>(randomDistribution(randomGenerator) % range) + range / 2) << 24) |
+                         ((static_cast<uint32_t>(randomDistribution(randomGenerator) % range) + range / 2) << 16) |
+                         ((static_cast<uint32_t>(randomDistribution(randomGenerator) % range) + range / 2) << 8) |
+                         ((static_cast<uint32_t>(randomDistribution(randomGenerator) % range) + range / 2));
             }
             // swap some pixels randomly, to improve 'randomness'
             for (auto x = 0; x < size; x++)
             {
-                auto x1 = randomDistribution(randomGenerator) % size;
-                auto x2 = randomDistribution(randomGenerator) % size;
-                auto temp = dst[x2];
+                const auto x1 = randomDistribution(randomGenerator) % size;
+                const auto x2 = randomDistribution(randomGenerator) % size;
+                const auto temp = dst[x2];
                 dst[x2] = dst[x1];
                 dst[x1] = temp;
             }
@@ -179,7 +177,7 @@ auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t
     if (zoomFactor > 1)
     {
         // first go ACROSS, blending cubically on X, but only on the main lines.
-        auto dst = textureData.data();
+        const auto dst = textureData.data();
         for (auto z = 0; z < size; z += zoomFactor)
         {
             for (auto y = 0; y < size; y += zoomFactor)
@@ -188,16 +186,16 @@ auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t
                 {
                     if (x % zoomFactor)
                     {
-                        auto base_x = (x / zoomFactor) * zoomFactor + size;
-                        auto base_y = z * size + y * size;
-                        auto y0 = dst[base_y + ((base_x - zoomFactor) % size)];
-                        auto y1 = dst[base_y + ((base_x) % size)];
-                        auto y2 = dst[base_y + ((base_x + zoomFactor) % size)];
-                        auto y3 = dst[base_y + ((base_x + zoomFactor * 2) % size)];
+                        const auto base_x = (x / zoomFactor) * zoomFactor + size;
+                        const auto base_y = z * size + y * size;
+                        const auto y0 = dst[base_y + ((base_x - zoomFactor) % size)];
+                        const auto y1 = dst[base_y + ((base_x) % size)];
+                        const auto y2 = dst[base_y + ((base_x + zoomFactor) % size)];
+                        const auto y3 = dst[base_y + ((base_x + zoomFactor * 2) % size)];
 
-                        auto t = static_cast<float>(x % zoomFactor) / static_cast<float>(zoomFactor);
+                        const auto t = static_cast<float>(x % zoomFactor) / static_cast<float>(zoomFactor);
 
-                        auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
+                        const auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
 
                         dst[z * size + y * size + x] = result;
                     }
@@ -214,16 +212,16 @@ auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t
                 {
                     if (y % zoomFactor)
                     {
-                        auto base_y = (y / zoomFactor) * zoomFactor + size;
-                        auto base_z = z * size;
-                        auto y0 = dst[((base_y - zoomFactor) % size) * size + base_z + x];
-                        auto y1 = dst[((base_y) % size) * size + base_z + x];
-                        auto y2 = dst[((base_y + zoomFactor) % size) * size + base_z + x];
-                        auto y3 = dst[((base_y + zoomFactor * 2) % size) * size + base_z + x];
+                        const auto base_y = (y / zoomFactor) * zoomFactor + size;
+                        const auto base_z = z * size;
+                        const auto y0 = dst[((base_y - zoomFactor) % size) * size + base_z + x];
+                        const auto y1 = dst[((base_y) % size) * size + base_z + x];
+                        const auto y2 = dst[((base_y + zoomFactor) % size) * size + base_z + x];
+                        const auto y3 = dst[((base_y + zoomFactor * 2) % size) * size + base_z + x];
 
-                        auto t = static_cast<float>(y % zoomFactor) / static_cast<float>(zoomFactor);
+                        const auto t = static_cast<float>(y % zoomFactor) / static_cast<float>(zoomFactor);
 
-                        auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
+                        const auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
 
                         dst[y * size + base_z + x] = result;
                     }
@@ -240,16 +238,16 @@ auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t
                 {
                     if (z % zoomFactor)
                     {
-                        auto base_y = y * size;
-                        auto base_z = (z / zoomFactor) * zoomFactor + size;
-                        auto y0 = dst[((base_z - zoomFactor) % size) * size + base_y + x];
-                        auto y1 = dst[((base_z) % size) * size + base_y + x];
-                        auto y2 = dst[((base_z + zoomFactor) % size) * size + base_y + x];
-                        auto y3 = dst[((base_z + zoomFactor * 2) % size) * size + base_y + x];
+                        const auto base_y = y * size;
+                        const auto base_z = (z / zoomFactor) * zoomFactor + size;
+                        const auto y0 = dst[((base_z - zoomFactor) % size) * size + base_y + x];
+                        const auto y1 = dst[((base_z) % size) * size + base_y + x];
+                        const auto y2 = dst[((base_z + zoomFactor) % size) * size + base_y + x];
+                        const auto y3 = dst[((base_z + zoomFactor * 2) % size) * size + base_y + x];
 
-                        auto t = static_cast<float>(z % zoomFactor) / static_cast<float>(zoomFactor);
+                        const auto t = static_cast<float>(z % zoomFactor) / static_cast<float>(zoomFactor);
 
-                        auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
+                        const auto result = dwCubicInterpolate(y0, y1, y2, y3, t);
 
                         dst[z * size + base_y + x] = result;
                     }
@@ -263,16 +261,18 @@ auto MilkdropNoise::generate3D(int size, int zoomFactor) -> std::vector<uint32_t
 
 float MilkdropNoise::fCubicInterpolate(float y0, float y1, float y2, float y3, float t)
 {
-    auto t2 = t * t;
-    auto a0 = y3 - y2 - y0 + y1;
-    auto a1 = y0 - y1 - a0;
-    auto a2 = y2 - y0;
-    auto a3 = y1;
+    const auto t2 = t * t;
+    const auto a0 = y3 - y2 - y0 + y1;
+    const auto a1 = y0 - y1 - a0;
+    const auto a2 = y2 - y0;
+    const auto a3 = y1;
 
     return (a0 * t * t2 + a1 * t2 + a2 * t + a3);
 }
 
-uint32_t MilkdropNoise::dwCubicInterpolate(uint32_t y0, uint32_t y1, uint32_t y2, uint32_t y3, float t)
+uint32_t MilkdropNoise::dwCubicInterpolate(const uint32_t y0, const uint32_t y1,
+                                           const uint32_t y2, const uint32_t y3,
+                                           const float t)
 {
     uint32_t ret = 0;
     uint32_t shift = 0;
@@ -292,7 +292,7 @@ uint32_t MilkdropNoise::dwCubicInterpolate(uint32_t y0, uint32_t y1, uint32_t y2
         {
             f = 1;
         }
-        ret |= ((uint32_t) (f * 255)) << shift;
+        ret |= static_cast<uint32_t>(f * 255) << shift;
         shift += 8;
     }
     return ret;

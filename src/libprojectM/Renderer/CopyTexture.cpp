@@ -65,7 +65,7 @@ CopyTexture::CopyTexture()
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
                        const std::shared_ptr<class Texture>& originalTexture,
-                       bool flipVertical, bool flipHorizontal)
+                       const bool flipVertical, const bool flipHorizontal)
 {
     if (originalTexture == nullptr)
     {
@@ -80,7 +80,7 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 void CopyTexture::Draw(ShaderCache& shaderCache,
                        const std::shared_ptr<class Texture>& originalTexture,
                        const std::shared_ptr<class Texture>& targetTexture,
-                       bool flipVertical, bool flipHorizontal)
+                       const bool flipVertical, const bool flipHorizontal)
 {
     if (originalTexture == nullptr ||
         originalTexture->Empty() ||
@@ -130,8 +130,8 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
                        const std::shared_ptr<class Texture>& originalTexture,
-                       Framebuffer& framebuffer, int framebufferIndex,
-                       bool flipVertical, bool flipHorizontal)
+                       Framebuffer& framebuffer, const int framebufferIndex,
+                       const bool flipVertical, const bool flipHorizontal)
 {
     if (originalTexture == nullptr                                               //
         || originalTexture->Empty()                                              //
@@ -156,7 +156,7 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
     Copy(shaderCache, flipVertical, flipHorizontal);
 
     // Swap texture attachments
-    auto tempAttachment = framebuffer.GetAttachment(framebufferIndex, TextureAttachment::AttachmentType::Color, 0);
+    const auto tempAttachment = framebuffer.GetAttachment(framebufferIndex, TextureAttachment::AttachmentType::Color, 0);
     framebuffer.RemoveColorAttachment(framebufferIndex, 0);
     framebuffer.SetAttachment(framebufferIndex, 0, m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0));
     m_framebuffer.RemoveColorAttachment(0, 0);
@@ -168,7 +168,8 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 void CopyTexture::Draw(ShaderCache& shaderCache,
                        const std::shared_ptr<class Texture>& originalTexture,
                        const std::shared_ptr<class Texture>& targetTexture,
-                       int left, int top, int width, int height)
+                       const int left, const int top,
+                       const int width, const int height)
 {
     if (originalTexture == nullptr ||
         originalTexture->Empty() ||
@@ -186,13 +187,11 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
         return;
     }
 
-    std::shared_ptr<class Texture> internalTexture;
-
     m_framebuffer.Bind(0);
 
     // Draw from original texture
     originalTexture->Bind(0);
-    internalTexture = m_framebuffer.GetColorAttachmentTexture(0, 0);
+    const std::shared_ptr<class Texture> internalTexture = m_framebuffer.GetColorAttachmentTexture(0, 0);
     m_framebuffer.GetAttachment(0, TextureAttachment::AttachmentType::Color, 0)->Texture(targetTexture);
 
     Copy(shaderCache, left, top, width, height);
@@ -204,9 +203,10 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 }
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
-                       GLuint originalTexture,
-                       int viewportWidth, int viewportHeight,
-                       int left, int top, int width, int height)
+                       const GLuint originalTexture,
+                       const int viewportWidth, const int viewportHeight,
+                       const int left, const int top,
+                       const int width, const int height)
 {
     if (originalTexture == 0)
     {
@@ -218,8 +218,8 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
         return;
     }
 
-    int oldWidth = m_width;
-    int oldHeight = m_height;
+    const int oldWidth = m_width;
+    const int oldHeight = m_height;
 
     m_width = viewportWidth;
     m_height = viewportHeight;
@@ -233,12 +233,12 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
     m_height = oldHeight;
 }
 
-auto CopyTexture::Texture() -> std::shared_ptr<class Texture>
+auto CopyTexture::Texture() const -> std::shared_ptr<class Texture>
 {
     return m_framebuffer.GetColorAttachmentTexture(0, 0);
 }
 
-void CopyTexture::UpdateTextureSize(int width, int height)
+void CopyTexture::UpdateTextureSize(const int width, const int height)
 {
     if (m_width == width &&
         m_height == height)
@@ -253,7 +253,7 @@ void CopyTexture::UpdateTextureSize(int width, int height)
 }
 
 void CopyTexture::Copy(ShaderCache& shaderCache,
-                       bool flipVertical, bool flipHorizontal)
+                       const bool flipVertical, const bool flipHorizontal)
 {
     glm::mat4x4 flipMatrix(1.0);
 
@@ -276,7 +276,8 @@ void CopyTexture::Copy(ShaderCache& shaderCache,
 }
 
 void CopyTexture::Copy(ShaderCache& shaderCache,
-                       int left, int top, int width, int height)
+                       const int left, const int top,
+                       const int width, const int height)
 {
     glm::mat4x4 translationMatrix(1.0);
     translationMatrix[0][0] = static_cast<float>(width) / static_cast<float>(m_width);

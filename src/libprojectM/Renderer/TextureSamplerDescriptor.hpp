@@ -61,7 +61,7 @@ public:
      * @brief Unbinds the texture and sampler in the descriptor from the given texture unit.
      * @param unit The texture unit to undbind the descriptor's contents from.
      */
-    void Unbind(GLint unit);
+    void Unbind(GLint unit) const;
 
     /**
      * @brief Returns a pointer to the stored texture.

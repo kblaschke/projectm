@@ -27,14 +27,14 @@ public:
      * @param rootDirs A list of root directories to scan.
      * @param extensions A list of file extensions to search for. Matching is performed case-insensitively.
      */
-	FileScanner(const std::vector<std::string> &rootDirs, std::vector<std::string> &extensions);
+	FileScanner(const std::vector<std::string> &rootDirs, const std::vector<std::string> &extensions);
 
     /**
      * @brief Scans the configured paths for files with valid extensions and calls the provided callback function with each match.
      * @note If root directories overlap, files will be found multiple times.
      * @param callback The callback to invoke for each matching file.
      */
-	void Scan(ScanCallback callback);
+	void Scan(const ScanCallback& callback) const;
 
 private:
 	std::vector<std::string> _rootDirs; //!< List of base directories to scan recursively.

@@ -170,7 +170,7 @@ public:
          * @note Precondition: a GL/GLES context must be current on the calling thread and the
          * required entry points (at minimum glGetString/glGetError) must be callable.
          */
-        [[nodiscard]] auto Check() const -> GLProbeResult;
+        auto Check() const -> GLProbeResult;
 
     private:
         GLFunctions m_gl;     //!< GL functions used for checks.
@@ -180,7 +180,7 @@ public:
     /**
      * @brief Formats GL context info as a compact summary string.
      */
-    [[nodiscard]] static auto FormatCompactLine(const GLInfo& info) -> std::string;
+    static auto FormatCompactLine(const GLInfo& info) -> std::string;
 };
 
 } // namespace Platform

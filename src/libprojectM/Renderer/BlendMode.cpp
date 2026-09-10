@@ -3,13 +3,13 @@
 namespace libprojectM {
 namespace Renderer {
 
-void BlendMode::Set(bool enable, Function srcFunc, Function dstFunc)
+void BlendMode::Set(const bool enable, const Function srcFunc, const Function dstFunc)
 {
     SetBlendActive(enable);
     SetBlendFunction(srcFunc, dstFunc);
 }
 
-void BlendMode::SetBlendActive(bool enable)
+void BlendMode::SetBlendActive(const bool enable)
 {
     if (enable)
     {
@@ -21,12 +21,12 @@ void BlendMode::SetBlendActive(bool enable)
     }
 }
 
-void BlendMode::SetBlendFunction(Function srcFunc, Function dstFunc)
+void BlendMode::SetBlendFunction(const Function srcFunc, const Function dstFunc)
 {
     glBlendFunc(FunctionToGL(srcFunc), FunctionToGL(dstFunc));
 }
 
-auto BlendMode::FunctionToGL(Function func) -> GLuint
+auto BlendMode::FunctionToGL(const Function func) -> GLuint
 {
     switch (func)
     {

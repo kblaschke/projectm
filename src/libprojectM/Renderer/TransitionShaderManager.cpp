@@ -45,7 +45,7 @@ auto TransitionShaderManager::CompileTransitionShader(const std::string& shaderB
     try
     {
         auto transitionShader = std::make_shared<Shader>();
-        transitionShader->CompileProgram(static_cast<const char*>(versionHeader) + kTransitionVertexShaderGlsl330, fragmentShaderSource);
+        transitionShader->CompileProgram(versionHeader + kTransitionVertexShaderGlsl330, fragmentShaderSource);
         return transitionShader;
     }
     catch (const ShaderException&)

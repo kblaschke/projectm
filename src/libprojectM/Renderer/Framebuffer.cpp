@@ -10,7 +10,7 @@ Framebuffer::Framebuffer()
     m_attachments.emplace(0, AttachmentsPerSlot());
 }
 
-Framebuffer::Framebuffer(int framebufferCount)
+Framebuffer::Framebuffer(const int framebufferCount)
 {
     m_framebufferIds.resize(framebufferCount);
     glGenFramebuffers(framebufferCount, m_framebufferIds.data());
@@ -37,7 +37,7 @@ auto Framebuffer::Count() const -> int
     return static_cast<int>(m_framebufferIds.size());
 }
 
-void Framebuffer::Bind(int framebufferIndex)
+void Framebuffer::Bind(const int framebufferIndex)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -49,7 +49,7 @@ void Framebuffer::Bind(int framebufferIndex)
     m_readFramebuffer = m_drawFramebuffer = framebufferIndex;
 }
 
-void Framebuffer::BindRead(int framebufferIndex)
+void Framebuffer::BindRead(const int framebufferIndex)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -61,7 +61,7 @@ void Framebuffer::BindRead(int framebufferIndex)
     m_readFramebuffer = framebufferIndex;
 }
 
-void Framebuffer::BindDraw(int framebufferIndex)
+void Framebuffer::BindDraw(const int framebufferIndex)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -78,7 +78,7 @@ void Framebuffer::Unbind()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-bool Framebuffer::SetSize(int width, int height)
+bool Framebuffer::SetSize(const int width, const int height)
 {
     if (width == 0 || height == 0 ||
         (width == m_width && height == m_height))
@@ -115,7 +115,9 @@ auto Framebuffer::Height() const -> int
     return m_height;
 }
 
-auto Framebuffer::GetAttachment(int framebufferIndex, TextureAttachment::AttachmentType type, int attachmentIndex) const -> std::shared_ptr<TextureAttachment>
+auto Framebuffer::GetAttachment(const int framebufferIndex,
+                                const TextureAttachment::AttachmentType type,
+                                const int attachmentIndex) const -> std::shared_ptr<TextureAttachment>
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -141,14 +143,17 @@ auto Framebuffer::GetAttachment(int framebufferIndex, TextureAttachment::Attachm
             break;
     }
 
-    if (framebufferAttachments.find(textureType) == framebufferAttachments.end()) {
+    if (framebufferAttachments.find(textureType) == framebufferAttachments.end())
+    {
         return {};
     }
 
     return framebufferAttachments.at(textureType);
 }
 
-void Framebuffer::SetAttachment(int framebufferIndex, int attachmentIndex, const std::shared_ptr<TextureAttachment>& attachment)
+void Framebuffer::SetAttachment(const int framebufferIndex,
+                                const int attachmentIndex,
+                                const std::shared_ptr<TextureAttachment>& attachment)
 {
     if (!attachment)
     {
@@ -192,12 +197,14 @@ void Framebuffer::SetAttachment(int framebufferIndex, int attachmentIndex, const
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebufferIds.at(m_drawFramebuffer));
 }
 
-void Framebuffer::CreateColorAttachment(int framebufferIndex, int attachmentIndex)
+void Framebuffer::CreateColorAttachment(const int framebufferIndex, const int attachmentIndex)
 {
     CreateColorAttachment(framebufferIndex, attachmentIndex, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
 }
 
-void Framebuffer::CreateColorAttachment(int framebufferIndex, int attachmentIndex, GLint internalFormat, GLenum format, GLenum type)
+void Framebuffer::CreateColorAttachment(const int framebufferIndex,
+                                        const int attachmentIndex,
+                                        GLint internalFormat, GLenum format, GLenum type)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -217,12 +224,12 @@ void Framebuffer::CreateColorAttachment(int framebufferIndex, int attachmentInde
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::RemoveColorAttachment(int framebufferIndex, int attachmentIndex)
+void Framebuffer::RemoveColorAttachment(const int framebufferIndex, const int attachmentIndex)
 {
-    RemoveAttachment(framebufferIndex,  GL_COLOR_ATTACHMENT0 + attachmentIndex);
+    RemoveAttachment(framebufferIndex, GL_COLOR_ATTACHMENT0 + attachmentIndex);
 }
 
-auto Framebuffer::GetColorAttachmentTexture(int framebufferIndex, int attachmentIndex) const -> std::shared_ptr<class Texture>
+auto Framebuffer::GetColorAttachmentTexture(const int framebufferIndex, const int attachmentIndex) const -> std::shared_ptr<class Texture>
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -238,7 +245,7 @@ auto Framebuffer::GetColorAttachmentTexture(int framebufferIndex, int attachment
     return attachment.at(GL_COLOR_ATTACHMENT0 + attachmentIndex)->Texture();
 }
 
-void Framebuffer::CreateDepthAttachment(int framebufferIndex)
+void Framebuffer::CreateDepthAttachment(const int framebufferIndex)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -258,12 +265,12 @@ void Framebuffer::CreateDepthAttachment(int framebufferIndex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::RemoveDepthAttachment(int framebufferIndex)
+void Framebuffer::RemoveDepthAttachment(const int framebufferIndex)
 {
     RemoveAttachment(framebufferIndex, GL_DEPTH_ATTACHMENT);
 }
 
-void Framebuffer::CreateStencilAttachment(int framebufferIndex)
+void Framebuffer::CreateStencilAttachment(const int framebufferIndex)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -283,12 +290,12 @@ void Framebuffer::CreateStencilAttachment(int framebufferIndex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::RemoveStencilAttachment(int framebufferIndex)
+void Framebuffer::RemoveStencilAttachment(const int framebufferIndex)
 {
     RemoveAttachment(framebufferIndex, GL_STENCIL_ATTACHMENT);
 }
 
-void Framebuffer::CreateDepthStencilAttachment(int framebufferIndex)
+void Framebuffer::CreateDepthStencilAttachment(const int framebufferIndex)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -308,15 +315,15 @@ void Framebuffer::CreateDepthStencilAttachment(int framebufferIndex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::RemoveDepthStencilAttachment(int framebufferIndex)
+void Framebuffer::RemoveDepthStencilAttachment(const int framebufferIndex)
 {
     RemoveAttachment(framebufferIndex, GL_DEPTH_STENCIL_ATTACHMENT);
 }
 
-void Framebuffer::MaskDrawBuffer(int bufferIndex, bool masked)
+void Framebuffer::MaskDrawBuffer(const int bufferIndex, const bool masked)
 {
     // Invert the flag, as "true" means the color channel *will* be written.
-    auto glMasked = static_cast<GLboolean>(!masked);
+    const auto glMasked = static_cast<GLboolean>(!masked);
 #ifdef USE_GLES
     glColorMask(glMasked, glMasked, glMasked, glMasked);
 #else
@@ -324,7 +331,7 @@ void Framebuffer::MaskDrawBuffer(int bufferIndex, bool masked)
 #endif
 }
 
-void Framebuffer::UpdateDrawBuffers(int framebufferIndex)
+void Framebuffer::UpdateDrawBuffers(const int framebufferIndex) const
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {
@@ -382,7 +389,7 @@ void Framebuffer::UpdateDrawBuffers(int framebufferIndex)
     glDrawBuffers(static_cast<GLsizei>(buffers.size()), buffers.data());
 }
 
-void Framebuffer::RemoveAttachment(int framebufferIndex, GLenum attachmentType)
+void Framebuffer::RemoveAttachment(const int framebufferIndex, const GLenum attachmentType)
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {

@@ -20,9 +20,11 @@ public:
      * @param u The U coordinate.
      * @param v The V coordinate.
      */
-    TextureUV(float u, float v)
+    TextureUV(const float u, const float v)
         : m_u(u)
-        , m_v(v) {};
+        , m_v(v)
+    {
+    }
 
     /**
      * Returns the U coordinate of the texture.
@@ -37,7 +39,7 @@ public:
      * Sets the U coordinate of the texture.
      * @param u The new U coordinate.
      */
-    void SetU(float u)
+    void SetU(const float u)
     {
         m_u = u;
     }
@@ -55,7 +57,7 @@ public:
      * Sets the V coordinate of the texture.
      * @param v The new V coordinate.
      */
-    void SetV(float v)
+    void SetV(const float v)
     {
         m_v = v;
     }
@@ -64,7 +66,7 @@ public:
      * @brief Initializes the attribute array pointer for this storage type.
      * @param attributeIndex the attribute index to use.
      */
-    static void InitializeAttributePointer(uint32_t attributeIndex)
+    static void InitializeAttributePointer(const uint32_t attributeIndex)
     {
         glVertexAttribPointer(attributeIndex, sizeof(TextureUV) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(TextureUV), nullptr);
     }

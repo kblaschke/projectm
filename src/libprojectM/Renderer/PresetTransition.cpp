@@ -10,7 +10,9 @@ namespace Renderer {
 
 constexpr double PI = 3.14159265358979323846;
 
-PresetTransition::PresetTransition(const std::shared_ptr<Shader>& transitionShader, double durationSeconds, double transitionStartTime)
+PresetTransition::PresetTransition(const std::shared_ptr<Shader>& transitionShader,
+                                   const double durationSeconds,
+                                   const double transitionStartTime)
     : m_mesh(VertexBufferUsage::StaticDraw)
     , m_transitionShader(transitionShader)
     , m_durationSeconds(durationSeconds)
@@ -31,13 +33,13 @@ PresetTransition::PresetTransition(const std::shared_ptr<Shader>& transitionShad
     m_staticRandomValues = {rand32(), rand32(), rand32(), rand32()};
 }
 
-auto PresetTransition::IsDone(double currentFrameTime) const -> bool
+auto PresetTransition::IsDone(const double currentFrameTime) const -> bool
 {
     const auto secondsSinceStart = currentFrameTime - m_transitionStartTime;
     return m_durationSeconds <= 0.0 || secondsSinceStart >= m_durationSeconds;
 }
 
-auto PresetTransition::Progress(double currentFrameTime) const -> double
+auto PresetTransition::Progress(const double currentFrameTime) const -> double
 {
     return std::min(std::max((currentFrameTime - m_transitionStartTime) / m_durationSeconds, 0.0), 1.0);
 }
@@ -45,8 +47,8 @@ auto PresetTransition::Progress(double currentFrameTime) const -> double
 void PresetTransition::Draw(const Preset& oldPreset,
                             const Preset& newPreset,
                             const RenderContext& context,
-                            const libprojectM::Audio::FrameAudioData& audioData,
-                            double currentFrameTime)
+                            const Audio::FrameAudioData& audioData,
+                            const double currentFrameTime)
 {
     if (m_transitionShader == nullptr)
     {

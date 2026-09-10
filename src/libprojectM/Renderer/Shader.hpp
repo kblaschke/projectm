@@ -29,7 +29,7 @@ public:
     {
     }
 
-    virtual ~ShaderException() = default;
+    ~ShaderException() override = default;
 
     const char* what() const noexcept override
     {
@@ -192,7 +192,7 @@ private:
      * @param type The shader type, e.g. GL_VERTEX_SHADER.
      * @return The shader ID.
      */
-    auto CompileShader(const std::string& source, GLenum type) -> GLuint;
+    static auto CompileShader(const std::string& source, GLenum type) -> GLuint;
 
     GLuint m_shaderProgram{}; //!< The program ID.
 };

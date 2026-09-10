@@ -238,7 +238,7 @@ public:
     /**
      * @brief Returns true if the library handle is valid.
      */
-    [[nodiscard]] auto IsOpen() const -> bool
+    auto IsOpen() const -> bool
     {
         return m_handle != nullptr;
     }
@@ -246,7 +246,7 @@ public:
     /**
      * @brief Returns the name of the successfully opened library (empty if none).
      */
-    [[nodiscard]] auto LoadedName() const -> const std::string&
+    auto LoadedName() const -> const std::string&
     {
         return m_loadedName;
     }
@@ -254,7 +254,7 @@ public:
     /**
      * @brief Returns the raw library handle.
      */
-    [[nodiscard]] auto Handle() const -> LibHandle
+    auto Handle() const -> LibHandle
     {
         return m_handle;
     }
@@ -265,7 +265,7 @@ public:
      * The default is false to avoid unloading GL/driver libraries during process teardown.
      * Enable only for short-lived helper loads where unloading is safe and desired.
      */
-    auto SetCloseOnDestruct(bool enabled) -> void
+    auto SetCloseOnDestruct(const bool enabled) -> void
     {
         m_closeOnDestruct = enabled;
     }
