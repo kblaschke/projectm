@@ -39,7 +39,7 @@ public:
      * @param perFrameInitCode The init code.
      * @param waveform The waveform this context belongs to.
      */
-    void EvaluateInitCode(const std::string& perFrameInitCode, CustomWaveform& waveform);
+    void EvaluateInitCode(const std::string& perFrameInitCode, const CustomWaveform& waveform);
 
     /**
      * @brief Compiles the per-frame code and stores the code handle in the class.

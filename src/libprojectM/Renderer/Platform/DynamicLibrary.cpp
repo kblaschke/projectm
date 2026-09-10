@@ -2,6 +2,11 @@
 
 #include <cstdlib>
 
+// Disable "getenv() is insecure" warning in MSVC compiler, as it's used in a secure manner here.
+#if defined(_MSC_VER) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
+#pragma warning( disable: 4996 )
+#endif
+
 namespace libprojectM {
 namespace Renderer {
 namespace Platform {

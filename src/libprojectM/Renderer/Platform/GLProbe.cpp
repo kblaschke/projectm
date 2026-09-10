@@ -9,6 +9,11 @@
 #include <sstream>
 #include <vector>
 
+// Disable "sscanf() is insecure" warning in MSVC compiler.
+#if defined(_MSC_VER) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
+#pragma warning( disable: 4996 )
+#endif
+
 namespace libprojectM {
 namespace Renderer {
 namespace Platform {

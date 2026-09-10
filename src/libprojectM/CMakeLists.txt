@@ -119,6 +119,11 @@ if(BUILD_SHARED_LIBS)
                 PRIVATE
                 projectM_api_EXPORTS
                 )
+
+        if(MSVC)
+            # Disable MSVC warning: "class 'Foo' needs to have dll-interface to be used by clients of class 'Bar'"
+            add_compile_options(/wd4251)
+        endif()
     else()
         # Using PROJECTM_CXX_STATIC_DEFINE has precedence over projectM_api_EXPORTS,
         # so all PROJECTM_CXX_EXPORT macros are removed.
