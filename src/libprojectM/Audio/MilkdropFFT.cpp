@@ -34,7 +34,10 @@ namespace Audio {
 
 constexpr auto PI = 3.141592653589793238462643383279502884197169399f;
 
-MilkdropFFT::MilkdropFFT(size_t samplesIn, size_t samplesOut, bool equalize, float envelopePower)
+MilkdropFFT::MilkdropFFT(const size_t samplesIn,
+                         const size_t samplesOut,
+                         const bool equalize,
+                         const float envelopePower)
     : m_samplesIn(samplesIn)
     , m_numFrequencies(samplesOut * 2)
 {
@@ -53,7 +56,7 @@ void MilkdropFFT::InitEnvelopeTable(float power)
         return;
     }
 
-    float const multiplier = 1.0f / static_cast<float>(m_samplesIn) * 2.0f * PI;
+    const float multiplier = 1.0f / static_cast<float>(m_samplesIn) * 2.0f * PI;
 
     m_envelope.resize(m_samplesIn);
 
@@ -81,14 +84,14 @@ void MilkdropFFT::InitEqualizeTable(bool equalize)
         return;
     }
 
-    float const scaling = -0.02f;
-    float const inverseHalfNumFrequencies = 1.0f / static_cast<float>(m_numFrequencies / 2);
+    const float scaling = -0.02f;
+    const float inverseHalfNumFrequencies = 1.0f / std::floor(static_cast<float>(m_numFrequencies) / 2.0f);
 
     m_equalize.resize(m_numFrequencies / 2);
 
     for (size_t i = 0; i < m_numFrequencies / 2; i++)
     {
-        m_equalize[i] = scaling * std::log(static_cast<float>(m_numFrequencies / 2 - i) * inverseHalfNumFrequencies);
+        m_equalize[i] = scaling * std::log((static_cast<float>(m_numFrequencies) / 2 - static_cast<float>(i)) * inverseHalfNumFrequencies);
     }
 }
 
@@ -106,7 +109,7 @@ void MilkdropFFT::InitBitRevTable()
     {
         if (j > i)
         {
-            size_t const temp{m_bitRevTable[i]};
+            const size_t temp{m_bitRevTable[i]};
             m_bitRevTable[i] = m_bitRevTable[j];
             m_bitRevTable[j] = temp;
         }
@@ -147,7 +150,7 @@ void MilkdropFFT::InitCosSinTable()
     }
 }
 
-void MilkdropFFT::TimeToFrequencyDomain(const std::vector<float>& waveformData, std::vector<float>& spectralData)
+void MilkdropFFT::TimeToFrequencyDomain(const std::vector<float>& waveformData, std::vector<float>& spectralData) const
 {
     if (m_bitRevTable.empty() || m_cosSinTable.empty() || waveformData.size() < m_samplesIn)
     {
@@ -159,7 +162,7 @@ void MilkdropFFT::TimeToFrequencyDomain(const std::vector<float>& waveformData, 
     std::vector<std::complex<float>> spectrumData(m_numFrequencies, std::complex<float>());
     for (size_t i = 0; i < m_numFrequencies; i++)
     {
-        size_t const idx{m_bitRevTable[i]};
+        const size_t idx{m_bitRevTable[i]};
         if (idx < m_samplesIn)
         {
             spectrumData[i].real(waveformData[idx] * m_envelope[idx]);
@@ -175,13 +178,13 @@ void MilkdropFFT::TimeToFrequencyDomain(const std::vector<float>& waveformData, 
         std::complex<float> w{1.0f, 0.0f};
         std::complex<float> const wp{m_cosSinTable[octave]};
 
-        size_t const hdftsize{dftSize >> 1};
+        const size_t hdftsize{dftSize >> 1};
 
         for (size_t m = 0; m < hdftsize; m += 1)
         {
             for (size_t i = m; i < m_numFrequencies; i += dftSize)
             {
-                size_t const j{i + hdftsize};
+                const size_t j{i + hdftsize};
                 std::complex<float> const tempNum{spectrumData[j] * w};
                 spectrumData[j] = spectrumData[i] - tempNum;
                 spectrumData[i] = spectrumData[i] + tempNum;
