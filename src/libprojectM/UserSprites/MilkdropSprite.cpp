@@ -16,7 +16,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <cstdlib>
 #include <locale>
 #include <sstream>
 #include <string>
@@ -86,10 +85,10 @@ void MilkdropSprite::Init(const std::string& spriteData, const Renderer::RenderC
         }
     }
 
-    auto imageName = Utils::ToLower(parser.GetString("img", ""));
+    const auto imageName = Utils::ToLower(parser.GetString("img", ""));
 
     // Store texture as a shared_ptr to make sure TextureManager doesn't delete it.
-    std::locale const loc;
+    const std::locale loc;
     if (imageName.length() >= 6 &&
         imageName.substr(0, 4) == "rand" && std::isdigit(imageName.at(4), loc) && std::isdigit(imageName.at(5), loc))
     {
@@ -106,7 +105,7 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
                           uint32_t outputFramebufferObject,
                           PresetList presets)
 {
-    auto spriteShader = m_spriteShader.lock();
+    const auto spriteShader = m_spriteShader.lock();
     assert(spriteShader.get());
 
     m_codeContext.RunPerFrameCode(audioData, renderContext);
@@ -117,21 +116,21 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
     auto& vertices = m_mesh.Vertices().Get();
 
     // Get values from expression code and clamp them where necessary.
-    float x = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.x) * 2.0f - 1.0f));
-    float y = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.y) * 2.0f - 1.0f));
-    float sx = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.sx)));
-    float sy = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.sy)));
-    float rot = static_cast<float>(*m_codeContext.rot);
-    int flipx = (*m_codeContext.flipx == 0.0) ? 0 : 1; // Comparing float to 0.0 isn't actually a good idea...
-    int flipy = (*m_codeContext.flipy == 0.0) ? 0 : 1;
-    float repeatx = std::min(100.0f, std::max(0.01f, static_cast<float>(*m_codeContext.repeatx)));
-    float repeaty = std::min(100.0f, std::max(0.01f, static_cast<float>(*m_codeContext.repeaty)));
+    const float x = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.x) * 2.0f - 1.0f));
+    const float y = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.y) * 2.0f - 1.0f));
+    const float sx = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.sx)));
+    const float sy = std::min(1000.0f, std::max(-1000.0f, static_cast<float>(*m_codeContext.sy)));
+    const auto rot = static_cast<float>(*m_codeContext.rot);
+    const int flipx = (*m_codeContext.flipx == 0.0) ? 0 : 1; // Comparing float to 0.0 isn't actually a good idea...
+    const int flipy = (*m_codeContext.flipy == 0.0) ? 0 : 1;
+    const float repeatx = std::min(100.0f, std::max(0.01f, static_cast<float>(*m_codeContext.repeatx)));
+    const float repeaty = std::min(100.0f, std::max(0.01f, static_cast<float>(*m_codeContext.repeaty)));
 
-    int blendMode = std::min(4, std::max(0, (static_cast<int>(*m_codeContext.blendmode))));
-    float r = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.r))));
-    float g = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.g))));
-    float b = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.b))));
-    float a = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.a))));
+    const int blendMode = std::min(4, std::max(0, (static_cast<int>(*m_codeContext.blendmode))));
+    const float r = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.r))));
+    const float g = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.g))));
+    const float b = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.b))));
+    const float a = std::min(1.0f, std::max(0.0f, (static_cast<float>(*m_codeContext.a))));
 
     // ToDo: Move all translations to vertex shader
     vertices[0 + flipx].SetX(-sx);
@@ -145,7 +144,7 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
 
     // First aspect ratio: adjust for non-1:1 images
     {
-        auto aspect = m_texture->Height() / static_cast<float>(m_texture->Width());
+        const auto aspect = static_cast<float>(m_texture->Height()) / static_cast<float>(m_texture->Width());
 
         if (aspect < 1.0f)
         {
@@ -167,8 +166,8 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
 
     // 2D rotation
     {
-        auto cos_rot = std::cos(rot);
-        auto sin_rot = std::sin(rot);
+        const auto cos_rot = std::cos(rot);
+        const auto sin_rot = std::sin(rot);
 
         for (auto& vertex : vertices)
         {
@@ -187,7 +186,7 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
 
     // Second aspect ratio: normalize to width of screen
     {
-        float aspect = renderContext.viewportSizeX / static_cast<float>(renderContext.viewportSizeY);
+        const float aspect = static_cast<float>(renderContext.viewportSizeX) / static_cast<float>(renderContext.viewportSizeY);
 
         if (aspect > 1.0)
         {
@@ -303,7 +302,7 @@ auto MilkdropSprite::GetVariableValue(const std::string& variableName) const -> 
 
 void MilkdropSprite::SetVariableValue(const std::string& variableName, double value)
 {
-    PRJM_EVAL_F * var = projectm_eval_context_register_variable(m_codeContext.spriteCodeContext, variableName.c_str());
+    PRJM_EVAL_F* var = projectm_eval_context_register_variable(m_codeContext.spriteCodeContext, variableName.c_str());
     if (var != nullptr)
     {
         *var = value;
@@ -404,7 +403,8 @@ void MilkdropSprite::CodeContext::RunInitCode(const std::string& initCode, const
     projectm_eval_code_destroy(initCodeHandle);
 }
 
-void MilkdropSprite::CodeContext::RunPerFrameCode(const Audio::FrameAudioData& audioData, const Renderer::RenderContext& renderContext)
+void MilkdropSprite::CodeContext::RunPerFrameCode(const Audio::FrameAudioData& audioData,
+                                                  const Renderer::RenderContext& renderContext) const
 {
     // If there's no per-frame code, e.g. with static sprites, just skip it.
     if (perFrameCodeHandle == nullptr)
