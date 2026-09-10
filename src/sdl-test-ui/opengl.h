@@ -2,8 +2,7 @@
    Include appropriate OpenGL headers for this platform.
 **/
 
-#ifndef  __PROJECTM_OPENGL_H__
-#define  __PROJECTM_OPENGL_H__
+#pragma once
 
 // stuff that needs to be ported to newer GL calls
 #define GL_TRANSITION
@@ -23,6 +22,3 @@
 #else
 #  include <glad/gl.h>
 #endif
-
-
-#endif // __PROJECTM_OPENGL_H__

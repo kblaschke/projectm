@@ -1,6 +1,3 @@
-#ifndef audioCapture_hpp
-#define audioCapture_hpp
+#pragma once
 
 #include "pmSDL.hpp"
-
-#endif /* audioCapture_hpp */

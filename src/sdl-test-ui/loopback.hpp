@@ -1,14 +1,9 @@
-
-
-#ifndef loopback_hpp
-#define loopback_hpp
+#pragma once
 
 #include "pmSDL.hpp"
 
-class projectMSDL;
+class ProjectMSDL;
 
-bool initLoopback();
-void configureLoopback(projectMSDL *app);
-bool processLoopbackFrame(projectMSDL *app);
-
-#endif /* loopback_hpp */
+auto InitLoopback() -> bool;
+void ConfigureLoopback(ProjectMSDL* app);
+auto ProcessLoopbackFrame(ProjectMSDL* app) -> bool;
