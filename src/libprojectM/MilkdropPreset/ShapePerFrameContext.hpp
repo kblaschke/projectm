@@ -45,7 +45,7 @@ public:
      * @param perFrameInitCode The init code.
      * @param shape The shape this context belongs to.
      */
-    void EvaluateInitCode(const std::string& perFrameInitCode, const CustomShape& shape);
+    void EvaluateInitCode(const std::string& perFrameInitCode, const CustomShape& shape) const;
 
     /**
      * @brief Compiles the per-frame code and stores the code handle in the class.
@@ -58,7 +58,7 @@ public:
     /**
      * @brief Executes the per-frame code with the current state.
      */
-    void ExecutePerFrameCode();
+    void ExecutePerFrameCode() const;
 
     projectm_eval_context* perFrameCodeContext{nullptr}; //!< The code runtime context, holds memory buffers and variables.
     projectm_eval_code* perFrameCodeHandle{nullptr};     //!< The compiled per-frame code handle.

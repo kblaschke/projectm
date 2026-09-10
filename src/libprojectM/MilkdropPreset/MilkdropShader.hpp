@@ -72,7 +72,7 @@ private:
      * @brief Prepares the shader code to be translated into GLSL.
      * @param program The program code to work on.
      */
-    void PreprocessPresetShader(std::string& program);
+    void PreprocessPresetShader(std::string& program) const;
 
     /**
      * @brief Searches for sampler references in the program and stores them in m_samplerNames.

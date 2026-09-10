@@ -19,11 +19,11 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
-using libprojectM::MilkdropPreset::MilkdropStaticShaders;
+using MilkdropPreset::MilkdropStaticShaders;
 
 static auto floatRand = []() { return static_cast<float>(rand() % 7381) / 7380.0f; };
 
-MilkdropShader::MilkdropShader(ShaderType type)
+MilkdropShader::MilkdropShader(const ShaderType type)
     : m_type(type)
     , m_randValues({floatRand(), floatRand(), floatRand(), floatRand()})
 {
@@ -32,11 +32,11 @@ MilkdropShader::MilkdropShader(ShaderType type)
     {
         for (int i = 0; i < 4; i++)
         {
-            float const m_randTranslationMult = 1;
-            float const rotMult = 0.9f * powf(index / 8.0f, 3.2f);
-            m_randTranslation[index].x = (floatRand() * 2 - 1) * m_randTranslationMult;
-            m_randTranslation[index].y = (floatRand() * 2 - 1) * m_randTranslationMult;
-            m_randTranslation[index].z = (floatRand() * 2 - 1) * m_randTranslationMult;
+            constexpr float translationMult = 1.0f;
+            const float rotMult = 0.9f * powf(static_cast<float>(index) / 8.0f, 3.2f);
+            m_randTranslation[index].x = (floatRand() * 2 - 1) * translationMult;
+            m_randTranslation[index].y = (floatRand() * 2 - 1) * translationMult;
+            m_randTranslation[index].z = (floatRand() * 2 - 1) * translationMult;
             m_randRotationCenters[index].x = floatRand() * 6.28f;
             m_randRotationCenters[index].y = floatRand() * 6.28f;
             m_randRotationCenters[index].z = floatRand() * 6.28f;
@@ -152,7 +152,7 @@ void MilkdropShader::LoadVariables(const PresetState& presetState, const PerFram
     // These are the inputs: http://www.geisswerks.com/milkdrop/milkdrop_preset_authoring.html#3f6
 
     auto floatTime = static_cast<float>(presetState.renderContext.time);
-    auto timeSincePresetStartWrapped = floatTime - static_cast<int>(floatTime / 10000.0) * 10000;
+    auto timeSincePresetStartWrapped = floatTime - std::floor(floatTime / 10000.0) * 10000;
     auto mipX = logf(static_cast<float>(presetState.renderContext.viewportSizeX)) / logf(2.0f);
     auto mipY = logf(static_cast<float>(presetState.renderContext.viewportSizeY)) / logf(2.0f);
     auto mipAvg = 0.5f * (mipX + mipY);
@@ -329,7 +329,7 @@ auto MilkdropShader::Shader() -> Renderer::Shader&
     return m_shader;
 }
 
-void MilkdropShader::PreprocessPresetShader(std::string& program)
+void MilkdropShader::PreprocessPresetShader(std::string& program) const
 {
     std::string shaderTypeString = "composite";
     if (m_type == ShaderType::WarpShader)
@@ -337,7 +337,7 @@ void MilkdropShader::PreprocessPresetShader(std::string& program)
         shaderTypeString = "warp";
     }
 
-    if (program.length() <= 0)
+    if (program.empty())
     {
         throw Renderer::ShaderException("[MilkdropShader] Preset " + shaderTypeString + " shader is declared, but empty.");
     }
@@ -474,6 +474,8 @@ void PS(float4 _vDiffuse : COLOR,
 
             case '}':
                 bracesOpen--;
+
+            default:;
         }
     }
 
@@ -518,18 +520,18 @@ void MilkdropShader::GetReferencedSamplers(const std::string& program)
     m_samplerNames.insert("main");
 
     // Strip comments so that commented-out sampler/texsize declarations are not matched.
-    std::string const stripped = Utils::StripComments(program);
+    const std::string stripped = Utils::StripComments(program);
 
     // Search for sampler usage
     auto found = stripped.find("sampler_", 0);
     while (found != std::string::npos)
     {
         found += 8;
-        size_t const end = stripped.find_first_of(" ;,\n\r)", found);
+        const size_t end = stripped.find_first_of(" ;,\n\r)", found);
 
         if (end != std::string::npos)
         {
-            std::string const sampler = stripped.substr(static_cast<int>(found), static_cast<int>(end - found));
+            const std::string sampler = stripped.substr(static_cast<int>(found), static_cast<int>(end - found));
             // Skip "sampler_state", as it's a reserved word and not a sampler.
             if (sampler != "state")
             {
@@ -545,11 +547,11 @@ void MilkdropShader::GetReferencedSamplers(const std::string& program)
     while (found != std::string::npos)
     {
         found += 8;
-        size_t const end = stripped.find_first_of(" ;,.\n\r)", found);
+        const size_t end = stripped.find_first_of(" ;,.\n\r)", found);
 
         if (end != std::string::npos)
         {
-            std::string const sampler = stripped.substr(static_cast<int>(found), static_cast<int>(end - found));
+            const std::string sampler = stripped.substr(static_cast<int>(found), static_cast<int>(end - found));
             m_samplerNames.insert(sampler);
         }
 

@@ -95,7 +95,7 @@ void WaveformPerFrameContext::LoadStateVariables(PresetState& state, const PerFr
 }
 
 void WaveformPerFrameContext::EvaluateInitCode(const std::string& perFrameInitCode,
-                                               const CustomWaveform& waveform)
+                                               const CustomWaveform& waveform) const
 {
     if (perFrameInitCode.empty())
     {
@@ -161,7 +161,7 @@ void WaveformPerFrameContext::CompilePerFrameCode(const std::string& perFrameCod
     }
 }
 
-void WaveformPerFrameContext::ExecutePerFrameCode()
+void WaveformPerFrameContext::ExecutePerFrameCode() const
 {
     if (perFrameCodeHandle != nullptr)
     {

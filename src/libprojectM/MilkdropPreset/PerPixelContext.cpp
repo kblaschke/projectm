@@ -70,7 +70,7 @@ void PerPixelContext::RegisterBuiltinVariables()
     REG_VAR(aspecty);
 }
 
-void PerPixelContext::LoadStateReadOnlyVariables(PresetState& state, PerFrameContext& perFrameState)
+void PerPixelContext::LoadStateReadOnlyVariables(const PresetState& state, const PerFrameContext& perFrameState) const
 {
     *time = static_cast<PRJM_EVAL_F>(*perFrameState.time);
     *fps = static_cast<PRJM_EVAL_F>(*perFrameState.fps);
@@ -128,7 +128,7 @@ void PerPixelContext::CompilePerPixelCode(const std::string& perPixelCode)
     }
 }
 
-void PerPixelContext::ExecutePerPixelCode()
+void PerPixelContext::ExecutePerPixelCode() const
 {
     if (perPixelCodeHandle != nullptr)
     {

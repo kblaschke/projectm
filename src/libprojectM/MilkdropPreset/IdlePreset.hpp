@@ -24,7 +24,7 @@ public:
      * @brief Allocate a new idle preset instance.
      * @return A newly allocated auto pointer of an idle preset instance
      */
-    static std::unique_ptr<::libprojectM::Preset> allocate();
+    static std::unique_ptr<Preset> allocate();
 
 private:
     static std::string presetText();

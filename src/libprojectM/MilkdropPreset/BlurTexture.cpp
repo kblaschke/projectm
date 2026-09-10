@@ -118,7 +118,7 @@ void BlurTexture::Update(const Renderer::Texture& sourceTexture, const PerFrameC
 
     AllocateTextures(sourceTexture);
 
-    unsigned int const passes = static_cast<int>(m_blurLevel) * 2;
+    unsigned const int passes = static_cast<int>(m_blurLevel) * 2;
     auto const blur1EdgeDarken = static_cast<float>(*perFrameContext.blur1_edge_darken);
 
     const std::array<float, 8> weights = {4.0f, 3.8f, 3.5f, 2.9f, 1.9f, 1.2f, 0.7f, 0.3f}; //<- user can specify these
@@ -193,8 +193,8 @@ void BlurTexture::Update(const Renderer::Texture& sourceTexture, const PerFrameC
         }
         m_blurSampler->Bind(0);
 
-        float srcWidth = static_cast<float>((pass == 0) ? sourceTexture.Width() : m_blurTextures[pass - 1]->Width());
-        float srcHeight = static_cast<float>((pass == 0) ? sourceTexture.Height() : m_blurTextures[pass - 1]->Height());
+        auto srcWidth = static_cast<float>((pass == 0) ? sourceTexture.Width() : m_blurTextures[pass - 1]->Width());
+        auto srcHeight = static_cast<float>((pass == 0) ? sourceTexture.Height() : m_blurTextures[pass - 1]->Height());
 
         float scaleNow = scale[pass / 2];
         float biasNow = bias[pass / 2];

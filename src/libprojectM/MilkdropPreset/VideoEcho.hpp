@@ -26,7 +26,7 @@ private:
 
     const PresetState& m_presetState; //!< The global preset state.
 
-    std::array<std::array<float, 3>, 4> m_shade; // !< Random, changing color values for the four corners
+    std::array<std::array<float, 3>, 4> m_shade{}; // !< Random, changing color values for the four corners
     Renderer::Mesh m_echoMesh; //!< The video echo/gamma adj mesh
     Renderer::Sampler m_sampler{GL_CLAMP_TO_EDGE, GL_LINEAR};
 };

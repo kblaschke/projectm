@@ -70,7 +70,7 @@ protected:
      * @param inputVertices Vector of vertices to be smoothed.
      * @param outputVertices Reference to a buffer that will receive the smoothed data. Will be resized to 2 * vertexCount vertices.
      */
-    void SmoothWave(const VertexList& inputVertices, VertexList& outputVertices);
+    void SmoothWave(const VertexList& inputVertices, VertexList& outputVertices) const;
 
     WaveformMode m_mode{WaveformMode::Line};
 

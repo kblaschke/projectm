@@ -17,7 +17,7 @@ public:
     {
     }
 
-    virtual ~MilkdropPresetLoadException() = default;
+    ~MilkdropPresetLoadException() override = default;
 
     const char* what() const noexcept override
     {
@@ -45,7 +45,7 @@ public:
     {
     }
 
-    virtual ~MilkdropCompileException() = default;
+    ~MilkdropCompileException() override = default;
 
     const char* what() const noexcept override
     {

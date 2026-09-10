@@ -133,7 +133,7 @@ void ShapePerFrameContext::LoadStateVariables(const PresetState& state,
 }
 
 void ShapePerFrameContext::EvaluateInitCode(const std::string& perFrameInitCode,
-                                            const CustomShape& shape)
+                                            const CustomShape& shape) const
 {
     if (perFrameInitCode.empty())
     {
@@ -199,8 +199,7 @@ void ShapePerFrameContext::CompilePerFrameCode(const std::string& perFrameCode,
     }
 }
 
-
-void ShapePerFrameContext::ExecutePerFrameCode()
+void ShapePerFrameContext::ExecutePerFrameCode() const
 {
     if (perFrameCodeHandle != nullptr)
     {

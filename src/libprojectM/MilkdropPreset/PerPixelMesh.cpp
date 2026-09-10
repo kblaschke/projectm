@@ -181,7 +181,7 @@ void PerPixelMesh::InitializeMesh(const PresetState& presetState)
                     yReference = m_gridSizeY - 1 - yReference;
                 }
 
-                int const vertex = xReference + yReference * (m_gridSizeX + 1);
+                const int vertex = xReference + yReference * (m_gridSizeX + 1);
 
                 // 0 - 1      3
                 //   /      /
@@ -200,16 +200,16 @@ void PerPixelMesh::InitializeMesh(const PresetState& presetState)
 void PerPixelMesh::CalculateMesh(const PresetState& presetState, const PerFrameContext& perFrameContext, PerPixelContext& perPixelContext)
 {
     // Cache some per-frame values as floats
-    float zoom = static_cast<float>(*perFrameContext.zoom);
-    float zoomExp = static_cast<float>(*perFrameContext.zoomexp);
-    float rot = static_cast<float>(*perFrameContext.rot);
-    float warp = static_cast<float>(*perFrameContext.warp);
-    float cx = static_cast<float>(*perFrameContext.cx);
-    float cy = static_cast<float>(*perFrameContext.cy);
-    float dx = static_cast<float>(*perFrameContext.dx);
-    float dy = static_cast<float>(*perFrameContext.dy);
-    float sx = static_cast<float>(*perFrameContext.sx);
-    float sy = static_cast<float>(*perFrameContext.sy);
+    const auto zoom = static_cast<float>(*perFrameContext.zoom);
+    const auto zoomExp = static_cast<float>(*perFrameContext.zoomexp);
+    const auto rot = static_cast<float>(*perFrameContext.rot);
+    const auto warp = static_cast<float>(*perFrameContext.warp);
+    const auto cx = static_cast<float>(*perFrameContext.cx);
+    const auto cy = static_cast<float>(*perFrameContext.cy);
+    const auto dx = static_cast<float>(*perFrameContext.dx);
+    const auto dy = static_cast<float>(*perFrameContext.dy);
+    const auto sx = static_cast<float>(*perFrameContext.sx);
+    const auto sy = static_cast<float>(*perFrameContext.sy);
 
     int vertex = 0;
 
@@ -284,8 +284,8 @@ void PerPixelMesh::WarpedBlit(const PresetState& presetState,
                               const PerFrameContext& perFrameContext)
 {
     // Warp stuff
-    float const warpTime = presetState.renderContext.time * presetState.warpAnimSpeed;
-    float const warpScaleInverse = 1.0f / presetState.warpScale;
+    const float warpTime = presetState.renderContext.time * presetState.warpAnimSpeed;
+    const float warpScaleInverse = 1.0f / presetState.warpScale;
     glm::vec4 const warpFactors{
         11.68f + 4.0f * cosf(warpTime * 1.413f + 10),
         8.77f + 3.0f * cosf(warpTime * 1.113f + 7),
@@ -369,7 +369,7 @@ auto PerPixelMesh::GetDefaultWarpShader(const PresetState& presetState) -> std::
         return perPixelMeshShader;
     }
 
-    auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
+    auto staticShaders = MilkdropStaticShaders::Get();
 
     perPixelMeshShader = std::make_shared<Renderer::Shader>();
     perPixelMeshShader->CompileProgram(staticShaders->GetPresetWarpVertexShader(),

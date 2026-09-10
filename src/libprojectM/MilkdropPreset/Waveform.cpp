@@ -39,7 +39,7 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
 #endif
     glLineWidth(1);
 
-    auto shader = m_presetState.untexturedShader.lock();
+    const auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
     shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjectionFlipped);
     shader->SetUniformFloat("vertex_point_size", 1.0f);
@@ -88,25 +88,27 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
                     break;
 
                 case 1:
-                    for (auto j = 0U; j < smoothedWave.size(); j++)
+                    for (auto& j : smoothedWave)
                     {
-                        smoothedWave[j].SetX(smoothedWave[j].X() + incrementX);
+                        j.SetX(j.X() + incrementX);
                     }
                     break;
 
                 case 2:
-                    for (auto j = 0U; j < smoothedWave.size(); j++)
+                    for (auto& j : smoothedWave)
                     {
-                        smoothedWave[j].SetY(smoothedWave[j].Y() + incrementY);
+                        j.SetY(j.Y() + incrementY);
                     }
                     break;
 
                 case 3:
-                    for (auto j = 0U; j < smoothedWave.size(); j++)
+                    for (auto& j : smoothedWave)
                     {
-                        smoothedWave[j].SetX(smoothedWave[j].X() - incrementX);
+                        j.SetX(j.X() - incrementX);
                     }
                     break;
+
+                default:;
             }
 
             m_waveMesh.Vertices().Set(smoothedWave);
@@ -117,7 +119,8 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
         }
     }
 
-    Renderer::BlendMode::SetBlendActive(false);;
+    Renderer::BlendMode::SetBlendActive(false);
+    ;
     Renderer::Mesh::Unbind();
     Renderer::Shader::Unbind();
 }
@@ -149,23 +152,23 @@ void Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext)
     //
     //forces max color value to 1.0 and scales
     // the rest accordingly
-    int texsize = std::max(m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY);
+    const int textureSize = std::max(m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY);
 
     if (m_mode == WaveformMode::CenteredSpiro || m_mode == WaveformMode::ExplosiveHash)
     {
-        if (texsize <= 256)
+        if (textureSize <= 256)
         {
             m_tempAlpha *= 0.07f;
         }
-        else if (texsize <= 512)
+        else if (textureSize <= 512)
         {
             m_tempAlpha *= 0.09f;
         }
-        else if (texsize <= 1024)
+        else if (textureSize <= 1024)
         {
             m_tempAlpha *= 0.11f;
         }
-        else if (texsize <= 2048)
+        else if (textureSize <= 2048)
         {
             m_tempAlpha *= 0.13f;
         }
@@ -177,19 +180,19 @@ void Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext)
     }
     else if (m_mode == WaveformMode::CenteredSpiroVolume)
     {
-        if (texsize <= 256)
+        if (textureSize <= 256)
         {
             m_tempAlpha *= 0.075f;
         }
-        else if (texsize <= 512)
+        else if (textureSize <= 512)
         {
             m_tempAlpha *= 0.15f;
         }
-        else if (texsize <= 1024)
+        else if (textureSize <= 1024)
         {
             m_tempAlpha *= 0.22f;
         }
-        else if (texsize <= 2048)
+        else if (textureSize <= 2048)
         {
             m_tempAlpha *= 0.33f;
         }
@@ -223,8 +226,6 @@ void Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext)
 
     if (*presetPerFrameContext.wave_brighten > 0)
     {
-        constexpr float fMaximizeWaveColorAmount = 1.0f;
-
         float max = waveR;
         if (max < waveG)
         {
@@ -236,9 +237,10 @@ void Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext)
         }
         if (max > 0.01f)
         {
-            waveR = waveR / max * fMaximizeWaveColorAmount + waveR * (1.0f - fMaximizeWaveColorAmount);
-            waveG = waveG / max * fMaximizeWaveColorAmount + waveG * (1.0f - fMaximizeWaveColorAmount);
-            waveB = waveB / max * fMaximizeWaveColorAmount + waveB * (1.0f - fMaximizeWaveColorAmount);
+            constexpr float maximizeWaveColorAmount = 1.0f;
+            waveR = waveR / max * maximizeWaveColorAmount + waveR * (1.0f - maximizeWaveColorAmount);
+            waveG = waveG / max * maximizeWaveColorAmount + waveG * (1.0f - maximizeWaveColorAmount);
+            waveB = waveB / max * maximizeWaveColorAmount + waveB * (1.0f - maximizeWaveColorAmount);
         }
     }
 

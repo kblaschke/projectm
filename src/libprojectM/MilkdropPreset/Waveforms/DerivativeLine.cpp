@@ -24,7 +24,7 @@ void DerivativeLine::GenerateVertices(const PresetState& presetState, const PerF
 
     m_wave1Vertices.resize(m_samples);
 
-    int const sampleOffset = (Audio::WaveformSamples - m_samples) / 2;
+    const int sampleOffset = (Audio::WaveformSamples - m_samples) / 2;
 
     const float w1 = 0.45f + 0.5f * (m_mysteryWaveParam * 0.5f + 0.5f);
     const float w2 = 1.0f - w1;

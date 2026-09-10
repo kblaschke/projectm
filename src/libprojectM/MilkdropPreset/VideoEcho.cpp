@@ -15,7 +15,7 @@ VideoEcho::VideoEcho(const PresetState& presetState)
 
 void VideoEcho::Draw()
 {
-    float const aspect = m_presetState.renderContext.viewportSizeX / static_cast<float>(m_presetState.renderContext.viewportSizeY * m_presetState.renderContext.invAspectY);
+    const float aspect = static_cast<float>(m_presetState.renderContext.viewportSizeX) / (static_cast<float>(m_presetState.renderContext.viewportSizeY) * m_presetState.renderContext.invAspectY);
     float aspectMultX = 1.0f;
     float aspectMultY = 1.0f;
 
@@ -28,8 +28,8 @@ void VideoEcho::Draw()
         aspectMultX = 1.0f / aspect;
     }
 
-    float const fOnePlusInvWidth = 1.0f + 1.0f / static_cast<float>(m_presetState.renderContext.viewportSizeX);
-    float const fOnePlusInvHeight = 1.0f + 1.0f / static_cast<float>(m_presetState.renderContext.viewportSizeY);
+    const float fOnePlusInvWidth = 1.0f + 1.0f / static_cast<float>(m_presetState.renderContext.viewportSizeX);
+    const float fOnePlusInvHeight = 1.0f + 1.0f / static_cast<float>(m_presetState.renderContext.viewportSizeY);
     m_echoMesh.Vertices().Set({{-fOnePlusInvWidth * aspectMultX, fOnePlusInvHeight * aspectMultY},
                                {fOnePlusInvWidth * aspectMultX, fOnePlusInvHeight * aspectMultY},
                                {-fOnePlusInvWidth * aspectMultX, -fOnePlusInvHeight * aspectMultY},
@@ -43,7 +43,7 @@ void VideoEcho::Draw()
         m_shade[i][1] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0107f + 1 + indexFloat * 13 + m_presetState.hueRandomOffsets[1]);
         m_shade[i][2] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0129f + 6 + indexFloat * 9 + m_presetState.hueRandomOffsets[2]);
 
-        float const max = std::max(m_shade[i][0], std::max(m_shade[i][1], m_shade[i][2]));
+        const float max = std::max(m_shade[i][0], std::max(m_shade[i][1], m_shade[i][2]));
 
         for (int k = 0; k < 3; k++)
         {
@@ -57,12 +57,12 @@ void VideoEcho::Draw()
                      1.0f};
     }
 
-    auto shader = m_presetState.texturedShader.lock();
+    const auto shader = m_presetState.texturedShader.lock();
     shader->Bind();
     shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
     shader->SetUniformInt("texture_sampler", 0);
 
-    auto mainTexture = m_presetState.mainTexture.lock();
+    const auto mainTexture = m_presetState.mainTexture.lock();
     if (mainTexture)
     {
         mainTexture->Bind(0);
@@ -100,10 +100,10 @@ void VideoEcho::DrawVideoEcho()
 
     for (int pass = 0; pass < 2; pass++)
     {
-        float const zoom = (pass == 0) ? 1.0f : videoEchoZoom;
+        const float zoom = (pass == 0) ? 1.0f : videoEchoZoom;
 
-        float const tempLow = 0.5f - 0.5f / zoom;
-        float const tempHigh = 0.5f + 0.5f / zoom;
+        const float tempLow = 0.5f - 0.5f / zoom;
+        const float tempHigh = 0.5f + 0.5f / zoom;
 
         m_echoMesh.UVs().Set({{tempLow, tempLow},
                               {tempHigh, tempLow},
@@ -126,7 +126,7 @@ void VideoEcho::DrawVideoEcho()
             }
         }
 
-        float const mix = (pass == 1) ? videoEchoAlpha : 1.0f - videoEchoAlpha;
+        const float mix = (pass == 1) ? videoEchoAlpha : 1.0f - videoEchoAlpha;
         for (int vertex = 0; vertex < 4; vertex++)
         {
             m_echoMesh.Colors()[vertex] = {
@@ -146,7 +146,7 @@ void VideoEcho::DrawVideoEcho()
 
         if (gammaAdj > 0.001f)
         {
-            int const redrawCount = static_cast<int>(gammaAdj - 0.0001f);
+            const int redrawCount = static_cast<int>(gammaAdj - 0.0001f);
 
             for (int redraw = 0; redraw < redrawCount; redraw++)
             {
@@ -186,7 +186,7 @@ void VideoEcho::DrawGammaAdjustment()
     Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero);
 
     auto const gammaAdj = m_presetState.gammaAdj;
-    int const redrawCount = static_cast<int>(gammaAdj - 0.0001f) + 1;
+    const int redrawCount = static_cast<int>(gammaAdj - 0.0001f) + 1;
 
     for (int redraw = 0; redraw < redrawCount; redraw++)
     {

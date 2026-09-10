@@ -22,7 +22,7 @@ void DoubleLine::GenerateVertices(const PresetState& presetState, const PerFrame
 
     ClipWaveformEdges(1.57f * m_mysteryWaveParam);
 
-    float const separation = powf(m_waveY * 0.5f + 0.5f, 2.0f);
+    const float separation = powf(m_waveY * 0.5f + 0.5f, 2.0f);
     for (int i = 0; i < m_samples; i++)
     {
         m_wave1Vertices[i] = {

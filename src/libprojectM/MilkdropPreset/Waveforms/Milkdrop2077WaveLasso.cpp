@@ -17,7 +17,7 @@ void Milkdrop2077WaveLasso::GenerateVertices(const PresetState& presetState,
 
     for (int sample = 0; sample < m_samples; sample++)
     {
-        float const angle = m_pcmDataL[sample + 32] * 1.57f + presetState.renderContext.time * 2.0f;
+        const float angle = m_pcmDataL[sample + 32] * 1.57f + presetState.renderContext.time * 2.0f;
 
         m_wave1Vertices[sample] = {
             cosf(presetState.renderContext.time) / 2.0f + cosf(angle * 2.0f + tanf(presetState.renderContext.time / angle)),

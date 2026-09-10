@@ -130,7 +130,7 @@ public:
     int warpShaderVersion{2};      //!< PSVERSION or PSVERSION_WARP.
     int compositeShaderVersion{2}; //!< PSVERSION or PSVERSION_COMP.
 
-    std::array<float, 4> hueRandomOffsets; //!< Per-preset constant offsets for the hue animation
+    std::array<float, 4> hueRandomOffsets{}; //!< Per-preset constant offsets for the hue animation
 
     projectm_eval_mem_buffer globalMemory{nullptr};  //!< gmegabuf data. Using per-frame buffers in projectM to reduce interference.
     double globalRegisters[100]{};                   //!< Global reg00-reg99 variables.

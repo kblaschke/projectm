@@ -34,7 +34,7 @@ public:
     /**
      * @brief Renders the composite quad with the appropriate effects or shaders.
      * @param presetState The preset state to retrieve the configuration values from.
-     * @param presetPerFrameContext The per-frame context to retrieve the initial vars from.
+     * @param perFrameContext The per-frame context to retrieve the initial vars from.
      */
     void Draw(const PresetState& presetState,
               const PerFrameContext& perFrameContext);

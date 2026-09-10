@@ -41,7 +41,7 @@ auto WaveformMath::GetVertices(const PresetState& presetState,
     }
 
     // Scale and smooth waveform data
-    float scale = presetState.waveScale / 128.0f;
+    const float scale = presetState.waveScale / 128.0f;
     // The first sample gets scaled directly because it is not mixed with other samples.
     m_pcmDataL[0] *= scale;
     m_pcmDataR[0] *= scale;
@@ -50,8 +50,8 @@ auto WaveformMath::GetVertices(const PresetState& presetState,
      * s[i] = waveScale*(1-waveSmoothing)*p[i] + waveSmoothing*s[i-1]
      * Note that this is an IIR filter with alpha = waveSmoothing.
      */
-    float mix2 = presetState.waveSmoothing; // amount of previous sample to add to this sample
-    float mix1 = scale * (1.0f - mix2);     // amount to scale this sample
+    const float mix2 = presetState.waveSmoothing; // amount of previous sample to add to this sample
+    const float mix1 = scale * (1.0f - mix2);     // amount to scale this sample
     // Scale and mix samples after the first one.
     for (size_t i = 1; i < m_pcmDataL.size(); ++i)
     {
@@ -106,7 +106,7 @@ auto WaveformMath::UsesNormalizedMysteryParam() -> bool
     return false;
 }
 
-void WaveformMath::SmoothWave(const VertexList& inputVertices, VertexList& outputVertices)
+void WaveformMath::SmoothWave(const VertexList& inputVertices, VertexList& outputVertices) const
 {
     constexpr float c1{-0.15f};
     constexpr float c2{1.15f};
@@ -128,7 +128,7 @@ void WaveformMath::SmoothWave(const VertexList& inputVertices, VertexList& outpu
 
     for (size_t inputIndex = 0; inputIndex < static_cast<size_t>(m_samples) - 1; inputIndex++)
     {
-        size_t const indexAbove = indexAbove2;
+        const size_t indexAbove = indexAbove2;
         indexAbove2 = std::min(static_cast<size_t>(m_samples) - 1, inputIndex + 2);
         outputVertices[outputIndex] = inputVertices[inputIndex];
         outputVertices[outputIndex + 1] = {

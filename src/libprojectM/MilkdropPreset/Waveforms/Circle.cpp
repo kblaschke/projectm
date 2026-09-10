@@ -32,12 +32,12 @@ void Circle::GenerateVertices(const PresetState& presetState,
     for (int i = 0; i < m_samples; i++)
     {
         float radius = 0.5f + 0.4f * m_pcmDataR[i + sampleOffset] + m_mysteryWaveParam;
-        float const angle = static_cast<float>(i) * inverseSamplesMinusOne * 6.28f + presetState.renderContext.time * 0.2f;
+        const float angle = static_cast<float>(i) * inverseSamplesMinusOne * 6.28f + presetState.renderContext.time * 0.2f;
         if (i < m_samples / 10)
         {
             float mix = static_cast<float>(i) / (static_cast<float>(m_samples) * 0.1f);
             mix = 0.5f - 0.5f * cosf(mix * 3.1416f);
-            float const radius2 = 0.5f + 0.4f * m_pcmDataR[i + m_samples + sampleOffset] + m_mysteryWaveParam;
+            const float radius2 = 0.5f + 0.4f * m_pcmDataR[i + m_samples + sampleOffset] + m_mysteryWaveParam;
             radius = radius2 * (1.0f - mix) + radius * (mix);
         }
 

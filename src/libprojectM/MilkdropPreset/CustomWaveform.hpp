@@ -54,7 +54,7 @@ private:
     /**
      * @brief Loads the Q and T variables from the per-frame code into the per-point context.
      */
-    void InitPerPointEvaluationVariables();
+    void InitPerPointEvaluationVariables() const;
 
     /**
      * @brief Loads the variables for each point into the per-point evaluation context.
@@ -62,7 +62,7 @@ private:
      * @param value1 The left channel value.
      * @param value2 The right channel value.
      */
-    void LoadPerPointEvaluationVariables(float sample, float value1, float value2);
+    void LoadPerPointEvaluationVariables(float sample, float value1, float value2) const;
 
     /**
      * @brief Does a better-than-linear smooth on a wave.

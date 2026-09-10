@@ -27,7 +27,7 @@ CustomShape::CustomShape(PresetState& presetState)
 
 void CustomShape::Initialize(PresetFileParser& parsedFile, int index)
 {
-    std::string const shapecodePrefix = "shapecode_" + std::to_string(index) + "_";
+    const std::string shapecodePrefix = "shapecode_" + std::to_string(index) + "_";
 
     m_index = index;
     m_enabled = parsedFile.GetBool(shapecodePrefix + "enabled", m_enabled);
@@ -270,6 +270,8 @@ void CustomShape::Draw()
                             points[j].SetX(points[j].X() - incrementX);
                         }
                         break;
+
+                    default:;
                 }
 
                 m_outlineMesh.Update();

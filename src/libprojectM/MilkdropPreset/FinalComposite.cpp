@@ -10,7 +10,7 @@
 namespace libprojectM {
 namespace MilkdropPreset {
 
-static std::string const defaultCompositeShader = "shader_body\n{\nret = tex2D(sampler_main, uv).xyz;\n}";
+static const std::string defaultCompositeShader = "shader_body\n{\nret = tex2D(sampler_main, uv).xyz;\n}";
 
 FinalComposite::FinalComposite()
     : m_compositeMesh(Renderer::VertexBufferUsage::StreamDraw, true, true)
@@ -134,28 +134,27 @@ void FinalComposite::InitializeMesh(const PresetState& presetState)
         return;
     }
 
-    float const halfTexelWidth = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeX);
-    float const halfTexelHeight = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeY);
+    const float halfTexelWidth = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeX);
+    const float halfTexelHeight = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeY);
 
-    float const dividedByX = 1.0f / static_cast<float>(compositeGridWidth - 2);
-    float const dividedByY = 1.0f / static_cast<float>(compositeGridHeight - 2);
-
-    constexpr float PI = 3.1415926535898f;
+    constexpr float dividedByX = 1.0f / static_cast<float>(compositeGridWidth - 2);
+    constexpr float dividedByY = 1.0f / static_cast<float>(compositeGridHeight - 2);
 
     auto& vertices = m_compositeMesh.Vertices();
     auto& uvs = m_compositeMesh.UVs();
 
     for (int gridY = 0; gridY < compositeGridHeight; gridY++)
     {
-        int const gridY2 = gridY - gridY / (compositeGridHeight / 2);
-        float const v = SquishToCenter(static_cast<float>(gridY2) * dividedByY, 3.0f);
-        float const sy = -(v * 2.0f - 1.0f);
+        const int gridY2 = gridY - gridY / (compositeGridHeight / 2);
+        const float v = SquishToCenter(static_cast<float>(gridY2) * dividedByY, 3.0f);
+        const float sy = -(v * 2.0f - 1.0f);
 
         for (int gridX = 0; gridX < compositeGridWidth; gridX++)
         {
-            int const gridX2 = gridX - gridX / (compositeGridWidth / 2);
-            float const u = SquishToCenter(static_cast<float>(gridX2) * dividedByX, 3.0f);
-            float const sx = u * 2.0f - 1.0f;
+            constexpr float PI = 3.1415926535898f;
+            const int gridX2 = gridX - gridX / (compositeGridWidth / 2);
+            const float u = SquishToCenter(static_cast<float>(gridX2) * dividedByX, 3.0f);
+            const float sx = u * 2.0f - 1.0f;
 
             const size_t vertexIndex = gridX + gridY * compositeGridWidth;
 
@@ -286,7 +285,7 @@ void FinalComposite::InitializeMesh(const PresetState& presetState)
     m_radiusAngle.Update();
 }
 
-float FinalComposite::SquishToCenter(float x, float exponent)
+float FinalComposite::SquishToCenter(const float x, const float exponent)
 {
     if (x > 0.5f)
     {
@@ -296,8 +295,8 @@ float FinalComposite::SquishToCenter(float x, float exponent)
     return (1.0f - powf(1.0f - x * 2.0f, exponent)) * 0.5f;
 }
 
-void FinalComposite::UvToMathSpace(float aspectX, float aspectY,
-                                   float u, float v, float& rad, float& ang)
+void FinalComposite::UvToMathSpace(const float aspectX, const float aspectY,
+                                   const float u, const float v, float& rad, float& ang)
 {
     // (screen space = -1..1 on both axes; corresponds to UV space)
     // uv space = [0..1] on both axes
@@ -306,8 +305,8 @@ void FinalComposite::UvToMathSpace(float aspectX, float aspectY,
     //      bottom right = [1,1]
     //      rad == 1 at corners of screen
     //      ang == 0 at three o'clock, and increases counter-clockwise (to 6.28).
-    float const px = (u * 2.0f - 1.0f) * aspectX; // probably 1.0
-    float const py = (v * 2.0f - 1.0f) * aspectY; // probably <1
+    const float px = (u * 2.0f - 1.0f) * aspectX; // probably 1.0
+    const float py = (v * 2.0f - 1.0f) * aspectY; // probably <1
 
     rad = sqrtf(px * px + py * py) / sqrtf(aspectX * aspectX + aspectY * aspectY);
     ang = atan2f(py, px);
@@ -331,7 +330,7 @@ void FinalComposite::ApplyHueShaderColors(const PresetState& presetState)
         shade[i][1] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0107f + 1 + indexFloat * 13 + presetState.hueRandomOffsets[1]);
         shade[i][2] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0129f + 6 + indexFloat * 9 + presetState.hueRandomOffsets[2]);
 
-        float const max = std::max(shade[i][0], std::max(shade[i][1], shade[i][2]));
+        const float max = std::max(shade[i][0], std::max(shade[i][1], shade[i][2]));
 
         for (int k = 0; k < 3; k++)
         {
@@ -348,9 +347,9 @@ void FinalComposite::ApplyHueShaderColors(const PresetState& presetState)
     {
         for (int gridX = 0; gridX < compositeGridWidth; gridX++)
         {
-            auto vertexIndex = gridX + gridY * compositeGridWidth;
-            float x = vertices[vertexIndex].X() * 0.5f + 0.5f;
-            float y = vertices[vertexIndex].Y() * 0.5f + 0.5f;
+            const auto vertexIndex = gridX + gridY * compositeGridWidth;
+            const float x = vertices[vertexIndex].X() * 0.5f + 0.5f;
+            const float y = vertices[vertexIndex].Y() * 0.5f + 0.5f;
 
             std::array<float, 3> color{{1.0f, 1.0f, 1.0f}};
             for (int col = 0; col < 3; col++)

@@ -37,7 +37,7 @@ public:
      * @param state The preset state container.
      * @param perFrameState The per-frame execution context.
      */
-    void LoadStateReadOnlyVariables(PresetState& state, PerFrameContext& perFrameState);
+    void LoadStateReadOnlyVariables(const PresetState& state, const PerFrameContext& perFrameState) const;
 
     /**
      * @brief Copies the current per-frame Q variable values into the per-pixel state.
@@ -56,7 +56,7 @@ public:
     /**
      * @brief Executes the per-pixel code with the current state.
      */
-    void ExecutePerPixelCode();
+    void ExecutePerPixelCode() const;
 
     projectm_eval_context* perPixelCodeContext{nullptr}; //!< The code runtime context, holds memory buffers and variables.
     projectm_eval_code* perPixelCodeHandle{nullptr};     //!< The compiled per-pixel code handle.
