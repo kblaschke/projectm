@@ -2,6 +2,8 @@ if(NOT ENABLE_SDL_UI OR ENABLE_EMSCRIPTEN OR CMAKE_SYSTEM_NAME STREQUAL Android)
     return()
 endif()
 
+configure_file(config.inp ${CMAKE_CURRENT_BINARY_DIR}/config.inp)
+
 add_executable(projectM-Test-UI
         ConfigFile.cpp
         ConfigFile.h
@@ -25,6 +27,11 @@ target_link_libraries(projectM-Test-UI
         ${CMAKE_DL_LIBS}
         glad
         )
+
+target_compile_definitions(projectM-Test-UI
+        PRIVATE
+        DATADIR_PATH=\"${CMAKE_CURRENT_BINARY_DIR}\"
+)
 
 if(MSVC)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.16")

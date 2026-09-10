@@ -37,7 +37,6 @@
 #define FAKE_AUDIO 0
 // ----------------------------
 #define TEST_ALL_PRESETS 0
-#define STEREOSCOPIC_SBS 0
 
 // projectM
 #include <projectM-4/playlist.h>
@@ -84,91 +83,73 @@
 #include <SDL2/SDL.h>
 #endif /** _WIN32 */
 
-
-// DATADIR_PATH should be set by the root Makefile if this is being
-// built with autotools.
+// DATADIR_PATH should be set by CMake to the current build dir
 #ifndef DATADIR_PATH
-#ifdef DEBUG
-#define DATADIR_PATH "."
-#ifndef _WIN32
-#warning "DATADIR_PATH is not defined - falling back to ./"
-#else
-#pragma warning "DATADIR_PATH is not defined - falling back to ./"
-#endif /** _WIN32 */
-#else
-#define DATADIR_PATH "/usr/local/share/projectM"
-#ifndef _WIN32
-#warning "DATADIR_PATH is not defined - falling back to /usr/local/share/projectM"
-#endif /** _WIN32 */
-#endif
+#error "DATADIR_PATH is not defined!"
 #endif
 
-class projectMSDL
+class ProjectMSDL
 {
 
 public:
-    projectMSDL(SDL_GLContext glCtx, const std::string& presetPath);
+    ProjectMSDL(SDL_GLContext glCtx, const std::string& presetPath);
 
-    ~projectMSDL();
+    ~ProjectMSDL();
 
-    void init(SDL_Window* window, const bool renderToTexture = false);
-    int openAudioInput();
-    int toggleAudioInput();
-    int initAudioInput();
-    void beginAudioCapture();
-    void endAudioCapture();
-    void stretchMonitors();
-    void nextMonitor();
-    void toggleFullScreen();
-    void resize(unsigned int width, unsigned int height);
-    void touch(float x, float y, int pressure, int touchtype = 0);
-    void touchDrag(float x, float y, int pressure);
-    void touchDestroy(float x, float y);
-    void touchDestroyAll();
-    void renderFrame();
-    void pollEvent();
+    void Init(SDL_Window* window);
+    auto OpenAudioInput() -> int;
+    auto ToggleAudioInput() -> int;
+    auto InitAudioInput() -> int;
+    void BeginAudioCapture() const;
+    void EndAudioCapture() const;
+    void StretchMonitors() const;
+    void NextMonitor() const;
+    void ToggleFullScreen();
+    void Resize(unsigned int width, unsigned int height);
+    void RenderFrame() const;
+    void PollEvent();
+    auto GetActivePresetName() const -> std::string;
+    void AddFakePcm() const;
+    auto ProjectM() const -> projectm_handle;
+    void SetFps(size_t fps);
+    auto Fps() const -> size_t;
+
     bool keymod = false;
-    std::string getActivePresetName();
-    void addFakePCM();
-    projectm_handle projectM();
-    void setFps(size_t fps);
-    size_t fps() const;
-
     bool done{false};
     bool mouseDown{false};
     bool wasapi{false};    // Used to track if wasapi is currently active. This bool will allow us to run a WASAPI app and still toggle to microphone inputs.
     bool fakeAudio{false}; // Used to track fake audio, so we can turn it off and on.
     bool stretch{false};   // used for toggling stretch mode
 
-    SDL_GLContext _openGlContext{nullptr};
+    SDL_GLContext openGlContext{nullptr};
 
 private:
-    static void presetSwitchedEvent(bool isHardCut, uint32_t index, void* context);
+    static void PresetSwitchedEvent(bool isHardCut, uint32_t index, void* context);
 
-    static void audioInputCallbackF32(void* userdata, unsigned char* stream, int len);
+    static void AudioInputCallbackF32(void* userdata, unsigned char* stream, int len);
 
-    void UpdateWindowTitle();
+    void UpdateWindowTitle() const;
 
-    void scrollHandler(SDL_Event*);
-    void keyHandler(SDL_Event*);
+    void ScrollHandler(const SDL_Event*);
+    void KeyHandler(SDL_Event*);
 
-    projectm_handle _projectM{nullptr};
-    projectm_playlist_handle _playlist{nullptr};
+    projectm_handle m_projectM{nullptr};
+    projectm_playlist_handle m_playlist{nullptr};
 
-    SDL_Window* _sdlWindow{nullptr};
-    bool _isFullScreen{false};
-    size_t _width{0};
-    size_t _height{0};
-    size_t _fps{60};
+    SDL_Window* m_sdlWindow{nullptr};
+    bool m_isFullScreen{false};
+    size_t m_width{0};
+    size_t m_height{0};
+    size_t m_fps{60};
 
-    bool _shuffle{true};
+    bool m_shuffle{true};
 
     // audio input device characteristics
-    unsigned int _numAudioDevices{0};
-    int _curAudioDevice{0}; // SDL's device indexes are 0-based, -1 means "system default"
-    unsigned short _audioChannelsCount{0};
-    SDL_AudioDeviceID _audioDeviceId{0};
-    int _selectedAudioDevice{0};
+    int m_numAudioDevices{0};
+    int m_curAudioDevice{0}; // SDL's device indexes are 0-based, -1 means "system default"
+    unsigned short m_audioChannelsCount{0};
+    SDL_AudioDeviceID m_audioDeviceId{0};
+    int m_selectedAudioDevice{0};
 
-    std::string _presetName; //!< Current preset name
+    std::string m_presetName; //!< Current preset name
 };
