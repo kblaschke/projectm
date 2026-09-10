@@ -69,10 +69,14 @@ target_link_libraries(projectM_playlist
         )
 
 if(BUILD_SHARED_LIBS)
+    target_compile_definitions(projectM_playlist_main
+            PRIVATE
+            projectM_playlist_EXPORTS
+            )
     target_compile_definitions(projectM_playlist
             PRIVATE
-            projectM_api_EXPORTS
-            )
+            projectM_playlist_EXPORTS
+    )
 
     target_link_libraries(projectM_playlist
             PUBLIC
@@ -95,11 +99,11 @@ if(BUILD_SHARED_LIBS)
 else()
     target_compile_definitions(projectM_playlist_main
             PUBLIC
-            PROJECTM_STATIC_DEFINE
+            PROJECTM_PLAYLIST_STATIC_DEFINE
             )
     target_compile_definitions(projectM_playlist
             PUBLIC
-            PROJECTM_STATIC_DEFINE
+            PROJECTM_PLAYLIST_STATIC_DEFINE
             )
 
     set_target_properties(projectM_playlist PROPERTIES
