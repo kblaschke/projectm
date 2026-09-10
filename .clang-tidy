@@ -20,6 +20,8 @@ modernize-*,
 performance-*,
 misc-*'
 
+ExtraArgs: -std=c++14
+
 CheckOptions:
   - key: readability-identifier-naming.VariableCase
     value: camelBack
