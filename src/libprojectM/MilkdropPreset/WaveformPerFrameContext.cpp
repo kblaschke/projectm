@@ -95,7 +95,7 @@ void WaveformPerFrameContext::LoadStateVariables(PresetState& state, const PerFr
 }
 
 void WaveformPerFrameContext::EvaluateInitCode(const std::string& perFrameInitCode,
-                                               CustomWaveform& waveform)
+                                               const CustomWaveform& waveform)
 {
     if (perFrameInitCode.empty())
     {
@@ -147,7 +147,7 @@ void WaveformPerFrameContext::CompilePerFrameCode(const std::string& perFrameCod
         if (errmsg)
         {
             error = "[WaveformPerFrameContext] Could not compile custom wave ";
-            error += waveform.m_index;
+            error += std::to_string(waveform.m_index);
             error += " per-frame code: ";
             error += errmsg;
             error += "(L" + std::to_string(line) + " C" + std::to_string(col) + ")";

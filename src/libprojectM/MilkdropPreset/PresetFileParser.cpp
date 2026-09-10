@@ -21,17 +21,17 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
         return false;
     }
 
-    presetStream.seekg(0, presetStream.end);
-    auto fileSize = presetStream.tellg();
-    presetStream.seekg(0, presetStream.beg);
+    presetStream.seekg(0, std::istream::end);
+    const auto fileSize = static_cast<size_t>(presetStream.tellg());
+    presetStream.seekg(0, std::istream::beg);
 
-    if (static_cast<size_t>(fileSize) > maxFileSize)
+    if (fileSize > maxFileSize)
     {
         return false;
     }
 
     std::vector<char> presetFileContents(fileSize);
-    presetStream.read(presetFileContents.data(), fileSize);
+    presetStream.read(presetFileContents.data(), static_cast<std::streamsize>(fileSize));
 
     if (presetStream.fail() || presetStream.bad())
     {
@@ -44,8 +44,9 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
     auto parseLineIfDataAvailable = [this, &pos, &startPos, &presetFileContents]() {
         if (pos > startPos)
         {
-            auto beg = presetFileContents.begin();
-            std::string line(beg + startPos, beg + pos);
+            const auto beg = presetFileContents.begin();
+            const std::string line(beg + static_cast<std::string::difference_type>(startPos),
+                                   beg + static_cast<std::string::difference_type>(pos));
             ParseLine(line);
         }
     };
@@ -64,6 +65,7 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
             case '\0':
                 // Null char is not expected. Could be a random binary file.
                 return false;
+            default:;
         }
 
         ++pos;
@@ -76,9 +78,9 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
 
 auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::string
 {
-    auto lowerKey = ToLower(keyPrefix);
+    const auto lowerKey = ToLower(keyPrefix);
 
-    std::stringstream code;                        //!< The parsed code
+    std::stringstream code;                       //!< The parsed code
     std::string key(lowerKey.length() + 5, '\0'); //!< Allocate a string that can hold up to 5 digits.
 
     key.replace(0, lowerKey.length(), lowerKey);
@@ -108,7 +110,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
 
 auto PresetFileParser::GetInt(const std::string& key, int defaultValue) -> int
 {
-    auto lowerKey = ToLower(key);
+    const auto lowerKey = ToLower(key);
     if (m_presetValues.find(lowerKey) != m_presetValues.end())
     {
         try
@@ -125,7 +127,7 @@ auto PresetFileParser::GetInt(const std::string& key, int defaultValue) -> int
 
 auto PresetFileParser::GetFloat(const std::string& key, float defaultValue) -> float
 {
-    auto lowerKey = ToLower(key);
+    const auto lowerKey = ToLower(key);
     if (m_presetValues.find(lowerKey) != m_presetValues.end())
     {
         try
@@ -140,14 +142,14 @@ auto PresetFileParser::GetFloat(const std::string& key, float defaultValue) -> f
     return defaultValue;
 }
 
-auto PresetFileParser::GetBool(const std::string& key, bool defaultValue) -> bool
+auto PresetFileParser::GetBool(const std::string& key, const bool defaultValue) -> bool
 {
     return GetInt(key, static_cast<int>(defaultValue)) > 0;
 }
 
 auto PresetFileParser::GetString(const std::string& key, const std::string& defaultValue) -> std::string
 {
-    auto lowerKey = ToLower(key);
+    const auto lowerKey = ToLower(key);
     if (m_presetValues.find(lowerKey) != m_presetValues.end())
     {
         return m_presetValues.at(lowerKey);
@@ -164,7 +166,7 @@ const std::map<std::string, std::string>& PresetFileParser::PresetValues() const
 void PresetFileParser::ParseLine(const std::string& line)
 {
     // Search for first delimiter, either space or equal
-    auto varNameDelimiterPos = line.find_first_of(" =");
+    const auto varNameDelimiterPos = line.find_first_of(" =");
 
     if (varNameDelimiterPos == std::string::npos || varNameDelimiterPos == 0)
     {
@@ -173,8 +175,10 @@ void PresetFileParser::ParseLine(const std::string& line)
     }
 
     // Convert key to lower case, as INI functions are not case-sensitive.
-    std::string varName(ToLower(std::string(line.begin(), line.begin() + varNameDelimiterPos)));
-    std::string value(line.begin() + varNameDelimiterPos + 1, line.end());
+    std::string varName(ToLower(std::string(line.begin(),
+                                            line.begin() + static_cast<std::string::difference_type>(varNameDelimiterPos))));
+    std::string value(line.begin() + static_cast<std::string::difference_type>(varNameDelimiterPos) + 1,
+                      line.end());
 
     // Only add first occurrence to mimic Milkdrop behaviour
     if (!varName.empty() && m_presetValues.find(varName) == m_presetValues.end())
@@ -186,8 +190,7 @@ void PresetFileParser::ParseLine(const std::string& line)
 auto PresetFileParser::ToLower(std::string str) -> std::string
 {
     std::transform(str.begin(), str.end(), str.begin(),
-                   [](unsigned char c){ return std::tolower(c); }
-    );
+                   [](unsigned char c) { return std::tolower(c); });
 
     return str;
 }

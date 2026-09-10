@@ -166,8 +166,8 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 }
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
-                       const std::shared_ptr<struct Texture>& originalTexture,
-                       const std::shared_ptr<struct Texture>& targetTexture,
+                       const std::shared_ptr<class Texture>& originalTexture,
+                       const std::shared_ptr<class Texture>& targetTexture,
                        int left, int top, int width, int height)
 {
     if (originalTexture == nullptr ||

@@ -84,7 +84,7 @@ void FinalComposite::CompileCompositeShader(PresetState& presetState)
         }
         catch (Renderer::ShaderException& ex)
         {
-            LOG_WARN("[FinalComposite] Error compiling composite warp shader code - Using fallback shader.");
+            LOG_WARN("[FinalComposite] Error compiling composite warp shader code - Using fallback shader: " + ex.message());
 
             // Fall back to default shader
             m_compositeShader = std::make_unique<MilkdropShader>(MilkdropShader::ShaderType::CompositeShader);
@@ -148,13 +148,13 @@ void FinalComposite::InitializeMesh(const PresetState& presetState)
     for (int gridY = 0; gridY < compositeGridHeight; gridY++)
     {
         int const gridY2 = gridY - gridY / (compositeGridHeight / 2);
-        float const v = SquishToCenter(gridY2 * dividedByY, 3.0f);
+        float const v = SquishToCenter(static_cast<float>(gridY2) * dividedByY, 3.0f);
         float const sy = -(v * 2.0f - 1.0f);
 
         for (int gridX = 0; gridX < compositeGridWidth; gridX++)
         {
             int const gridX2 = gridX - gridX / (compositeGridWidth / 2);
-            float const u = SquishToCenter(gridX2 * dividedByX, 3.0f);
+            float const u = SquishToCenter(static_cast<float>(gridX2) * dividedByX, 3.0f);
             float const sx = u * 2.0f - 1.0f;
 
             const size_t vertexIndex = gridX + gridY * compositeGridWidth;
