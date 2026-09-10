@@ -325,10 +325,10 @@ void FinalComposite::ApplyHueShaderColors(const PresetState& presetState)
 
     for (int i = 0; i < 4; i++)
     {
-        auto const indexFloat = static_cast<float>(i);
-        shade[i][0] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0143f + 3 + indexFloat * 21 + presetState.hueRandomOffsets[3]);
-        shade[i][1] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0107f + 1 + indexFloat * 13 + presetState.hueRandomOffsets[1]);
-        shade[i][2] = 0.6f + 0.3f * sinf(presetState.renderContext.time * 30.0f * 0.0129f + 6 + indexFloat * 9 + presetState.hueRandomOffsets[2]);
+        auto const indexFloat = static_cast<double>(i);
+        shade[i][0] = static_cast<float>(0.6 + 0.3 * sin(presetState.renderContext.time * 30.0 * 0.0143 + 3 + indexFloat * 21 + presetState.hueRandomOffsets[3]));
+        shade[i][1] = static_cast<float>(0.6 + 0.3 * sin(presetState.renderContext.time * 30.0 * 0.0107 + 1 + indexFloat * 13 + presetState.hueRandomOffsets[1]));
+        shade[i][2] = static_cast<float>(0.6 + 0.3 * sin(presetState.renderContext.time * 30.0 * 0.0129 + 6 + indexFloat * 9 + presetState.hueRandomOffsets[2]));
 
         const float max = std::max(shade[i][0], std::max(shade[i][1], shade[i][2]));
 

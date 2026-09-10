@@ -20,16 +20,16 @@ void Milkdrop2077WaveStar::GenerateVertices(const PresetState& presetState,
 
     m_wave1Vertices.resize(m_samples + 1);
 
-    const int sampleOffset = (Audio::WaveformSamples - m_samples) / 2;
+    const uint32_t sampleOffset = (Audio::WaveformSamples - m_samples) / 2;
 
     const float invertedSamplesMinusOne = 1.0f / static_cast<float>(m_samples - 1);
     const float tenthSamples = static_cast<float>(m_samples) * 0.1f;
 
-    for (int sample = 0; sample < m_samples; sample++)
+    for (uint32_t sample = 0; sample < m_samples; sample++)
     {
         float radius = 0.7f + 0.4f * m_pcmDataR[sample + sampleOffset] + m_mysteryWaveParam;
-        const float angle = static_cast<float>(sample) * invertedSamplesMinusOne * 6.28f + presetState.renderContext.time * 0.2f;
-        if (static_cast<float>(sample) < m_samples / radius)
+        const float angle = static_cast<float>(static_cast<double>(sample) * invertedSamplesMinusOne * 6.28 + presetState.renderContext.time * 0.2);
+        if (static_cast<float>(sample) < static_cast<float>(m_samples) / radius)
         {
             float mix = static_cast<float>(sample) / tenthSamples;
             mix = 0.5f - 0.5f * cosf(mix * 3.1416f);

@@ -21,12 +21,12 @@ auto ToUpper(const std::string& str) -> std::string
 
 void ToLowerInPlace(std::string& str)
 {
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    std::transform(str.begin(), str.end(), str.begin(), tolower);
 }
 
 void ToUpperInPlace(std::string& str)
 {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    std::transform(str.begin(), str.end(), str.begin(), toupper);
 }
 
 auto StripComments(const std::string& source) -> std::string

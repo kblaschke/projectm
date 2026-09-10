@@ -15,13 +15,13 @@ void Milkdrop2077WaveLasso::GenerateVertices(const PresetState& presetState,
 
     m_wave1Vertices.resize(m_samples);
 
-    for (int sample = 0; sample < m_samples; sample++)
+    for (uint32_t sample = 0; sample < m_samples; sample++)
     {
         const float angle = m_pcmDataL[sample + 32] * 1.57f + presetState.renderContext.time * 2.0f;
 
         m_wave1Vertices[sample] = {
-            cosf(presetState.renderContext.time) / 2.0f + cosf(angle * 2.0f + tanf(presetState.renderContext.time / angle)),
-            sinf(presetState.renderContext.time) * 2.0f * sinf(angle * 3.14f) * m_aspectX / 2.8f + m_waveY};
+            static_cast<float>(cos(presetState.renderContext.time)) / 2.0f + cosf(angle * 2.0f + static_cast<float>(tan(presetState.renderContext.time / angle))),
+            static_cast<float>(sin(presetState.renderContext.time)) * 2.0f * sinf(angle * 3.14f) * m_aspectX / 2.8f + m_waveY};
     }
 }
 

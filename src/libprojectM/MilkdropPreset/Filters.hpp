@@ -48,8 +48,8 @@ private:
 
     Renderer::Mesh m_filterMesh;
 
-    int m_viewportWidth{}; //!< Last known viewport width
-    int m_viewportHeight{}; //!< Last known viewport height
+    uint32_t m_viewportWidth{}; //!< Last known viewport width
+    uint32_t m_viewportHeight{}; //!< Last known viewport height
 };
 
 } // namespace MilkdropPreset

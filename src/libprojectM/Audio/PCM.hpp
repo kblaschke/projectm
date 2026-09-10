@@ -77,7 +77,7 @@ private:
         int signalAmplitude,
         int signalOffset,
         typename SampleType>
-    void AddToBuffer(const SampleType* samples, uint32_t channel, size_t sampleCount);
+    void AddToBuffer(const SampleType* samples, uint32_t channels, size_t sampleCount);
 
     /**
      * Updates FFT data

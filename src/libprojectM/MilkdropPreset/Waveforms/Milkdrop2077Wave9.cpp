@@ -20,7 +20,7 @@ void Milkdrop2077Wave9::GenerateVertices(const PresetState& presetState, const P
 
     ClipWaveformEdges(1.57f * m_mysteryWaveParam);
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         m_wave1Vertices[i] = {
             m_edgeX + m_distanceX * static_cast<float>(i) + m_perpetualDX * 0.35f * m_pcmDataL[i + m_sampleOffset],

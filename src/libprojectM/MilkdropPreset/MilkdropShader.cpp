@@ -21,7 +21,7 @@ namespace MilkdropPreset {
 
 using MilkdropPreset::MilkdropStaticShaders;
 
-static auto floatRand = []() { return static_cast<float>(rand() % 7381) / 7380.0f; };
+static auto floatRand = [] { return static_cast<float>(rand() % 7381) / 7380.0f; };
 
 MilkdropShader::MilkdropShader(const ShaderType type)
     : m_type(type)

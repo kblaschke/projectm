@@ -300,7 +300,7 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
         return true;
     }
 
-    m_initCv.wait(lock, [this]() { return !m_initializing; });
+    m_initCv.wait(lock, [this] { return !m_initializing; });
 
     if (m_loaded)
     {
@@ -607,7 +607,7 @@ auto GLResolver::GetProcAddress(const char* name) const -> void*
         {
             LOG_INFO(std::string("[GLResolver] GetProcAddress called while initialization is in-flight; waiting"));
         }
-        m_initCv.wait(lock, [this]() { return !m_initializing; });
+        m_initCv.wait(lock, [this] { return !m_initializing; });
     }
 
     if (!m_loaded)
@@ -1360,7 +1360,7 @@ auto GLResolver::ResolveProcAddress(const ResolverState& state, const char* name
             if (proc != nullptr)
             {
                 static std::once_flag s_warnOnce;
-                std::call_once(s_warnOnce, []() {
+                std::call_once(s_warnOnce, [] {
                     LOG_WARN("[GLResolver] EGL core-symbol eglGetProcAddress fallback is enabled (PROJECTM_GLRESOLVER_EGL_ALLOW_CORE_GETPROCADDRESS_FALLBACK!=0). "
                              "This is not portable; prefer ensuring core symbols are available as library exports.");
                 });

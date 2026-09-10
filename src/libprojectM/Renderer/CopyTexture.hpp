@@ -49,7 +49,7 @@ public:
      * can be the current color attachment of targetFramebuffer.
      * @param shaderCache The global shader cache instance.
      * @param originalTexture The texture to be copied.
-     * @param targetFramebuffer Optional target texture to draw onto.
+     * @param framebuffer Optional target texture to draw onto.
      * @param framebufferIndex The index of the framebuffer to use.
      * @param flipVertical Flip image on the y-axis when copying.
      * @param flipHorizontal Flip image on the x-axis when copying.
@@ -87,7 +87,7 @@ public:
      */
     void Draw(ShaderCache& shaderCache,
               GLuint originalTexture,
-              int viewportWidth, int viewportHeight,
+              uint32_t viewportWidth, uint32_t viewportHeight,
               int left, int top, int width, int height);
 
     /**
@@ -101,7 +101,7 @@ private:
     /**
      * Updates the mesh
      */
-    void UpdateTextureSize(int width, int height);
+    void UpdateTextureSize(uint32_t width, uint32_t height);
 
     void Copy(ShaderCache& shaderCache,
               bool flipVertical, bool flipHorizontal);
@@ -114,8 +114,8 @@ private:
     Framebuffer m_framebuffer{1};                    //!< Framebuffer for drawing the flipped texture
     Sampler m_sampler{GL_CLAMP_TO_EDGE, GL_NEAREST}; //!< Texture sampler settings
 
-    int m_width{};  //!< Last known framebuffer/texture width
-    int m_height{}; //!< Last known framebuffer/texture height
+    uint32_t m_width{};  //!< Last known framebuffer/texture width
+    uint32_t m_height{}; //!< Last known framebuffer/texture height
     std::shared_ptr<Shader> BindShader(ShaderCache& shaderCache);
 };
 

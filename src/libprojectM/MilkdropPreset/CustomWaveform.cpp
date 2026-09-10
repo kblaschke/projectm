@@ -74,9 +74,9 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
         return;
     }
 
-    const int maxSampleCount{m_spectrum ? Audio::SpectrumSamples : Audio::WaveformSamples};
+    const uint32_t maxSampleCount{m_spectrum ? Audio::SpectrumSamples : Audio::WaveformSamples};
 
-    int sampleCount = std::min(maxSampleCount, static_cast<int>(*m_perFrameContext.samples));
+    uint32_t sampleCount = std::min(maxSampleCount, static_cast<uint32_t>(*m_perFrameContext.samples));
     sampleCount -= m_sep;
 
     // Initialize and execute per-frame code
@@ -86,7 +86,7 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     // Copy Q and T vars to per-point context
     InitPerPointEvaluationVariables();
 
-    sampleCount = std::min(maxSampleCount, static_cast<int>(*m_perFrameContext.samples));
+    sampleCount = std::min(maxSampleCount, static_cast<uint32_t>(*m_perFrameContext.samples));
 
     // If there aren't enough samples to draw a single line or dot, skip drawing the waveform.
     if ((m_useDots && sampleCount < 1) || sampleCount < 2)
@@ -104,8 +104,8 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     const float mult = m_scaling * m_presetState.waveScale * (m_spectrum ? 0.15f : 0.004f);
 
     // PCM data smoothing
-    const int offset1 = m_spectrum ? 0 : (maxSampleCount - sampleCount) / 2 - m_sep / 2;
-    const int offset2 = m_spectrum ? 0 : (maxSampleCount - sampleCount) / 2 + m_sep / 2;
+    const int offset1 = m_spectrum ? 0 : static_cast<int32_t>(maxSampleCount - sampleCount) / 2 - m_sep / 2;
+    const int offset2 = m_spectrum ? 0 : static_cast<int32_t>(maxSampleCount - sampleCount) / 2 + m_sep / 2;
     const float t = m_spectrum ? static_cast<float>(maxSampleCount - m_sep) / static_cast<float>(sampleCount) : 1.0f;
     const float mix1 = std::pow(m_smoothing * 0.98f, 0.5f);
     const float mix2 = 1.0f - mix1;
@@ -117,21 +117,21 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     sampleDataR[0] = pcmR[offset2];
 
     // Smooth forward
-    for (int sample = 1; sample < sampleCount; sample++)
+    for (uint32_t sample = 1; sample < sampleCount; sample++)
     {
         sampleDataL[sample] = pcmL[static_cast<int>(static_cast<float>(sample) * t) + offset1] * mix2 + sampleDataL[sample - 1] * mix1;
         sampleDataR[sample] = pcmR[static_cast<int>(static_cast<float>(sample) * t) + offset2] * mix2 + sampleDataR[sample - 1] * mix1;
     }
 
     // Smooth backwards (this fixes the asymmetry of the beginning & end)
-    for (int sample = sampleCount - 2; sample >= 0; sample--)
+    for (int32_t sample = static_cast<int32_t>(sampleCount) - 2; sample >= 0; sample--)
     {
         sampleDataL[sample] = sampleDataL[sample] * mix2 + sampleDataL[sample + 1] * mix1;
         sampleDataR[sample] = sampleDataR[sample] * mix2 + sampleDataR[sample + 1] * mix1;
     }
 
     // Scale waveform to final size
-    for (int sample = 0; sample < sampleCount; sample++)
+    for (uint32_t sample = 0; sample < sampleCount; sample++)
     {
         sampleDataL[sample] *= mult;
         sampleDataR[sample] *= mult;
@@ -141,7 +141,7 @@ void CustomWaveform::Draw(const PerFrameContext& presetPerFrameContext)
     std::vector<Renderer::Color> colors(sampleCount);
 
     const float sampleMultiplicator = sampleCount > 1 ? 1.0f / static_cast<float>(sampleCount - 1) : 0.0f;
-    for (int sample = 0; sample < sampleCount; sample++)
+    for (uint32_t sample = 0; sample < sampleCount; sample++)
     {
         const float sampleIndex = static_cast<float>(sample) * sampleMultiplicator;
         LoadPerPointEvaluationVariables(sampleIndex, sampleDataL[sample], sampleDataR[sample]);

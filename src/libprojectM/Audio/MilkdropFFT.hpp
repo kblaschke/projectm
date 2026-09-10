@@ -111,7 +111,7 @@ public:
     auto NumFrequencies() const -> size_t
     {
         return m_numFrequencies;
-    };
+    }
 
 private:
     /**

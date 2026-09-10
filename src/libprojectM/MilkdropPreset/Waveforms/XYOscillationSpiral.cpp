@@ -23,13 +23,13 @@ void XYOscillationSpiral::GenerateVertices(const PresetState& presetState,
 
     m_wave1Vertices.resize(m_samples);
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         const float radius = (0.53f + 0.43f * m_pcmDataR[i] + m_mysteryWaveParam);
-        const float angle = m_pcmDataL[i + 32] * 1.57f + presetState.renderContext.time * 2.3f;
+        const double angle = m_pcmDataL[i + 32] * 1.57 + presetState.renderContext.time * 2.3;
 
-        m_wave1Vertices[i] = {radius * cosf(angle) * m_aspectY + m_waveX,
-                              radius * sinf(angle) * m_aspectX + m_waveY};
+        m_wave1Vertices[i] = {radius * static_cast<float>(cos(angle)) * m_aspectY + m_waveX,
+                              radius * static_cast<float>(sin(angle)) * m_aspectX + m_waveY};
     }
 }
 

@@ -25,14 +25,14 @@ void Circle::GenerateVertices(const PresetState& presetState,
 
     m_wave1Vertices.resize(m_samples);
 
-    const int sampleOffset{(Audio::WaveformSamples - m_samples) / 2};
+    const uint32_t sampleOffset{(Audio::WaveformSamples - m_samples) / 2};
 
     const float inverseSamplesMinusOne{1.0f / static_cast<float>(m_samples)};
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         float radius = 0.5f + 0.4f * m_pcmDataR[i + sampleOffset] + m_mysteryWaveParam;
-        const float angle = static_cast<float>(i) * inverseSamplesMinusOne * 6.28f + presetState.renderContext.time * 0.2f;
+        const auto angle = static_cast<float>(static_cast<double>(i) * inverseSamplesMinusOne * 6.28 + presetState.renderContext.time * 0.2);
         if (i < m_samples / 10)
         {
             float mix = static_cast<float>(i) / (static_cast<float>(m_samples) * 0.1f);

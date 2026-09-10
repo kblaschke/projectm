@@ -45,7 +45,7 @@ void TextureAttachment::Texture(const std::shared_ptr<class Texture>& texture)
     m_texture = texture;
 }
 
-void TextureAttachment::SetSize(const int width, const int height)
+void TextureAttachment::SetSize(const uint32_t width, const uint32_t height)
 {
     if (width > 0 && height > 0)
     {
@@ -57,7 +57,7 @@ void TextureAttachment::SetSize(const int width, const int height)
     }
 }
 
-void TextureAttachment::ReplaceTexture(int width, int height)
+void TextureAttachment::ReplaceTexture(uint32_t width, uint32_t height)
 {
     GLint internalFormat;
     GLint textureFormat;
@@ -110,7 +110,7 @@ void TextureAttachment::ReplaceTexture(int width, int height)
     GLuint textureId;
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, textureFormat, pixelFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, textureFormat, pixelFormat, nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

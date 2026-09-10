@@ -19,7 +19,7 @@ void Line::GenerateVertices(const PresetState& presetState, const PerFrameContex
 
     ClipWaveformEdges(1.57f * m_mysteryWaveParam);
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         m_wave1Vertices[i] = {
             m_edgeX + m_distanceX * static_cast<float>(i) + m_perpetualDX * 0.25f * m_pcmDataL[i + m_sampleOffset],

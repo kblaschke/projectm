@@ -57,7 +57,7 @@ void ProjectM::PresetSwitchFailedEvent(const std::string&, const std::string&) c
 {
 }
 
-void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTransition)
+void ProjectM::LoadPresetFile(const std::string& presetFilename, const bool smoothTransition)
 {
     try
     {
@@ -71,7 +71,7 @@ void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTran
     }
 }
 
-void ProjectM::LoadPresetData(std::istream& presetData, bool smoothTransition)
+void ProjectM::LoadPresetData(std::istream& presetData, const bool smoothTransition)
 {
     try
     {
@@ -113,7 +113,7 @@ void ProjectM::SetTextureLoadCallback(Renderer::TextureLoadCallback callback)
     }
 }
 
-void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
+void ProjectM::RenderFrame(const uint32_t targetFramebufferObject /*= 0*/)
 {
     // Don't render if window area is zero.
     if (m_windowWidth == 0 || m_windowHeight == 0)
@@ -126,7 +126,7 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
 
     // Update and retrieve audio data
     m_audioStorage.UpdateFrameAudioData(m_timeKeeper->SecondsSinceLastFrame(), m_frameCount);
-    auto audioData = m_audioStorage.GetFrameAudioData();
+    const auto audioData = m_audioStorage.GetFrameAudioData();
 
     // Check if the preset isn't locked, and we've not already notified the user
     if (!m_presetChangeNotified)
@@ -169,7 +169,7 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
         }
     }
 
-    auto renderContext = GetRenderContext();
+    const auto renderContext = GetRenderContext();
 
     if (m_transition != nullptr && m_transitioningPreset != nullptr)
     {
@@ -190,7 +190,7 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
     m_activePreset->RenderFrame(audioData, renderContext);
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(targetFramebufferObject));
-    glViewport(0, 0, renderContext.viewportSizeX, renderContext.viewportSizeY);
+    glViewport(0, 0, static_cast<GLsizei>(renderContext.viewportSizeX), static_cast<GLsizei>(renderContext.viewportSizeY));
 
 #ifdef USE_GLES
     // On WebGL2 / Chrome ANGLE, the default framebuffer's draw buffer must
@@ -247,11 +247,11 @@ void ProjectM::Initialize()
 
 void ProjectM::CheckGLSLVersion()
 {
-    auto glslVersion = Renderer::Shader::GetShaderLanguageVersion();
+    const auto glslVersion = Renderer::Shader::GetShaderLanguageVersion();
 
     if (glslVersion.major == 0)
     {
-        std::string error = "Could not retrieve OpenGL shader language version. Is OpenGL available and the context initialized?";
+        const std::string error = "Could not retrieve OpenGL shader language version. Is OpenGL available and the context initialized?";
         LOG_FATAL(error);
         throw std::runtime_error(error);
     }
@@ -265,7 +265,7 @@ void ProjectM::CheckGLSLVersion()
 #else
     if (glslVersion.major < 3 || (glslVersion.major == 3 && glslVersion.minor < 30))
     {
-        std::string error = "OpenGL shading language version 3.30 or higher is required, but the current context only provides version " + std::to_string(glslVersion.major) + "." + std::to_string(glslVersion.minor) + ".";
+        const std::string error = "OpenGL shading language version 3.30 or higher is required, but the current context only provides version " + std::to_string(glslVersion.major) + "." + std::to_string(glslVersion.minor) + ".";
         LOG_FATAL(error);
         throw std::runtime_error(error);
     }
@@ -278,14 +278,14 @@ void ProjectM::LoadIdlePreset()
     assert(m_activePreset);
 }
 
-void ProjectM::SetWindowSize(uint32_t width, uint32_t height)
+void ProjectM::SetWindowSize(const uint32_t width, const uint32_t height)
 {
     /** Stash the new dimensions */
     m_windowWidth = width;
     m_windowHeight = height;
 }
 
-void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hardCut)
+void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, const bool hardCut)
 {
     m_presetChangeNotified = m_presetLocked;
 
@@ -321,12 +321,12 @@ void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hard
     }
 }
 
-auto ProjectM::WindowWidth() -> int
+auto ProjectM::WindowWidth() const -> uint32_t
 {
     return m_windowWidth;
 }
 
-auto ProjectM::WindowHeight() -> int
+auto ProjectM::WindowHeight() const -> uint32_t
 {
     return m_windowHeight;
 }
@@ -336,12 +336,12 @@ auto ProjectM::AddUserSprite(const std::string& type, const std::string& spriteD
     return m_spriteManager->Spawn(type, spriteData, GetRenderContext());
 }
 
-void ProjectM::DestroyUserSprite(uint32_t spriteIdentifier)
+void ProjectM::DestroyUserSprite(const uint32_t spriteIdentifier) const
 {
     m_spriteManager->Destroy(spriteIdentifier);
 }
 
-void ProjectM::DestroyAllUserSprites()
+void ProjectM::DestroyAllUserSprites() const
 {
     m_spriteManager->DestroyAll();
 }
@@ -351,7 +351,7 @@ auto ProjectM::UserSpriteCount() const -> uint32_t
     return m_spriteManager->ActiveSpriteCount();
 }
 
-void ProjectM::SetUserSpriteLimit(uint32_t maxSprites)
+void ProjectM::SetUserSpriteLimit(const uint32_t maxSprites) const
 {
     m_spriteManager->SpriteSlots(maxSprites);
 }
@@ -366,17 +366,22 @@ auto ProjectM::UserSpriteIdentifiers() const -> std::vector<uint32_t>
     return m_spriteManager->ActiveSpriteIdentifiers();
 }
 
-auto ProjectM::UserSpriteGetVariableValue(uint32_t spriteId, const std::string& variableName) const -> double
+auto ProjectM::UserSpriteGetVariableValue(const uint32_t spriteId,
+                                          const std::string& variableName) const -> double
 {
     return m_spriteManager->GetSpriteVariableValue(spriteId, variableName);
 }
 
-void ProjectM::UserSpriteSetVariableValue(uint32_t spriteId, const std::string& variableName, double value)
+void ProjectM::UserSpriteSetVariableValue(const uint32_t spriteId,
+                                          const std::string& variableName,
+                                          const double value) const
 {
     m_spriteManager->SetSpriteVariableValue(spriteId, variableName, value);
 }
 
-void ProjectM::BurnInTexture(uint32_t openGlTextureId, int left, int top, int width, int height)
+void ProjectM::BurnInTexture(const uint32_t openGlTextureId,
+                             const int left, const int top,
+                             const int width, const int height) const
 {
     if (m_activePreset)
     {
@@ -393,7 +398,7 @@ void ProjectM::BurnInTexture(uint32_t openGlTextureId, int left, int top, int wi
     Renderer::Framebuffer::Unbind();
 }
 
-void ProjectM::SetPresetLocked(bool locked)
+void ProjectM::SetPresetLocked(const bool locked)
 {
     // ToDo: Add a preset switch timer separate from the display timer and reset to 0 when
     //       disabling the preset switch lock.
@@ -406,7 +411,7 @@ auto ProjectM::PresetLocked() const -> bool
     return m_presetLocked;
 }
 
-void ProjectM::SetPresetStartClean(bool enabled)
+void ProjectM::SetPresetStartClean(const bool enabled)
 {
     m_presetStartClean = enabled;
 }
@@ -416,17 +421,17 @@ auto ProjectM::PresetStartClean() const -> bool
     return m_presetStartClean;
 }
 
-void ProjectM::SetFrameTime(double secondsSinceStart)
+void ProjectM::SetFrameTime(const double secondsSinceStart) const
 {
     m_timeKeeper->SetFrameTime(secondsSinceStart);
 }
 
-double ProjectM::GetFrameTime()
+double ProjectM::GetFrameTime() const
 {
     return m_timeKeeper->GetFrameTime();
 }
 
-void ProjectM::SetBeatSensitivity(float sensitivity)
+void ProjectM::SetBeatSensitivity(const float sensitivity)
 {
     m_beatSensitivity = std::min(std::max(0.0f, sensitivity), 2.0f);
 }
@@ -441,7 +446,7 @@ auto ProjectM::SoftCutDuration() const -> double
     return m_softCutDuration;
 }
 
-void ProjectM::SetSoftCutDuration(double seconds)
+void ProjectM::SetSoftCutDuration(const double seconds)
 {
     m_softCutDuration = seconds;
     m_timeKeeper->ChangeSoftCutDuration(seconds);
@@ -452,7 +457,7 @@ auto ProjectM::HardCutDuration() const -> double
     return m_hardCutDuration;
 }
 
-void ProjectM::SetHardCutDuration(double seconds)
+void ProjectM::SetHardCutDuration(const double seconds)
 {
     m_hardCutDuration = static_cast<int>(seconds);
     m_timeKeeper->ChangeHardCutDuration(seconds);
@@ -463,7 +468,7 @@ auto ProjectM::HardCutEnabled() const -> bool
     return m_hardCutEnabled;
 }
 
-void ProjectM::SetHardCutEnabled(bool enabled)
+void ProjectM::SetHardCutEnabled(const bool enabled)
 {
     m_hardCutEnabled = enabled;
 }
@@ -473,12 +478,12 @@ auto ProjectM::HardCutSensitivity() const -> float
     return m_hardCutSensitivity;
 }
 
-void ProjectM::SetHardCutSensitivity(float sensitivity)
+void ProjectM::SetHardCutSensitivity(const float sensitivity)
 {
     m_hardCutSensitivity = sensitivity;
 }
 
-void ProjectM::SetPresetDuration(double seconds)
+void ProjectM::SetPresetDuration(const double seconds)
 {
     m_timeKeeper->ChangePresetDuration(seconds);
 }
@@ -488,12 +493,12 @@ auto ProjectM::PresetDuration() const -> double
     return m_timeKeeper->PresetDuration();
 }
 
-auto ProjectM::TargetFramesPerSecond() const -> int32_t
+auto ProjectM::TargetFramesPerSecond() const -> uint32_t
 {
     return m_targetFps;
 }
 
-void ProjectM::SetTargetFramesPerSecond(int32_t fps)
+void ProjectM::SetTargetFramesPerSecond(const uint32_t fps)
 {
     m_targetFps = fps;
 }
@@ -503,7 +508,7 @@ auto ProjectM::AspectCorrection() const -> bool
     return m_aspectCorrection;
 }
 
-void ProjectM::SetAspectCorrection(bool enabled)
+void ProjectM::SetAspectCorrection(const bool enabled)
 {
     m_aspectCorrection = enabled;
 }
@@ -513,7 +518,7 @@ auto ProjectM::EasterEgg() const -> float
     return m_easterEgg;
 }
 
-void ProjectM::SetEasterEgg(float value)
+void ProjectM::SetEasterEgg(const float value)
 {
     m_easterEgg = value;
     m_timeKeeper->ChangeEasterEgg(value);
@@ -525,7 +530,7 @@ void ProjectM::MeshSize(uint32_t& meshResolutionX, uint32_t& meshResolutionY) co
     meshResolutionY = m_meshY;
 }
 
-void ProjectM::SetMeshSize(uint32_t meshResolutionX, uint32_t meshResolutionY)
+void ProjectM::SetMeshSize(const uint32_t meshResolutionX, const uint32_t meshResolutionY)
 {
     m_meshX = meshResolutionX;
     m_meshY = meshResolutionY;
@@ -552,38 +557,18 @@ void ProjectM::TexelOffsets(float& texelOffsetX, float& texelOffsetY) const
     texelOffsetY = m_texelOffsetY;
 }
 
-void ProjectM::SetTexelOffsets(float texelOffsetX, float texelOffsetY)
+void ProjectM::SetTexelOffsets(const float texelOffsetX, const float texelOffsetY)
 {
     m_texelOffsetX = texelOffsetX;
     m_texelOffsetY = texelOffsetY;
 }
 
-auto ProjectM::PCM() -> libprojectM::Audio::PCM&
+auto ProjectM::PCM() -> Audio::PCM&
 {
     return m_audioStorage;
 }
 
-void ProjectM::Touch(float, float, int, int)
-{
-    // UNIMPLEMENTED
-}
-
-void ProjectM::TouchDrag(float, float, int)
-{
-    // UNIMPLEMENTED
-}
-
-void ProjectM::TouchDestroy(float, float)
-{
-    // UNIMPLEMENTED
-}
-
-void ProjectM::TouchDestroyAll()
-{
-    // UNIMPLEMENTED
-}
-
-auto ProjectM::GetRenderContext() -> Renderer::RenderContext
+auto ProjectM::GetRenderContext() const -> Renderer::RenderContext
 {
     Renderer::RenderContext ctx{};
     ctx.viewportSizeX = m_windowWidth;

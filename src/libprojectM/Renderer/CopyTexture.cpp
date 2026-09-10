@@ -204,7 +204,7 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
 
 void CopyTexture::Draw(ShaderCache& shaderCache,
                        const GLuint originalTexture,
-                       const int viewportWidth, const int viewportHeight,
+                       const uint32_t viewportWidth, const uint32_t viewportHeight,
                        const int left, const int top,
                        const int width, const int height)
 {
@@ -218,8 +218,8 @@ void CopyTexture::Draw(ShaderCache& shaderCache,
         return;
     }
 
-    const int oldWidth = m_width;
-    const int oldHeight = m_height;
+    const auto oldWidth = m_width;
+    const auto oldHeight = m_height;
 
     m_width = viewportWidth;
     m_height = viewportHeight;
@@ -238,7 +238,7 @@ auto CopyTexture::Texture() const -> std::shared_ptr<class Texture>
     return m_framebuffer.GetColorAttachmentTexture(0, 0);
 }
 
-void CopyTexture::UpdateTextureSize(const int width, const int height)
+void CopyTexture::UpdateTextureSize(const uint32_t width, const uint32_t height)
 {
     if (m_width == width &&
         m_height == height)

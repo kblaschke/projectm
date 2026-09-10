@@ -7,7 +7,6 @@
 #include <Logging.hpp>
 
 #include <cassert>
-#include <iostream>
 #include <sstream>
 
 namespace libprojectM {
@@ -20,11 +19,10 @@ PresetFactoryManager::~PresetFactoryManager()
 void PresetFactoryManager::ClearFactories()
 {
     m_factoryMap.clear();
-    for (std::vector<PresetFactory*>::iterator pos = m_factoryList.begin();
-         pos != m_factoryList.end(); ++pos)
+    for (const auto& pos : m_factoryList)
     {
-        assert(*pos);
-        delete (*pos);
+        assert(pos);
+        delete pos;
     }
     m_factoryList.clear();
 }
@@ -135,7 +133,8 @@ auto PresetFactoryManager::ParseExtension(const std::string& filename) -> std::s
 {
     const auto start = filename.find_last_of('.');
 
-    if (start == std::string::npos || start >= (filename.length() - 1)) {
+    if (start == std::string::npos || start >= (filename.length() - 1))
+    {
         return "";
     }
 

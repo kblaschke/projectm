@@ -49,8 +49,10 @@ private:
          * @brief Compiles and runs the init code of the sprite once, if any.
          * Also sets up the default values of the output variables.
          * @param initCode The initialization code.
+         * @param renderContext The frame rendering context data.
          */
-        void RunInitCode(const std::string& initCode, const Renderer::RenderContext& renderContext);
+        void RunInitCode(const std::string& initCode,
+                         const Renderer::RenderContext& renderContext);
 
         /**
          * @brief Runs the per-frame update code for the sprite.

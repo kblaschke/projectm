@@ -75,7 +75,7 @@ void MilkdropPreset::Initialize(const Renderer::RenderContext& renderContext)
     m_finalComposite.CompileCompositeShader(m_state);
 }
 
-void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audioData, const Renderer::RenderContext& renderContext)
+void MilkdropPreset::RenderFrame(const Audio::FrameAudioData& audioData, const Renderer::RenderContext& renderContext)
 {
     m_state.audioData = audioData;
     m_state.renderContext = renderContext;
@@ -92,7 +92,7 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     // First evaluate per-frame code
     PerFrameUpdate();
 
-    glViewport(0, 0, renderContext.viewportSizeX, renderContext.viewportSizeY);
+    glViewport(0, 0, static_cast<GLsizei>(renderContext.viewportSizeX), static_cast<GLsizei>(renderContext.viewportSizeY));
 
     m_framebuffer.Bind(m_previousFrameBuffer);
     // Motion vector field. Drawn to the previous frame texture before warping it.

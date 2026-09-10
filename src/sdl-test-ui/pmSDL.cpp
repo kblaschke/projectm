@@ -176,7 +176,6 @@ void ProjectMSDL::KeyHandler(SDL_Event* sdlEvent)
             {
                 // cmd/ctrl-q = quit
                 done = true;
-                return;
             }
             break;
 
@@ -219,7 +218,6 @@ void ProjectMSDL::KeyHandler(SDL_Event* sdlEvent)
                 // command-f: fullscreen
                 ToggleFullScreen();
                 this->stretch = false; // if we are toggling fullscreen, ensure we disable monitor stretching.
-                return;                // handled
             }
             break;
 

@@ -25,10 +25,10 @@ void Milkdrop2077WaveFlower::GenerateVertices(const PresetState& presetState,
     const float invertedSamplesMinusOne = 1.0f / static_cast<float>(m_samples - 1);
     const float tenthSamples = static_cast<float>(m_samples) * 0.1f;
 
-    for (int sample = 0; sample < m_samples; sample++)
+    for (uint32_t sample = 0; sample < m_samples; sample++)
     {
         float radius = 0.7f + 0.7f * m_pcmDataR[sample + sampleOffset] + m_mysteryWaveParam;
-        const float angle = static_cast<float>(sample) * invertedSamplesMinusOne * 6.28f + presetState.renderContext.time * 0.2f;
+        const auto angle = static_cast<float>(static_cast<double>(sample) * invertedSamplesMinusOne * 6.28 + presetState.renderContext.time * 0.2);
         if (static_cast<float>(sample) < static_cast<float>(m_samples) / radius)
         {
             float mix = static_cast<float>(sample) / tenthSamples;
@@ -41,7 +41,7 @@ void Milkdrop2077WaveFlower::GenerateVertices(const PresetState& presetState,
 
         m_wave1Vertices[sample] = {
             radius * cosf(angle * 3.1416f) * m_aspectY / 1.5f + m_waveX * cosf(3.1416f),
-            radius * sinf(angle - presetState.renderContext.time / 3.0f) * m_aspectX / 1.5f + m_waveY * cosf(3.1416f)};
+            radius * sinf(static_cast<float>(angle - presetState.renderContext.time / 3.0)) * m_aspectX / 1.5f + m_waveY * cosf(3.1416f)};
     }
 }
 

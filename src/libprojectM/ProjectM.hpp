@@ -127,7 +127,7 @@ public:
      * Negative values will make projectM use the system clock instead.
      * @param secondsSinceStart Fractional seconds since rendering the first frame.
      */
-    void SetFrameTime(double secondsSinceStart);
+    void SetFrameTime(double secondsSinceStart) const;
 
     /**
      * @brief Gets the time of the last frame rendered.
@@ -136,7 +136,7 @@ public:
      *       system clock will be returned.
      * @return Seconds elapsed rendering the last frame since starting projectM.
      */
-    auto GetFrameTime() -> double;
+    auto GetFrameTime() const -> double;
 
     void SetBeatSensitivity(float sensitivity);
 
@@ -170,13 +170,13 @@ public:
      * @brief Returns the current frames per second value.
      * @return The current frames per second value.
      */
-    auto TargetFramesPerSecond() const -> int32_t;
+    auto TargetFramesPerSecond() const -> uint32_t;
 
     /**
      * @brief Sets a new current frames per second value.
      * @param fps The new frames per second value.
      */
-    void SetTargetFramesPerSecond(int32_t fps);
+    void SetTargetFramesPerSecond(uint32_t fps);
 
     auto AspectCorrection() const -> bool;
 
@@ -193,14 +193,6 @@ public:
     void TexelOffsets(float& texelOffsetX, float& texelOffsetY) const;
 
     void SetTexelOffsets(float texelOffsetX, float texelOffsetY);
-
-    void Touch(float touchX, float touchY, int pressure, int touchType);
-
-    void TouchDrag(float touchX, float touchY, int pressure);
-
-    void TouchDestroy(float touchX, float touchY);
-
-    void TouchDestroyAll();
 
     /// Turn on or off a lock that prevents projectM from switching to another preset
     void SetPresetLocked(bool locked);
@@ -222,9 +214,9 @@ public:
 
     auto PCM() -> Audio::PCM&;
 
-    auto WindowWidth() -> int;
+    auto WindowWidth() const -> uint32_t;
 
-    auto WindowHeight() -> int;
+    auto WindowHeight() const -> uint32_t;
 
     /**
      * @brief Creates a new user sprite.
@@ -239,12 +231,12 @@ public:
      * @brief Destroys a single sprite using its identifier.
      * @param spriteIdentifier The identifier of the sprite to destroy.
      */
-    void DestroyUserSprite(uint32_t spriteIdentifier);
+    void DestroyUserSprite(uint32_t spriteIdentifier) const;
 
     /**
      * @brief Destroys all active user sprites.
      */
-    void DestroyAllUserSprites();
+    void DestroyAllUserSprites() const;
 
     /**
      * @brief Returns the current user sprite count.
@@ -257,7 +249,7 @@ public:
      * Any sprites above the new limit will be removed in order, oldest first.
      * @param maxSprites The new sprite limit. 0 disables sprites, 16 is the default.
      */
-    void SetUserSpriteLimit(uint32_t maxSprites);
+    void SetUserSpriteLimit(uint32_t maxSprites) const;
 
     /**
      * @brief Returns the current user sprite display limit.
@@ -285,7 +277,7 @@ public:
      * @param variableName The variable to set the value for.
      * @param value The new value.
      */
-    void UserSpriteSetVariableValue(uint32_t spriteId, const std::string& variableName, double value);
+    void UserSpriteSetVariableValue(uint32_t spriteId, const std::string& variableName, double value) const;
 
     /**
      * @brief Draws the given texture on the active preset's main texture to get a "burn-in" effect.
@@ -295,24 +287,24 @@ public:
      * @param width Width of the final image on the destination texture in pixels, can be negative to flip it horizontally.
      * @param height Height of the final image on the destination texture in pixels, can be negative to flip it vertically.
      */
-    void BurnInTexture(uint32_t openGlTextureId, int left, int top, int width, int height);
+    void BurnInTexture(uint32_t openGlTextureId, int left, int top, int width, int height) const;
 
 private:
     void Initialize();
 
-    void CheckGLSLVersion();
+    static void CheckGLSLVersion();
 
     void StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hardCut);
 
     void LoadIdlePreset();
 
-    auto GetRenderContext() -> Renderer::RenderContext;
+    auto GetRenderContext() const -> Renderer::RenderContext;
 
     uint32_t m_meshX{32};            //!< Per-point mesh horizontal resolution.
     uint32_t m_meshY{24};            //!< Per-point mesh vertical resolution.
     uint32_t m_targetFps{35};        //!< Target frames per second.
-    uint32_t m_windowWidth{0};       //!< EvaluateFrameData window width. If 0, nothing is rendered.
-    uint32_t m_windowHeight{0};      //!< EvaluateFrameData window height. If 0, nothing is rendered.
+    uint32_t m_windowWidth{0};            //!< EvaluateFrameData window width. If 0, nothing is rendered.
+    uint32_t m_windowHeight{0};           //!< EvaluateFrameData window height. If 0, nothing is rendered.
     double m_presetDuration{30.0};   //!< Preset duration in seconds.
     double m_softCutDuration{3.0};   //!< Soft cut transition time.
     double m_hardCutDuration{20.0};  //!< Time after which a hard cut can happen at the earliest.
@@ -325,7 +317,7 @@ private:
     float m_texelOffsetX{0.0};       //!< Horizontal warp shader texel offset
     float m_texelOffsetY{0.0};       //!< Vertical warp shader texel offset
 
-    std::vector<std::string> m_textureSearchPaths;     ///!< List of paths to search for texture files
+    std::vector<std::string> m_textureSearchPaths;       ///!< List of paths to search for texture files
     Renderer::TextureLoadCallback m_textureLoadCallback; //!< Optional callback for loading textures from non-filesystem sources.
 
     /** Timing information */

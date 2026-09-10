@@ -90,8 +90,8 @@ private:
     Renderer::Mesh m_compositeMesh;                                                                 //!< The composite shader mesh.
     Renderer::VertexBuffer<Renderer::Point> m_radiusAngle{Renderer::VertexBufferUsage::StreamDraw}; //!< Additional vertex attribute array for radius and angle.
 
-    int m_viewportWidth{};  //!< Last known viewport width.
-    int m_viewportHeight{}; //!< Last known viewport height.
+    uint32_t m_viewportWidth{};  //!< Last known viewport width.
+    uint32_t m_viewportHeight{}; //!< Last known viewport height.
 
     std::unique_ptr<MilkdropShader> m_compositeShader; //!< The composite shader. Either preset-defined or empty.
     std::unique_ptr<VideoEcho> m_videoEcho;            //!< Video echo effect. Used if no composite shader is loaded and video echo is enabled.

@@ -23,11 +23,11 @@ public:
      * @param b The color's b value.
      * @param a The color's a value.
      */
-    Color(float r, float g, float b, float a)
+    Color(const float r, const float g, const float b, const float a)
         : m_r(r)
         , m_g(g)
         , m_b(b)
-        , m_a(a) {};
+        , m_a(a) {}
 
     /**
      * Returns the color's r value.
