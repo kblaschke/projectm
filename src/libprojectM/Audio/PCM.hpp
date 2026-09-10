@@ -87,7 +87,7 @@ private:
     /**
      * Copies data out of the circular input buffer into the per-frame waveform buffer.
      */
-    void CopyNewWaveformData(const WaveformBuffer& source, WaveformBuffer& destination);
+    void CopyNewWaveformData(const WaveformBuffer& source, WaveformBuffer& destination) const;
 
     std::mutex m_pcmMutex; //!< Protects the circular input buffer from concurrent access.
 

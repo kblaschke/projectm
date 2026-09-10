@@ -38,8 +38,8 @@ public:
 
 protected:
     void GenerateWeights();
-    auto CalculateOffset(std::vector<WaveformBuffer>& newWaveformMips) -> int;
-    void ResampleOctaves(std::vector<WaveformBuffer>& dstWaveformMips, WaveformBuffer& newWaveform);
+    auto CalculateOffset(const std::vector<WaveformBuffer>& newWaveformMips) const -> int;
+    void ResampleOctaves(std::vector<WaveformBuffer>& dstWaveformMips, WaveformBuffer& newWaveform) const;
 
     bool m_alignWaveReady{false}; //!< Alignment needs special treatment for the first buffer fill.
 

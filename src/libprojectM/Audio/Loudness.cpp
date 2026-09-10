@@ -5,12 +5,14 @@
 namespace libprojectM {
 namespace Audio {
 
-Loudness::Loudness(Loudness::Band band)
+Loudness::Loudness(const Band band)
     : m_band(band)
 {
 }
 
-void Loudness::Update(const std::array<float, SpectrumSamples>& spectrumSamples, double secondsSinceLastFrame, uint32_t frame)
+void Loudness::Update(const std::array<float, SpectrumSamples>& spectrumSamples,
+                      const double secondsSinceLastFrame,
+                      const uint32_t frame)
 {
     SumBand(spectrumSamples);
     UpdateBandAverage(secondsSinceLastFrame, frame);
@@ -38,7 +40,7 @@ void Loudness::SumBand(const std::array<float, SpectrumSamples>& spectrumSamples
     }
 }
 
-void Loudness::UpdateBandAverage(double secondsSinceLastFrame, uint32_t frame)
+void Loudness::UpdateBandAverage(const double secondsSinceLastFrame, const uint32_t frame)
 {
     float rate = AdjustRateToFps(m_current > m_average ? 0.2f : 0.5f, secondsSinceLastFrame);
     m_average = m_average * rate + m_current * (1.0f - rate);
@@ -50,10 +52,10 @@ void Loudness::UpdateBandAverage(double secondsSinceLastFrame, uint32_t frame)
     m_averageRelative = std::fabs(m_longAverage) < 0.001f ? 1.0f : m_average / m_longAverage;
 }
 
-auto Loudness::AdjustRateToFps(float rate, double secondsSinceLastFrame) -> float
+auto Loudness::AdjustRateToFps(const float rate, const double secondsSinceLastFrame) -> float
 {
-    float const perSecondDecayRateAtFps1 = std::pow(rate, 30.0f);
-    float const perFrameDecayRateAtFps2 = std::pow(perSecondDecayRateAtFps1, static_cast<float>(secondsSinceLastFrame));
+    const float perSecondDecayRateAtFps1 = std::pow(rate, 30.0f);
+    const float perFrameDecayRateAtFps2 = std::pow(perSecondDecayRateAtFps1, static_cast<float>(secondsSinceLastFrame));
 
     return perFrameDecayRateAtFps2;
 }

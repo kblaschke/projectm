@@ -101,7 +101,7 @@ public:
      * @param spectralData The resulting frequency data. Vector will be resized to samplesOut elements as passed to Init().
      *                     If the conversion failed, e.g. not initialized or too few input samples, the result vector will be empty.
      */
-    void TimeToFrequencyDomain(const std::vector<float>& waveformData, std::vector<float>& spectralData);
+    void TimeToFrequencyDomain(const std::vector<float>& waveformData, std::vector<float>& spectralData) const;
 
     /**
      * @brief Returns the number of frequency samples calculated.

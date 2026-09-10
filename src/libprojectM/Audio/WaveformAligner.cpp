@@ -9,7 +9,7 @@ namespace Audio {
 
 WaveformAligner::WaveformAligner()
 {
-    static const uint32_t maxOctaves{10};
+    static constexpr uint32_t maxOctaves{10};
     // For AudioBufferSamples = 576 and WaveformSamples = 480:
     // floor(log2(96)) = 6
     static const uint32_t numOctaves{static_cast<uint32_t>(std::floor(std::log(AudioBufferSamples - WaveformSamples) / std::log(2.0f)))};
@@ -31,7 +31,7 @@ WaveformAligner::WaveformAligner()
     }
 }
 
-void WaveformAligner::ResampleOctaves(std::vector<WaveformBuffer>& dstWaveformMips, WaveformBuffer& newWaveform)
+void WaveformAligner::ResampleOctaves(std::vector<WaveformBuffer>& dstWaveformMips, WaveformBuffer& newWaveform) const
 {
     // Octave 0 is a direct copy of the new waveform
     std::copy(newWaveform.begin(), newWaveform.end(), dstWaveformMips[0].begin());
@@ -119,7 +119,7 @@ void WaveformAligner::GenerateWeights()
     }
 }
 
-int WaveformAligner::CalculateOffset(std::vector<WaveformBuffer>& newWaveformMips)
+int WaveformAligner::CalculateOffset(const std::vector<WaveformBuffer>& newWaveformMips) const
 {
     /*
      * Note that we use signed variables here because we need to check for negatives even

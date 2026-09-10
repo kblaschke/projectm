@@ -12,7 +12,7 @@ template<
 void PCM::AddToBuffer(
     SampleType const* const samples,
     uint32_t channels,
-    size_t const sampleCount)
+    const size_t sampleCount)
 {
     if (channels == 0 || sampleCount == 0)
     {
@@ -22,11 +22,11 @@ void PCM::AddToBuffer(
     std::lock_guard<std::mutex> lock(m_pcmMutex);
     for (size_t i = 0; i < sampleCount; i++)
     {
-        size_t const bufferOffset = (m_start + i) % AudioBufferSamples;
-        m_inputBufferL[bufferOffset] = 128.0f * (static_cast<float>(samples[0 + i * channels]) - float(signalOffset)) / float(signalAmplitude);
+        const size_t bufferOffset = (m_start + i) % AudioBufferSamples;
+        m_inputBufferL[bufferOffset] = 128.0f * (static_cast<float>(samples[0 + i * channels]) - static_cast<float>(signalOffset)) / static_cast<float>(signalAmplitude);
         if (channels > 1)
         {
-            m_inputBufferR[bufferOffset] = 128.0f * (static_cast<float>(samples[1 + i * channels]) - float(signalOffset)) / float(signalAmplitude);
+            m_inputBufferR[bufferOffset] = 128.0f * (static_cast<float>(samples[1 + i * channels]) - static_cast<float>(signalOffset)) / static_cast<float>(signalAmplitude);
         }
         else
         {
@@ -36,15 +36,15 @@ void PCM::AddToBuffer(
     m_start = (m_start + sampleCount) % AudioBufferSamples;
 }
 
-void PCM::Add(float const* const samples, uint32_t channels, size_t const count)
+void PCM::Add(float const* const samples, uint32_t channels, const size_t count)
 {
     AddToBuffer<1, 0>(samples, channels, count);
 }
-void PCM::Add(uint8_t const* const samples, uint32_t channels, size_t const count)
+void PCM::Add(uint8_t const* const samples, uint32_t channels, const size_t count)
 {
     AddToBuffer<128, 128>(samples, channels, count);
 }
-void PCM::Add(int16_t const* const samples, uint32_t channels, size_t const count)
+void PCM::Add(int16_t const* const samples, uint32_t channels, const size_t count)
 {
     AddToBuffer<32768, 0>(samples, channels, count);
 }
@@ -77,7 +77,6 @@ void PCM::UpdateFrameAudioData(double secondsSinceLastFrame, uint32_t frame)
     m_bass.Update(monoSpectrum, secondsSinceLastFrame, frame);
     m_middles.Update(monoSpectrum, secondsSinceLastFrame, frame);
     m_treble.Update(monoSpectrum, secondsSinceLastFrame, frame);
-
 }
 
 auto PCM::GetFrameAudioData() const -> FrameAudioData
@@ -121,7 +120,7 @@ void PCM::UpdateSpectrum(const WaveformBuffer& waveformData, SpectrumBuffer& spe
     std::copy(spectrumValues.begin(), spectrumValues.end(), spectrumData.begin());
 }
 
-void PCM::CopyNewWaveformData(const WaveformBuffer& source, WaveformBuffer& destination)
+void PCM::CopyNewWaveformData(const WaveformBuffer& source, WaveformBuffer& destination) const
 {
     auto const bufferStartIndex = m_start;
 
