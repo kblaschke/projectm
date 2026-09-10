@@ -162,14 +162,14 @@ void PresetState::Initialize(PresetFileParser& parsedFile)
 
 void PresetState::LoadShaders()
 {
-    auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
+    auto staticShaders = MilkdropStaticShaders::Get();
 
     auto untexturedShaderShared = renderContext.shaderCache->Get("milkdrop_generic_untextured");
     if (!untexturedShaderShared)
     {
         untexturedShaderShared = std::make_shared<Renderer::Shader>();
         untexturedShaderShared->CompileProgram(staticShaders->GetUntexturedDrawVertexShader(),
-                                        staticShaders->GetUntexturedDrawFragmentShader());
+                                               staticShaders->GetUntexturedDrawFragmentShader());
         renderContext.shaderCache->Insert("milkdrop_generic_untextured", untexturedShaderShared);
     }
     untexturedShader = untexturedShaderShared;
@@ -179,7 +179,7 @@ void PresetState::LoadShaders()
     {
         texturedShaderShared = std::make_shared<Renderer::Shader>();
         texturedShaderShared->CompileProgram(staticShaders->GetTexturedDrawVertexShader(),
-                                      staticShaders->GetTexturedDrawFragmentShader());
+                                             staticShaders->GetTexturedDrawFragmentShader());
         renderContext.shaderCache->Insert("milkdrop_generic_textured", texturedShaderShared);
     }
     texturedShader = texturedShaderShared;

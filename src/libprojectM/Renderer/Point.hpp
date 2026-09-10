@@ -22,7 +22,7 @@ public:
      */
     Point(const float x, const float y)
         : m_x(x)
-        , m_y(y) {};
+        , m_y(y) {}
 
     /**
      * Returns the X coordinate of the point.

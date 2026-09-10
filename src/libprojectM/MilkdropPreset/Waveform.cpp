@@ -120,7 +120,6 @@ void Waveform::Draw(const PerFrameContext& presetPerFrameContext)
     }
 
     Renderer::BlendMode::SetBlendActive(false);
-    ;
     Renderer::Mesh::Unbind();
     Renderer::Shader::Unbind();
 }
@@ -152,7 +151,7 @@ void Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext)
     //
     //forces max color value to 1.0 and scales
     // the rest accordingly
-    const int textureSize = std::max(m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY);
+    const uint32_t textureSize = std::max(m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY);
 
     if (m_mode == WaveformMode::CenteredSpiro || m_mode == WaveformMode::ExplosiveHash)
     {

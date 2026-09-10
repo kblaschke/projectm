@@ -48,7 +48,7 @@ namespace MilkdropPreset {
 
 class Factory;
 
-class MilkdropPreset : public ::libprojectM::Preset
+class MilkdropPreset : public Preset
 {
 
 public:
@@ -77,7 +77,7 @@ public:
      * @param audioData The frame audio data.
      * @param renderContext The current rendering context/information.
      */
-    void RenderFrame(const libprojectM::Audio::FrameAudioData& audioData,
+    void RenderFrame(const Audio::FrameAudioData& audioData,
                      const Renderer::RenderContext& renderContext) override;
 
     auto OutputTexture() const -> std::shared_ptr<Renderer::Texture> override;

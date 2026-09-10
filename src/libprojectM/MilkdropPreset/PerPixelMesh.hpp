@@ -118,8 +118,8 @@ private:
     int m_gridSizeX{}; //!< Warp mesh X resolution.
     int m_gridSizeY{}; //!< Warp mesh Y resolution.
 
-    int m_viewportWidth{};  //!< Last known viewport width.
-    int m_viewportHeight{}; //!< Last known viewport height.
+    uint32_t m_viewportWidth{};  //!< Last known viewport width.
+    uint32_t m_viewportHeight{}; //!< Last known viewport height.
 
     Renderer::Mesh m_warpMesh;                                                                         //!< The Warp effect mesh
     Renderer::VertexBuffer<RadiusAngle> m_radiusAngleBuffer{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for radius and angle values.

@@ -13,7 +13,7 @@ void CenteredSpiro::GenerateVertices(const PresetState&, const PerFrameContext&)
 
     m_wave1Vertices.resize(m_samples);
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         m_wave1Vertices[i] = {m_pcmDataR[i] * m_aspectY + m_waveX,
                               m_pcmDataL[i + 32] * m_aspectX + m_waveY};

@@ -5,7 +5,7 @@
 namespace libprojectM {
 namespace Renderer {
 
-Texture::Texture(std::string name, const int width, const int height, const bool isUserTexture)
+Texture::Texture(std::string name, const uint32_t width, const uint32_t height, const bool isUserTexture)
     : m_target(GL_TEXTURE_2D)
     , m_name(std::move(name))
     , m_width(width)
@@ -19,7 +19,7 @@ Texture::Texture(std::string name, const int width, const int height, const bool
 }
 
 Texture::Texture(std::string name, const GLenum target,
-                 const int width, const int height, const int depth,
+                 const uint32_t width, const uint32_t height, const uint32_t depth,
                  const GLint internalFormat, const GLenum format,
                  const GLenum type, const bool isUserTexture)
     : m_target(target)
@@ -36,7 +36,7 @@ Texture::Texture(std::string name, const GLenum target,
 }
 
 Texture::Texture(std::string name, const GLuint texID, const GLenum target,
-                 const int width, const int height,
+                 const uint32_t width, const uint32_t height,
                  const bool isUserTexture, const bool owned)
     : m_textureId(texID)
     , m_target(target)
@@ -49,7 +49,7 @@ Texture::Texture(std::string name, const GLuint texID, const GLenum target,
 }
 
 Texture::Texture(std::string name, const void* data, const GLenum target,
-                 const int width, const int height, const int depth,
+                 const uint32_t width, const uint32_t height, const uint32_t depth,
                  const GLint internalFormat, const GLenum format, const GLenum type,
                  const bool isUserTexture)
     : m_target(target)
@@ -107,17 +107,17 @@ auto Texture::Type() const -> GLenum
     return m_target;
 }
 
-auto Texture::Width() const -> int
+auto Texture::Width() const -> uint32_t
 {
     return m_width;
 }
 
-auto Texture::Height() const -> int
+auto Texture::Height() const -> uint32_t
 {
     return m_height;
 }
 
-auto Texture::Depth() const -> int
+auto Texture::Depth() const -> uint32_t
 {
     return m_depth;
 }
@@ -138,10 +138,10 @@ void Texture::Update(const void* data) const
     switch (m_target)
     {
         case GL_TEXTURE_2D:
-            glTexImage2D(m_target, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, data);
+            glTexImage2D(m_target, 0, m_internalFormat, static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, m_format, m_type, data);
             break;
         case GL_TEXTURE_3D:
-            glTexImage3D(m_target, 0, m_internalFormat, m_width, m_height, m_depth, 0, m_format, m_type, data);
+            glTexImage3D(m_target, 0, m_internalFormat, static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), static_cast<GLsizei>(m_depth), 0, m_format, m_type, data);
             break;
         default:
             // Unsupported, do nothing.
@@ -157,10 +157,10 @@ void Texture::CreateNewTexture()
     switch (m_target)
     {
         case GL_TEXTURE_2D:
-            glTexImage2D(m_target, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, nullptr);
+            glTexImage2D(m_target, 0, m_internalFormat, static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, m_format, m_type, nullptr);
             break;
         case GL_TEXTURE_3D:
-            glTexImage3D(m_target, 0, m_internalFormat, m_width, m_height, m_depth, 0, m_format, m_type, nullptr);
+            glTexImage3D(m_target, 0, m_internalFormat, static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), static_cast<GLsizei>(m_depth), 0, m_format, m_type, nullptr);
             break;
         default:
             // Unsupported, do nothing.

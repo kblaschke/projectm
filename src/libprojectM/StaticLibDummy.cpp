@@ -5,6 +5,6 @@
 
 namespace libprojectM {
 
-void DummyFunction() {}
+static void DummyFunction() {}
 
 } // namespace libprojectM

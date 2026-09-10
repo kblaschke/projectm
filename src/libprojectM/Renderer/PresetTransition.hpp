@@ -42,7 +42,7 @@ public:
      * @param currentFrameTime The time in seconds since start of the current frame.
      * @return The linear blending progress from 0.0 to 1.0.
      */
-    auto Progress(double currentFrameTime) const -> double;
+    auto Progress(double currentFrameTime) const -> float;
 
     /**
      * @brief Updates the transition variables and renders the shader quad to the current FBO.

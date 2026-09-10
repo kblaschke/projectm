@@ -84,6 +84,7 @@ public:
      * @param[in,out] unit The first texture unit to bind the blur textures from. Returns the next
      *                     free unit, which can be the same as the input slot if no blur textures
      *                     are used.
+     * @param shader The shader to bind.
      */
     void Bind(GLint& unit, Renderer::Shader& shader) const;
 
@@ -111,8 +112,8 @@ private:
     std::weak_ptr<Renderer::Shader> m_blur1Shader; //!< The shader used on the first blur pass.
     std::weak_ptr<Renderer::Shader> m_blur2Shader; //!< The shader used for subsequent blur passes after the initial pass.
 
-    int m_sourceTextureWidth{};  //!< Width of the source texture used to create the blur textures.
-    int m_sourceTextureHeight{}; //!< Height of the source texture used to create the blur textures.
+    uint32_t m_sourceTextureWidth{};  //!< Width of the source texture used to create the blur textures.
+    uint32_t m_sourceTextureHeight{}; //!< Height of the source texture used to create the blur textures.
 
     Renderer::Framebuffer m_blurFramebuffer;                                        //!< The framebuffer used to draw the blur textures.
     std::shared_ptr<Renderer::Sampler> m_blurSampler;                               //!< The blur sampler.

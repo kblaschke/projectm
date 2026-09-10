@@ -300,7 +300,7 @@ void projectm_playlist_clear(projectm_playlist_handle instance)
 }
 
 
-auto projectm_playlist_items(projectm_playlist_handle instance, uint32_t start, uint32_t count) -> char**
+auto projectm_playlist_items(projectm_playlist_handle instance, const uint32_t start, const uint32_t count) -> char**
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -326,7 +326,7 @@ auto projectm_playlist_items(projectm_playlist_handle instance, uint32_t start, 
 }
 
 
-char* projectm_playlist_item(projectm_playlist_handle instance, uint32_t index)
+char* projectm_playlist_item(projectm_playlist_handle instance, const uint32_t index)
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -344,7 +344,7 @@ char* projectm_playlist_item(projectm_playlist_handle instance, uint32_t index)
 
 
 auto projectm_playlist_add_path(projectm_playlist_handle instance, const char* path,
-                                bool recurse_subdirs, bool allow_duplicates) -> uint32_t
+                                const bool recurse_subdirs, const bool allow_duplicates) -> uint32_t
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -353,7 +353,7 @@ auto projectm_playlist_add_path(projectm_playlist_handle instance, const char* p
 
 
 auto projectm_playlist_insert_path(projectm_playlist_handle instance, const char* path,
-                                   uint32_t index, bool recurse_subdirs, bool allow_duplicates) -> uint32_t
+                                   const uint32_t index, const bool recurse_subdirs, const bool allow_duplicates) -> uint32_t
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -362,7 +362,7 @@ auto projectm_playlist_insert_path(projectm_playlist_handle instance, const char
 
 
 auto projectm_playlist_add_preset(projectm_playlist_handle instance, const char* filename,
-                                  bool allow_duplicates) -> bool
+                                  const bool allow_duplicates) -> bool
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -371,7 +371,7 @@ auto projectm_playlist_add_preset(projectm_playlist_handle instance, const char*
 
 
 auto projectm_playlist_insert_preset(projectm_playlist_handle instance, const char* filename,
-                                     uint32_t index, bool allow_duplicates) -> bool
+                                     const uint32_t index, const bool allow_duplicates) -> bool
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -380,7 +380,7 @@ auto projectm_playlist_insert_preset(projectm_playlist_handle instance, const ch
 
 
 uint32_t projectm_playlist_add_presets(projectm_playlist_handle instance, const char** filenames,
-                                       uint32_t count, bool allow_duplicates)
+                                       const uint32_t count, const bool allow_duplicates)
 {
     if (filenames == nullptr)
     {
@@ -409,7 +409,7 @@ uint32_t projectm_playlist_add_presets(projectm_playlist_handle instance, const 
 
 
 auto projectm_playlist_insert_presets(projectm_playlist_handle instance, const char** filenames,
-                                      uint32_t count, unsigned int index, bool allow_duplicates) -> uint32_t
+                                      const uint32_t count, const unsigned int index, const bool allow_duplicates) -> uint32_t
 {
     if (filenames == nullptr)
     {
@@ -437,7 +437,7 @@ auto projectm_playlist_insert_presets(projectm_playlist_handle instance, const c
 }
 
 
-bool projectm_playlist_remove_preset(projectm_playlist_handle instance, uint32_t index)
+bool projectm_playlist_remove_preset(projectm_playlist_handle instance, const uint32_t index)
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -445,8 +445,8 @@ bool projectm_playlist_remove_preset(projectm_playlist_handle instance, uint32_t
 }
 
 
-uint32_t projectm_playlist_remove_presets(projectm_playlist_handle instance, uint32_t index,
-                                          uint32_t count)
+uint32_t projectm_playlist_remove_presets(projectm_playlist_handle instance,
+                                          const uint32_t index, const uint32_t count)
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -474,20 +474,20 @@ bool projectm_playlist_get_shuffle(projectm_playlist_handle instance)
 }
 
 
-void projectm_playlist_set_shuffle(projectm_playlist_handle instance, bool shuffle)
+void projectm_playlist_set_shuffle(projectm_playlist_handle instance, const bool shuffle)
 {
     auto* playlist = playlist_handle_to_instance(instance);
     playlist->SetShuffle(shuffle);
 }
 
 
-void projectm_playlist_sort(projectm_playlist_handle instance, uint32_t start_index, uint32_t count,
-                            projectm_playlist_sort_predicate predicate, projectm_playlist_sort_order order)
+void projectm_playlist_sort(projectm_playlist_handle instance, const uint32_t start_index, const uint32_t count,
+                            const projectm_playlist_sort_predicate predicate, const projectm_playlist_sort_order order)
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
-    libprojectM::Playlist::Playlist::SortPredicate predicatePlaylist{libprojectM::Playlist::Playlist::SortPredicate::FullPath};
-    libprojectM::Playlist::Playlist::SortOrder orderPlaylist{libprojectM::Playlist::Playlist::SortOrder::Ascending};
+    auto predicatePlaylist{libprojectM::Playlist::Playlist::SortPredicate::FullPath};
+    auto orderPlaylist{libprojectM::Playlist::Playlist::SortOrder::Ascending};
 
     if (predicate == SORT_PREDICATE_FILENAME_ONLY)
     {
@@ -510,7 +510,7 @@ uint32_t projectm_playlist_get_retry_count(projectm_playlist_handle instance)
 }
 
 
-void projectm_playlist_set_retry_count(projectm_playlist_handle instance, uint32_t retry_count)
+void projectm_playlist_set_retry_count(projectm_playlist_handle instance, const uint32_t retry_count)
 {
     auto* playlist = playlist_handle_to_instance(instance);
     playlist->SetRetryCount(retry_count);
@@ -531,8 +531,8 @@ auto projectm_playlist_get_position(projectm_playlist_handle instance) -> uint32
 }
 
 
-auto projectm_playlist_set_position(projectm_playlist_handle instance, uint32_t new_position,
-                                    bool hard_cut) -> uint32_t
+auto projectm_playlist_set_position(projectm_playlist_handle instance, const uint32_t new_position,
+                                    const bool hard_cut) -> uint32_t
 {
     auto* playlist = playlist_handle_to_instance(instance);
     playlist->SetLastNavigationDirection(libprojectM::Playlist::PlaylistCWrapper::NavigationDirection::Next);
@@ -549,7 +549,7 @@ auto projectm_playlist_set_position(projectm_playlist_handle instance, uint32_t 
 }
 
 
-uint32_t projectm_playlist_play_next(projectm_playlist_handle instance, bool hard_cut)
+uint32_t projectm_playlist_play_next(projectm_playlist_handle instance, const bool hard_cut)
 {
     auto* playlist = playlist_handle_to_instance(instance);
     playlist->SetLastNavigationDirection(libprojectM::Playlist::PlaylistCWrapper::NavigationDirection::Next);
@@ -566,7 +566,7 @@ uint32_t projectm_playlist_play_next(projectm_playlist_handle instance, bool har
 }
 
 
-uint32_t projectm_playlist_play_previous(projectm_playlist_handle instance, bool hard_cut)
+uint32_t projectm_playlist_play_previous(projectm_playlist_handle instance, const bool hard_cut)
 {
     auto* playlist = playlist_handle_to_instance(instance);
     playlist->SetLastNavigationDirection(libprojectM::Playlist::PlaylistCWrapper::NavigationDirection::Previous);
@@ -583,7 +583,7 @@ uint32_t projectm_playlist_play_previous(projectm_playlist_handle instance, bool
 }
 
 
-uint32_t projectm_playlist_play_last(projectm_playlist_handle instance, bool hard_cut)
+uint32_t projectm_playlist_play_last(projectm_playlist_handle instance, const bool hard_cut)
 {
     auto* playlist = playlist_handle_to_instance(instance);
 
@@ -602,7 +602,7 @@ uint32_t projectm_playlist_play_last(projectm_playlist_handle instance, bool har
 
 
 void projectm_playlist_set_filter(projectm_playlist_handle instance, const char** filter_list,
-                                  size_t count)
+                                  const size_t count)
 {
     auto* playlist = playlist_handle_to_instance(instance);
 

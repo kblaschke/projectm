@@ -243,7 +243,7 @@ public:
      * @brief Returns the current playlist filter list.
      * @return The filter list for the current playlist.
      */
-    virtual auto Filter() -> class Filter&;
+    virtual auto Filter() -> Filter&;
 
     /**
      * @brief Applies the current filter list to the existing playlist.

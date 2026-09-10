@@ -116,14 +116,14 @@ public:
     void Remove(const std::string& key);
 
     // Check whether key exists in configuration
-    [[nodiscard]] auto KeyExists(const std::string& key) const -> bool;
+    auto KeyExists(const std::string& key) const -> bool;
 
     // Check or change configuration syntax
-    [[nodiscard]] auto GetDelimiter() const -> std::string
+    auto GetDelimiter() const -> std::string
     { return m_delimiter; }
-    [[nodiscard]] auto GetComment() const -> std::string
+    auto GetComment() const -> std::string
     { return m_comment; }
-    [[nodiscard]] auto GetSentry() const -> std::string
+    auto GetSentry() const -> std::string
     { return m_sentry; }
     auto SetDelimiter(const std::string& delimiter) -> std::string
     {

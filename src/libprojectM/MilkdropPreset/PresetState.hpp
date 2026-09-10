@@ -136,7 +136,7 @@ public:
     double globalRegisters[100]{};                   //!< Global reg00-reg99 variables.
     std::array<double, QVarCount> frameQVariables{}; //!< Q variables after per-frame code evaluation.
 
-    libprojectM::Audio::FrameAudioData audioData; //!< Holds audio/spectrum data and values for beat detection.
+    Audio::FrameAudioData audioData; //!< Holds audio/spectrum data and values for beat detection.
     Renderer::RenderContext renderContext;        //!< Current renderer state data like viewport size and generic shaders.
 
     std::string perFrameInitCode; //!< Preset init code, run once on load.

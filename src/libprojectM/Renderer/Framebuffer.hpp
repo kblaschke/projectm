@@ -92,19 +92,19 @@ public:
      * @param height The height of the framebuffer.
      * @return true if the framebuffer was resized, false if it's contents remain unchanged.
      */
-    auto SetSize(int width, int height) -> bool;
+    auto SetSize(uint32_t width, uint32_t height) -> bool;
 
     /**
      * Returns the width in pixels of the framebuffer.
      * @return The horizontal resolution.
      */
-    auto Width() const -> int;
+    auto Width() const -> uint32_t;
 
     /**
      * Returns the height in pixels of the framebuffer.
      * @return the vertical resolution.
      */
-    auto Height() const -> int;
+    auto Height() const -> uint32_t;
 
     /**
      * @brief Returns a texture attachment object.
@@ -138,7 +138,7 @@ public:
     /**
      * @brief Adds a new color attachment to the framebuffer with the specified format.
      * @param framebufferIndex The framebuffer index.
-     * @param index The index of the attachment, at least indices 0-7 are guaranteed to be available.
+     * @param attachmentIndex The index of the attachment, at least indices 0-7 are guaranteed to be available.
      * @param internalFormat OpenGL internal format, e.g. GL_RGBA8
      * @param format OpenGL color format, e.g. GL_RGBA
      * @param type OpenGL component storage type, e.g. GL_UNSIGNED _BYTE
@@ -161,7 +161,7 @@ public:
      * @param attachmentIndex The index of the attachment to return the texture for.
      * @return A shared pointer to the texture or nullptr if no texture is assigned.
      */
-    auto GetColorAttachmentTexture(int framebufferIndex, int attachmentIndex) const -> std::shared_ptr<class Texture>;
+    auto GetColorAttachmentTexture(int framebufferIndex, int attachmentIndex) const -> std::shared_ptr<Texture>;
 
     /**
      * @brief Adds a depth attachment to the framebuffer.
@@ -233,8 +233,8 @@ private:
     std::vector<unsigned int> m_framebufferIds{}; //!< The framebuffer IDs returned by OpenGL
     std::map<int, AttachmentsPerSlot> m_attachments; //!< Framebuffer texture attachments.
 
-    int m_width{}; //!< Framebuffers texture width
-    int m_height{}; //!< Framebuffers texture height.
+    uint32_t m_width{}; //!< Framebuffers texture width
+    uint32_t m_height{}; //!< Framebuffers texture height.
 
     int m_readFramebuffer{}; //!< Index of the framebuffer currently being read.
     int m_drawFramebuffer{}; //!< Index of the framebuffer currently being drawn to.

@@ -17,7 +17,7 @@ public:
     {
     }
 
-    virtual ~PresetFactoryException() = default;
+    ~PresetFactoryException() override = default;
 
     const char* what() const noexcept override
     {
@@ -81,16 +81,21 @@ public:
      */
     std::unique_ptr<Preset> CreatePresetFromStream(const std::string& extension, std::istream& data);
 
+    /**
+     * @brief Returns a list of handled/supported file extensions for presets.
+     * Currently, only ".milk" is supported.
+     * @return A list of handled file extensions.
+     */
     std::vector<std::string> extensionsHandled() const;
 
 
 private:
-    void registerFactory(const std::string& extension, PresetFactory* factory);
+    void registerFactory(const std::string& extensions, PresetFactory* factory);
 
-    auto ParseExtension(const std::string& filename) -> std::string;
+    static auto ParseExtension(const std::string& filename) -> std::string;
 
-    mutable std::map<std::string, PresetFactory*> m_factoryMap;
-    mutable std::vector<PresetFactory*> m_factoryList;
+    std::map<std::string, PresetFactory*> m_factoryMap;
+    std::vector<PresetFactory*> m_factoryList;
     void ClearFactories();
 };
 

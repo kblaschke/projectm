@@ -81,9 +81,9 @@ auto ProjectMSDL::ToggleAudioInput() -> int
     else
     {
         this->EndAudioCapture(); // end current audio capture.
-        m_curAudioDevice++;       // iterate device index
-        if (m_curAudioDevice >= static_cast<int>(m_numAudioDevices))
-        {                         // We reached outside the boundaries of available audio devices.
+        m_curAudioDevice++;      // iterate device index
+        if (m_curAudioDevice >= m_numAudioDevices)
+        {                          // We reached outside the boundaries of available audio devices.
             m_curAudioDevice = -1; // Return to the default audio device.
 #ifdef WASAPI_LOOPBACK
             // If we are at the boundary and WASAPI is enabled then let's load WASAPI instead.

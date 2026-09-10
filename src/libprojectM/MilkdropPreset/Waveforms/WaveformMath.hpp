@@ -74,7 +74,7 @@ protected:
 
     WaveformMode m_mode{WaveformMode::Line};
 
-    int m_samples{};
+    uint32_t m_samples{};
     std::array<float, WaveformMaxPoints> m_pcmDataL{0.0f};
     std::array<float, WaveformMaxPoints> m_pcmDataR{0.0f};
 

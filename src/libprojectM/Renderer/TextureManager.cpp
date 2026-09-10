@@ -50,7 +50,7 @@ TextureSamplerDescriptor TextureManager::GetTexture(const std::string& fullName)
     return {m_textures[unqualifiedName], m_samplers.at({wrapMode, filterMode}), fullName, unqualifiedName};
 }
 
-auto TextureManager::GetSampler(const std::string& fullName) -> std::shared_ptr<class Sampler>
+auto TextureManager::GetSampler(const std::string& fullName) -> std::shared_ptr<Sampler>
 {
     std::string unqualifiedName;
     GLint wrapMode;

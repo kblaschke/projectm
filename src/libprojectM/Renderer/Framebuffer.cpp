@@ -78,7 +78,7 @@ void Framebuffer::Unbind()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-bool Framebuffer::SetSize(const int width, const int height)
+bool Framebuffer::SetSize(const uint32_t width, const uint32_t height)
 {
     if (width == 0 || height == 0 ||
         (width == m_width && height == m_height))
@@ -105,12 +105,12 @@ bool Framebuffer::SetSize(const int width, const int height)
     return true;
 }
 
-auto Framebuffer::Width() const -> int
+auto Framebuffer::Width() const -> uint32_t
 {
     return m_width;
 }
 
-auto Framebuffer::Height() const -> int
+auto Framebuffer::Height() const -> uint32_t
 {
     return m_height;
 }
@@ -229,7 +229,7 @@ void Framebuffer::RemoveColorAttachment(const int framebufferIndex, const int at
     RemoveAttachment(framebufferIndex, GL_COLOR_ATTACHMENT0 + attachmentIndex);
 }
 
-auto Framebuffer::GetColorAttachmentTexture(const int framebufferIndex, const int attachmentIndex) const -> std::shared_ptr<class Texture>
+auto Framebuffer::GetColorAttachmentTexture(const int framebufferIndex, const int attachmentIndex) const -> std::shared_ptr<Texture>
 {
     if (framebufferIndex < 0 || framebufferIndex >= static_cast<int>(m_framebufferIds.size()))
     {

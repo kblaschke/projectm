@@ -14,10 +14,10 @@ void ExplosiveHash::GenerateVertices(const PresetState& presetState, const PerFr
 
     m_wave1Vertices.resize(m_samples);
 
-    const float cosineRotation = cosf(presetState.renderContext.time * 0.3f);
-    const float sineRotation = sinf(presetState.renderContext.time * 0.3f);
+    const auto cosineRotation = static_cast<float>(cos(presetState.renderContext.time * 0.3));
+    const auto sineRotation = static_cast<float>(sin(presetState.renderContext.time * 0.3));
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         const float x0 = (m_pcmDataR[i] * m_pcmDataL[i + 32] + m_pcmDataL[i] * m_pcmDataR[i + 32]);
         const float y0 = (m_pcmDataR[i] * m_pcmDataR[i] - m_pcmDataL[i + 32] * m_pcmDataL[i + 32]);

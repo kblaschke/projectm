@@ -359,7 +359,7 @@ void projectm_get_texel_offset(projectm_handle instance, float* offset_X, float*
     projectMInstance->TexelOffsets(*offset_X, *offset_y);
 }
 
-void projectm_set_mesh_size(projectm_handle instance, size_t width, size_t height)
+void projectm_set_mesh_size(projectm_handle instance, const size_t width, const size_t height)
 {
     auto projectMInstance = handle_to_instance(instance);
     projectMInstance->SetMeshSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
@@ -368,16 +368,16 @@ void projectm_set_mesh_size(projectm_handle instance, size_t width, size_t heigh
 int32_t projectm_get_fps(projectm_handle instance)
 {
     auto projectMInstance = handle_to_instance(instance);
-    return projectMInstance->TargetFramesPerSecond();
+    return static_cast<int32_t>(projectMInstance->TargetFramesPerSecond());
 }
 
-void projectm_set_fps(projectm_handle instance, int32_t fps)
+void projectm_set_fps(projectm_handle instance, const int32_t fps)
 {
     auto projectMInstance = handle_to_instance(instance);
     projectMInstance->SetTargetFramesPerSecond(fps);
 }
 
-void projectm_set_aspect_correction(projectm_handle instance, bool enabled)
+void projectm_set_aspect_correction(projectm_handle instance, const bool enabled)
 {
     auto projectMInstance = handle_to_instance(instance);
     projectMInstance->SetAspectCorrection(enabled);
@@ -389,7 +389,7 @@ bool projectm_get_aspect_correction(projectm_handle instance)
     return projectMInstance->AspectCorrection();
 }
 
-void projectm_set_easter_egg(projectm_handle instance, float value)
+void projectm_set_easter_egg(projectm_handle instance, const float value)
 {
     auto projectMInstance = handle_to_instance(instance);
     projectMInstance->SetEasterEgg(value);
@@ -401,28 +401,29 @@ float projectm_get_easter_egg(projectm_handle instance)
     return projectMInstance->EasterEgg();
 }
 
-void projectm_touch(projectm_handle instance, float x, float y, int pressure, projectm_touch_type touch_type)
+void projectm_touch(projectm_handle /* instance */,
+                    float /* x */, float /* y */,
+                    int /* pressure */, projectm_touch_type /* touch_type */)
 {
-    auto projectMInstance = handle_to_instance(instance);
-    projectMInstance->Touch(x, y, pressure, touch_type);
+    // Not implemented/Removed
 }
 
-void projectm_touch_drag(projectm_handle instance, float x, float y, int pressure)
+void projectm_touch_drag(projectm_handle /* instance */,
+                    float /* x */, float /* y */,
+                    int /* pressure */)
 {
-    auto projectMInstance = handle_to_instance(instance);
-    projectMInstance->TouchDrag(x, y, pressure);
+    // Not implemented/Removed
 }
 
-void projectm_touch_destroy(projectm_handle instance, float x, float y)
+void projectm_touch_destroy(projectm_handle /* instance */,
+                    float /* x */, float /* y */)
 {
-    auto projectMInstance = handle_to_instance(instance);
-    projectMInstance->TouchDestroy(x, y);
+    // Not implemented/Removed
 }
 
-void projectm_touch_destroy_all(projectm_handle instance)
+void projectm_touch_destroy_all(projectm_handle /* instance */)
 {
-    auto projectMInstance = handle_to_instance(instance);
-    projectMInstance->TouchDestroyAll();
+    // Not implemented/Removed
 }
 
 bool projectm_get_preset_locked(projectm_handle instance)
@@ -444,7 +445,7 @@ void projectm_get_window_size(projectm_handle instance, size_t* width, size_t* h
     *height = static_cast<size_t>(projectMInstance->WindowHeight());
 }
 
-void projectm_set_window_size(projectm_handle instance, size_t width, size_t height)
+void projectm_set_window_size(projectm_handle instance, const size_t width, const size_t height)
 {
     auto projectMInstance = handle_to_instance(instance);
     projectMInstance->SetWindowSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));

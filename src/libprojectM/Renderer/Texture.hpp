@@ -34,7 +34,7 @@ public:
      * @param height Height in pixels.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
      */
-    explicit Texture(std::string name, int width, int height, bool isUserTexture);
+    explicit Texture(std::string name, uint32_t width, uint32_t height, bool isUserTexture);
 
     /**
      * @brief Constructor. Allocates a new, empty texture with the given size and format.
@@ -48,8 +48,10 @@ public:
      * @param type Storage type for each color channel.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
      */
-    explicit Texture(std::string name, GLenum target, int width, int height, int depth,
-                     GLint internalFormat, GLenum format, GLenum type, bool isUserTexture);
+    explicit Texture(std::string name, GLenum target,
+                     uint32_t width, uint32_t height, uint32_t depth,
+                     GLint internalFormat, GLenum format,
+                     GLenum type, bool isUserTexture);
 
     /**
      * @brief Constructor. Creates a new texture instance from an existing OpenGL texture.
@@ -63,7 +65,7 @@ public:
      *              If false, the texture is managed externally and won't be deleted.
      */
     explicit Texture(std::string name, GLuint texID, GLenum target,
-                     int width, int height,
+                     uint32_t width, uint32_t height,
                      bool isUserTexture, bool owned = true);
 
     /**
@@ -79,8 +81,10 @@ public:
      * @param type Storage type for each color channel.
      * @param isUserTexture true if the texture is an externally-loaded image, false if it's an internal texture.
      */
-    explicit Texture(std::string name, const void* data, GLenum target, int width, int height, int depth,
-                     GLint internalFormat, GLenum format, GLenum type, bool isUserTexture);
+    explicit Texture(std::string name, const void* data, GLenum target,
+                     uint32_t width, uint32_t height, uint32_t depth,
+                     GLint internalFormat, GLenum format,
+                     GLenum type, bool isUserTexture);
 
     Texture(Texture&& other) = default;
     auto operator=(Texture&& other) -> Texture& = default;
@@ -123,19 +127,19 @@ public:
      * @brief Returns the width of the texture image in pixels.
      * @return The width of the texture image in pixels.
      */
-    auto Width() const -> int;
+    auto Width() const -> uint32_t;
 
     /**
      * @brief Returns the height of the texture image in pixels.
      * @return The height of the texture image in pixels.
      */
-    auto Height() const -> int;
+    auto Height() const -> uint32_t;
 
     /**
      * @brief Returns the depth of the texture image in pixels.
      * @return The depth of the texture image in pixels.
      */
-    auto Depth() const -> int;
+    auto Depth() const -> uint32_t;
 
     /**
      * @brief Returns if the texture is user-defined, e.g. loaded from an image.
@@ -166,9 +170,9 @@ private:
     GLenum m_target{GL_NONE}; //!< The OpenGL texture target, e.g. GL_TEXTURE_2D.
 
     std::string m_name;          //!< The texture name for identifying it in shaders.
-    int m_width{0};              //!< Texture width in pixels.
-    int m_height{0};             //!< Texture height in pixels.
-    int m_depth{0};              //!< Texture depth in pixels. Only used for 3D textures.
+    uint32_t m_width{0};         //!< Texture width in pixels.
+    uint32_t m_height{0};        //!< Texture height in pixels.
+    uint32_t m_depth{0};         //!< Texture depth in pixels. Only used for 3D textures.
     bool m_isUserTexture{false}; //!< true if it's a user texture, false if an internal one.
     bool m_owned{true};          //!< true if this class owns the texture and should delete it.
 

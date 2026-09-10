@@ -39,9 +39,9 @@ auto PresetTransition::IsDone(const double currentFrameTime) const -> bool
     return m_durationSeconds <= 0.0 || secondsSinceStart >= m_durationSeconds;
 }
 
-auto PresetTransition::Progress(const double currentFrameTime) const -> double
+auto PresetTransition::Progress(const double currentFrameTime) const -> float
 {
-    return std::min(std::max((currentFrameTime - m_transitionStartTime) / m_durationSeconds, 0.0), 1.0);
+    return static_cast<float>(std::min(std::max((currentFrameTime - m_transitionStartTime) / m_durationSeconds, 0.0), 1.0));
 }
 
 void PresetTransition::Draw(const Preset& oldPreset,

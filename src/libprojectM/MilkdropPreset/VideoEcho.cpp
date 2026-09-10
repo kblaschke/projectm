@@ -38,10 +38,10 @@ void VideoEcho::Draw()
     auto& colors = m_echoMesh.Colors();
     for (int i = 0; i < 4; i++)
     {
-        auto const indexFloat = static_cast<float>(i);
-        m_shade[i][0] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0143f + 3 + indexFloat * 21 + m_presetState.hueRandomOffsets[3]);
-        m_shade[i][1] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0107f + 1 + indexFloat * 13 + m_presetState.hueRandomOffsets[1]);
-        m_shade[i][2] = 0.6f + 0.3f * sinf(m_presetState.renderContext.time * 30.0f * 0.0129f + 6 + indexFloat * 9 + m_presetState.hueRandomOffsets[2]);
+        const auto indexFloat = static_cast<double>(i);
+        m_shade[i][0] = static_cast<float>(0.6 + 0.3 * sin(m_presetState.renderContext.time * 30.0 * 0.0143 + 3 + indexFloat * 21 + m_presetState.hueRandomOffsets[3]));
+        m_shade[i][1] = static_cast<float>(0.6 + 0.3 * sin(m_presetState.renderContext.time * 30.0 * 0.0107 + 1 + indexFloat * 13 + m_presetState.hueRandomOffsets[1]));
+        m_shade[i][2] = static_cast<float>(0.6 + 0.3 * sin(m_presetState.renderContext.time * 30.0 * 0.0129 + 6 + indexFloat * 9 + m_presetState.hueRandomOffsets[2]));
 
         const float max = std::max(m_shade[i][0], std::max(m_shade[i][1], m_shade[i][2]));
 

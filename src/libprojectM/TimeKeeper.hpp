@@ -60,47 +60,47 @@ public:
 
     double sampledPresetDuration();
 
-    inline void ChangeHardCutDuration(int seconds)
+    void ChangeHardCutDuration(const int seconds)
     {
         m_hardCutDuration = seconds;
     }
 
-    inline void ChangeHardCutDuration(double seconds)
+    void ChangeHardCutDuration(const double seconds)
     {
         m_hardCutDuration = seconds;
     }
 
-    inline void ChangeSoftCutDuration(int seconds)
+    void ChangeSoftCutDuration(const int seconds)
     {
         m_softCutDuration = seconds;
     }
 
-    inline void ChangeSoftCutDuration(double seconds)
+    void ChangeSoftCutDuration(const double seconds)
     {
         m_softCutDuration = seconds;
     }
 
-    inline void ChangePresetDuration(int seconds)
+    void ChangePresetDuration(const int seconds)
     {
         m_presetDuration = seconds;
     }
 
-    inline auto PresetDuration() const -> double
+    auto PresetDuration() const -> double
     {
         return m_presetDuration;
     }
 
-    inline void ChangePresetDuration(double seconds)
+    void ChangePresetDuration(const double seconds)
     {
         m_presetDuration = seconds;
     }
 
-    inline void ChangeEasterEgg(float value)
+    void ChangeEasterEgg(const float value)
     {
         m_easterEgg = value;
     }
 
-    inline auto SecondsSinceLastFrame() const -> double
+    auto SecondsSinceLastFrame() const -> double
     {
         return m_secondsSinceLastFrame;
     }

@@ -26,7 +26,7 @@ public:
      * @param audioData Audio data to be used by the preset.
      * @param renderContext The current render context data.
      */
-    virtual void RenderFrame(const libprojectM::Audio::FrameAudioData& audioData,
+    virtual void RenderFrame(const Audio::FrameAudioData& audioData,
                              const Renderer::RenderContext& renderContext) = 0;
 
     /**
@@ -60,12 +60,12 @@ public:
      */
     virtual void BindFramebuffer() = 0;
 
-    inline void SetFilename(const std::string& filename)
+    void SetFilename(const std::string& filename)
     {
         m_filename = filename;
     }
 
-    inline auto Filename() const -> const std::string&
+    auto Filename() const -> const std::string&
     {
         return m_filename;
     }

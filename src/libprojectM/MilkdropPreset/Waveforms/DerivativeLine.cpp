@@ -24,14 +24,14 @@ void DerivativeLine::GenerateVertices(const PresetState& presetState, const PerF
 
     m_wave1Vertices.resize(m_samples);
 
-    const int sampleOffset = (Audio::WaveformSamples - m_samples) / 2;
+    const int32_t sampleOffset = static_cast<int32_t>(Audio::WaveformSamples - m_samples) / 2;
 
     const float w1 = 0.45f + 0.5f * (m_mysteryWaveParam * 0.5f + 0.5f);
     const float w2 = 1.0f - w1;
 
     const float inverseSamples = 1.0f / static_cast<float>(m_samples);
 
-    for (int i = 0; i < m_samples; i++)
+    for (uint32_t i = 0; i < m_samples; i++)
     {
         assert((i + 25 + sampleOffset) < 512);
         const float x = -1.0f + 2.0f * (static_cast<float>(i) * inverseSamples) + m_waveX + m_pcmDataR[i + 25 + sampleOffset] * 0.44f;

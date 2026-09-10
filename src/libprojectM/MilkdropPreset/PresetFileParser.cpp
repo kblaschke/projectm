@@ -41,7 +41,7 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
     size_t startPos{0}; //!< Starting position of current line
     size_t pos{0};      //!< Current read position
 
-    auto parseLineIfDataAvailable = [this, &pos, &startPos, &presetFileContents]() {
+    auto parseLineIfDataAvailable = [this, &pos, &startPos, &presetFileContents] {
         if (pos > startPos)
         {
             const auto beg = presetFileContents.begin();

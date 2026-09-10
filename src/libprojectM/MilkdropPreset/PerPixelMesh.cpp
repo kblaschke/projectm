@@ -284,7 +284,7 @@ void PerPixelMesh::WarpedBlit(const PresetState& presetState,
                               const PerFrameContext& perFrameContext)
 {
     // Warp stuff
-    const float warpTime = presetState.renderContext.time * presetState.warpAnimSpeed;
+    const auto warpTime = static_cast<float>(presetState.renderContext.time * presetState.warpAnimSpeed);
     const float warpScaleInverse = 1.0f / presetState.warpScale;
     glm::vec4 const warpFactors{
         11.68f + 4.0f * cosf(warpTime * 1.413f + 10),

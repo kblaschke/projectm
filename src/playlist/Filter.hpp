@@ -40,11 +40,11 @@ public:
 private:
     /**
      * @brief Applies a single filter to the given filename.
-     * @param character The filename to check.
+     * @param filename The filename to check.
      * @param filterExpression The filter expression. A leading + or - is ignored.
      * @return True if the filter matches the filename, false otherwise.
      */
-    static auto ApplyExpression(const std::string& character, const std::string& filterExpression) -> bool;
+    static auto ApplyExpression(const std::string& filename, const std::string& filterExpression) -> bool;
 
     std::vector<std::string> m_filters; //!< List of filters to apply.
 };

@@ -34,8 +34,8 @@ public:
      * @param samplerName The name of the original sampler, e.g. "mytex_pw".
      * @param sizeName The name of the texsize uniform, e.g. "mytex".
      */
-    TextureSamplerDescriptor(const std::shared_ptr<class Texture>& texture,
-                             const std::shared_ptr<class Sampler>& sampler,
+    TextureSamplerDescriptor(const std::shared_ptr<Texture>& texture,
+                             const std::shared_ptr<Sampler>& sampler,
                              std::string samplerName,
                              std::string sizeName);
 
@@ -67,7 +67,7 @@ public:
      * @brief Returns a pointer to the stored texture.
      * @return A shared pointer to the stored texture, or nullptr if the texture is invalid or empty.
      */
-    auto Texture() const -> std::shared_ptr<class Texture>;
+    auto Texture() const -> std::shared_ptr<Texture>;
 
     /**
      * @brief Updates the internal texture with a new one.
@@ -85,7 +85,7 @@ public:
      * @brief Returns a pointer to the stored sampler.
      * @return A shared pointer to the stored sampler, or nullptr if the sampler is invalid or empty.
      */
-    auto Sampler() const -> std::shared_ptr<class Sampler>;
+    auto Sampler() const -> std::shared_ptr<Sampler>;
 
     /**
      * @brief Returns the shader sampler HLSL declaration.
