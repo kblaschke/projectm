@@ -447,7 +447,7 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
         diag += std::string(" glx_get_proc=\"") + (state.m_glxGetProcAddress != nullptr ? "yes" : "no") + "\"";
         diag += " glx_policy=\"";
         diag += AllowGlxCoreGetProcAddressFallback() ? "ext+fallback" : "ext-only";
-        diag += "\"";
+        diag += '\"';
 
 #endif // #ifdef _WIN32
 
@@ -462,7 +462,7 @@ auto GLResolver::Initialize(UserResolver resolver, void* userData) -> bool
         {
             diag += AllowEglCoreGetProcAddressFallback() ? "ext+fallback" : "ext-only";
         }
-        diag += "\"";
+        diag += '\"';
 
 #endif // #ifndef __EMSCRIPTEN__
 

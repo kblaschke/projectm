@@ -20,12 +20,12 @@ Sampler::~Sampler()
     glDeleteSamplers(1, &m_samplerId);
 }
 
-void Sampler::Bind(GLuint unit) const
+void Sampler::Bind(const GLuint unit) const
 {
     glBindSampler(unit, m_samplerId);
 }
 
-void Sampler::Unbind(GLuint unit)
+void Sampler::Unbind(const GLuint unit)
 {
     glBindSampler(unit, 0);
 }
@@ -35,7 +35,7 @@ auto Sampler::WrapMode() const -> GLint
     return m_wrapMode;
 }
 
-void Sampler::WrapMode(GLint wrapMode)
+void Sampler::WrapMode(const GLint wrapMode)
 {
     if (wrapMode == m_wrapMode)
     {
@@ -53,7 +53,7 @@ auto Sampler::FilterMode() const -> GLint
     return m_filterMode;
 }
 
-void Sampler::FilterMode(GLint filterMode)
+void Sampler::FilterMode(const GLint filterMode)
 {
     if (filterMode == m_filterMode)
     {

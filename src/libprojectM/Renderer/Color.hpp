@@ -42,7 +42,7 @@ public:
      * Sets the color's r value.
      * @param r The new r value.
      */
-    void SetR(float r)
+    void SetR(const float r)
     {
         m_r = r;
     }
@@ -60,7 +60,7 @@ public:
      * Sets the color's g value.
      * @param g The new g value.
      */
-    void SetG(float g)
+    void SetG(const float g)
     {
         m_g = g;
     }
@@ -78,7 +78,7 @@ public:
      * Sets the color's b value.
      * @param b The new b value.
      */
-    void SetB(float b)
+    void SetB(const float b)
     {
         m_b = b;
     }
@@ -96,7 +96,7 @@ public:
      * Sets the color's a value.
      * @param a The new a value.
      */
-    void SetA(float a)
+    void SetA(const float a)
     {
         m_a = a;
     }
@@ -132,9 +132,9 @@ public:
      * @param x The color channel value to clamp.
      * @return The color value clamped to the range of [0.0, 1.0].
      */
-    static auto Modulo(float x) -> float
+    static auto Modulo(const float x) -> float
     {
-        const float m = 256.0f / 255.0f;
+        constexpr float m = 256.0f / 255.0f;
         return std::fmod(std::fmod(x, m) + m, m);
     }
 
@@ -154,12 +154,12 @@ public:
      * @param col The Color instance to clamp.
      * @return The color value clamped to the range of [0.0, 1.0].
      */
-    static auto Modulo(Color col) -> Color
+    static auto Modulo(const Color col) -> Color
     {
-        return Color(Modulo(col.R()),
+        return {Modulo(col.R()),
                      Modulo(col.G()),
                      Modulo(col.B()),
-                     Modulo(col.A()));
+                     Modulo(col.A())};
     }
 
     /**

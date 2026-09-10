@@ -89,7 +89,7 @@ public:
      * Sets the primitive type to render when calling Draw().
      * @param primitiveType The new primitive type to render.
      */
-    void SetRenderPrimitiveType(PrimitiveType primitiveType)
+    void SetRenderPrimitiveType(const PrimitiveType primitiveType)
     {
         m_primitiveType = primitiveType;
     }
@@ -135,7 +135,7 @@ public:
      * @param index The index of the vertex position to retrieve.
      * @return A constant reference to the vertex position at the given index.
      */
-    auto Vertex(uint32_t index) const -> const Point&
+    auto Vertex(const uint32_t index) const -> const Point&
     {
         return m_vertices[index];
     }
@@ -156,7 +156,7 @@ public:
      * @param index The index of the vertex to set.
      * @param vertex The new data to set at the given index.
      */
-    void SetVertex(uint32_t index, const Point& vertex)
+    void SetVertex(const uint32_t index, const Point& vertex)
     {
         m_vertices[index] = vertex;
     }
@@ -185,7 +185,7 @@ public:
      * @param index The index of the vertex color to retrieve.
      * @return A constant reference to the vertex color at the given index.
      */
-    auto Color(uint32_t index) const -> const Color&
+    auto Color(const uint32_t index) const -> const Color&
     {
         return m_colors[index];
     }
@@ -196,7 +196,7 @@ public:
      * @param index The index of the vertex color to retrieve.
      * @return A writeable reference to the vertex color at the given index.
      */
-    auto Color(uint32_t index) -> class Color&
+    auto Color(const uint32_t index) -> class Color&
     {
         return m_colors[index];
     }
@@ -224,7 +224,7 @@ public:
      * @param index The index of the vertex color to set.
      * @param color The new color data to set at the given index.
      */
-    void SetColor(uint32_t index, const class Color& color)
+    void SetColor(const uint32_t index, const class Color& color)
     {
         m_colors[index] = color;
     }
@@ -253,7 +253,7 @@ public:
      * @param index The index of the vertex texture coordinates to retrieve.
      * @return A constant reference to the vertex texture coordinates at the given index.
      */
-    auto UV(uint32_t index) const -> const TextureUV&
+    auto UV(const uint32_t index) const -> const TextureUV&
     {
         return m_textureUVs[index];
     }
@@ -264,7 +264,7 @@ public:
      * @param index The index of the vertex texture coordinates to retrieve.
      * @return A writeable reference to the vertex texture coordinates at the given index.
      */
-    auto UV(uint32_t index) -> TextureUV&
+    auto UV(const uint32_t index) -> TextureUV&
     {
         return m_textureUVs[index];
     }
@@ -274,7 +274,7 @@ public:
      * @param index The index of the vertex texture coordinates to set.
      * @param uvs The new texture coordinates data to set at the given index.
      */
-    void SetUV(uint32_t index, const TextureUV& uvs)
+    void SetUV(const uint32_t index, const TextureUV& uvs)
     {
         m_textureUVs[index] = uvs;
     }
@@ -341,7 +341,7 @@ private:
     /**
      * Binds the internal buffers to the vertex array object and initializes the array pointers.
      */
-    void Initialize();
+    void Initialize() const;
 
     PrimitiveType m_primitiveType{PrimitiveType::Lines}; //!< Mesh render primitive type.
 

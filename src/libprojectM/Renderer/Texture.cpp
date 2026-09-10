@@ -18,8 +18,10 @@ Texture::Texture(std::string name, const int width, const int height, const bool
     CreateNewTexture();
 }
 
-Texture::Texture(std::string name, GLenum target, int width, int height, int depth,
-                 GLint internalFormat, GLenum format, GLenum type, bool isUserTexture)
+Texture::Texture(std::string name, const GLenum target,
+                 const int width, const int height, const int depth,
+                 const GLint internalFormat, const GLenum format,
+                 const GLenum type, const bool isUserTexture)
     : m_target(target)
     , m_name(std::move(name))
     , m_width(width)
@@ -34,7 +36,8 @@ Texture::Texture(std::string name, GLenum target, int width, int height, int dep
 }
 
 Texture::Texture(std::string name, const GLuint texID, const GLenum target,
-                 const int width, const int height, const bool isUserTexture, const bool owned)
+                 const int width, const int height,
+                 const bool isUserTexture, const bool owned)
     : m_textureId(texID)
     , m_target(target)
     , m_name(std::move(name))
@@ -45,7 +48,10 @@ Texture::Texture(std::string name, const GLuint texID, const GLenum target,
 {
 }
 
-Texture::Texture(std::string name, const void* data, GLenum target, int width, int height, int depth, GLint internalFormat, GLenum format, GLenum type, bool isUserTexture)
+Texture::Texture(std::string name, const void* data, const GLenum target,
+                 const int width, const int height, const int depth,
+                 const GLint internalFormat, const GLenum format, const GLenum type,
+                 const bool isUserTexture)
     : m_target(target)
     , m_name(std::move(name))
     , m_width(width)
@@ -69,7 +75,7 @@ Texture::~Texture()
     }
 }
 
-void Texture::Bind(GLint slot, const Sampler::Ptr& sampler) const
+void Texture::Bind(const GLint slot, const Sampler::Ptr& sampler) const
 {
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(m_target, m_textureId);
@@ -80,7 +86,7 @@ void Texture::Bind(GLint slot, const Sampler::Ptr& sampler) const
     }
 }
 
-void Texture::Unbind(GLint slot) const
+void Texture::Unbind(const GLint slot) const
 {
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(m_target, 0);

@@ -20,7 +20,7 @@ public:
      * @param x The X coordinate.
      * @param y The Y coordinate.
      */
-    Point(float x, float y)
+    Point(const float x, const float y)
         : m_x(x)
         , m_y(y) {};
 
@@ -37,7 +37,7 @@ public:
      * Sets the X coordinate of the point.
      * @param x The new X coordinate.
      */
-    void SetX(float x)
+    void SetX(const float x)
     {
         m_x = x;
     }
@@ -55,7 +55,7 @@ public:
      * Sets the Y coordinate of the point.
      * @param y The new Y coordinate.
      */
-    void SetY(float y)
+    void SetY(const float y)
     {
         m_y = y;
     }
@@ -64,7 +64,7 @@ public:
      * @brief Initializes the attribute array pointer for this storage type.
      * @param attributeIndex the attribute index to use.
      */
-    static void InitializeAttributePointer(uint32_t attributeIndex)
+    static void InitializeAttributePointer(const uint32_t attributeIndex)
     {
         glVertexAttribPointer(attributeIndex, sizeof(Point) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(Point), nullptr);
     }

@@ -8,7 +8,7 @@ VertexIndexArray::VertexIndexArray()
     glGenBuffers(1, &m_veabID);
 }
 
-VertexIndexArray::VertexIndexArray(VertexBufferUsage usage)
+VertexIndexArray::VertexIndexArray(const VertexBufferUsage usage)
     : m_vboUsage(usage)
 {
     glGenBuffers(1, &m_veabID);
@@ -44,17 +44,17 @@ void VertexIndexArray::Set(const std::vector<uint32_t>& buffer)
     m_indices = buffer;
 }
 
-auto VertexIndexArray::VertexIndex(size_t index) -> uint32_t
+auto VertexIndexArray::VertexIndex(const size_t index) -> uint32_t
 {
     return m_indices.at(index);
 }
 
-auto VertexIndexArray::VertexIndex(size_t index) const -> uint32_t
+auto VertexIndexArray::VertexIndex(const size_t index) const -> uint32_t
 {
     return m_indices.at(index);
 }
 
-void VertexIndexArray::SetVertexIndex(size_t index, uint32_t value)
+void VertexIndexArray::SetVertexIndex(const size_t index, const uint32_t value)
 {
     m_indices.at(index) = value;
 }
@@ -69,12 +69,12 @@ auto VertexIndexArray::Size() const -> size_t
     return m_indices.size();
 }
 
-void VertexIndexArray::Resize(size_t size)
+void VertexIndexArray::Resize(const size_t size)
 {
     m_indices.resize(size);
 }
 
-void VertexIndexArray::Resize(size_t size, uint32_t value)
+void VertexIndexArray::Resize(const size_t size, const uint32_t value)
 {
     m_indices.resize(size, value);
 }
@@ -107,12 +107,12 @@ void VertexIndexArray::Update()
     }
 }
 
-auto VertexIndexArray::operator[](size_t index) -> uint32_t&
+auto VertexIndexArray::operator[](const size_t index) -> uint32_t&
 {
     return m_indices.at(index);
 }
 
-auto VertexIndexArray::operator[](size_t index) const -> uint32_t
+auto VertexIndexArray::operator[](const size_t index) const -> uint32_t
 {
     return m_indices.at(index);
 }

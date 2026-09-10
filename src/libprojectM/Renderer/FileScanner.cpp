@@ -12,7 +12,7 @@ using namespace PROJECTM_FILESYSTEM_NAMESPACE::filesystem;
 namespace libprojectM {
 namespace Renderer {
 
-FileScanner::FileScanner(const std::vector<std::string>& rootDirs, std::vector<std::string>& extensions)
+FileScanner::FileScanner(const std::vector<std::string>& rootDirs, const std::vector<std::string>& extensions)
     : _rootDirs(rootDirs)
     , _extensions(extensions)
 {
@@ -23,7 +23,7 @@ FileScanner::FileScanner(const std::vector<std::string>& rootDirs, std::vector<s
     }
 }
 
-void FileScanner::Scan(ScanCallback callback)
+void FileScanner::Scan(const ScanCallback& callback) const
 {
     for (const auto& currentPath : _rootDirs)
     {

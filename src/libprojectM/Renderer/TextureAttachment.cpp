@@ -8,8 +8,9 @@
 namespace libprojectM {
 namespace Renderer {
 
-TextureAttachment::TextureAttachment(AttachmentType attachment, int width, int height)
-    : m_attachmentType(attachment)
+TextureAttachment::TextureAttachment(const AttachmentType attachmentType,
+                                     const int width, const int height)
+    : m_attachmentType(attachmentType)
 {
     if (width > 0 && height > 0)
     {
@@ -17,9 +18,9 @@ TextureAttachment::TextureAttachment(AttachmentType attachment, int width, int h
     }
 }
 
-TextureAttachment::TextureAttachment(GLint internalFormat, GLenum format, GLenum type, int width, int height)
-    : m_attachmentType(AttachmentType::Color)
-    , m_internalFormat(internalFormat)
+TextureAttachment::TextureAttachment(const GLint internalFormat, const GLenum format, const GLenum type,
+                                     const int width, const int height)
+    : m_internalFormat(internalFormat)
     , m_format(format)
     , m_type(type)
 {
@@ -29,7 +30,7 @@ TextureAttachment::TextureAttachment(GLint internalFormat, GLenum format, GLenum
     }
 }
 
-auto TextureAttachment::Type() const -> TextureAttachment::AttachmentType
+auto TextureAttachment::Type() const -> AttachmentType
 {
     return m_attachmentType;
 }
@@ -44,7 +45,7 @@ void TextureAttachment::Texture(const std::shared_ptr<class Texture>& texture)
     m_texture = texture;
 }
 
-void TextureAttachment::SetSize(int width, int height)
+void TextureAttachment::SetSize(const int width, const int height)
 {
     if (width > 0 && height > 0)
     {
@@ -68,7 +69,7 @@ void TextureAttachment::ReplaceTexture(int width, int height)
         return;
     }
 
-    switch(m_attachmentType)
+    switch (m_attachmentType)
     {
         case AttachmentType::Color:
             if (m_internalFormat == 0)
@@ -80,7 +81,7 @@ void TextureAttachment::ReplaceTexture(int width, int height)
             else
             {
                 internalFormat = m_internalFormat;
-                textureFormat = m_format;
+                textureFormat = static_cast<GLint>(m_format);
                 pixelFormat = m_type;
             }
             break;

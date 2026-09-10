@@ -3,7 +3,7 @@
 namespace libprojectM {
 namespace Renderer {
 
-GLuint VertexBufferUsageToGL(VertexBufferUsage usage)
+GLuint VertexBufferUsageToGL(const VertexBufferUsage usage)
 {
     switch (usage)
     {

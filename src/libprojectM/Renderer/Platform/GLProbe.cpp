@@ -375,7 +375,7 @@ auto ParseVersionString(const char* str, bool isGLES, int& major, int& minor) ->
  * @param reqMinor Required minor version.
  * @return True if (major, minor) is at least (reqMajor, reqMinor); false otherwise.
  */
-auto VersionAtLeast(int major, int minor, int reqMajor, int reqMinor) -> bool
+auto VersionAtLeast(const int major, const int minor, const int reqMajor, const int reqMinor) -> bool
 {
     if (major != reqMajor)
     {
@@ -462,17 +462,17 @@ auto FlagsString(const ResolvedGLFunctions& gl) -> std::string
 
     if ((flags & PM_GL_CONTEXT_FLAG_DEBUG_BIT) != 0)
     {
-        bits.push_back("debug");
+        bits.emplace_back("debug");
     }
 
     if ((flags & PM_GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) != 0)
     {
-        bits.push_back("fwd");
+        bits.emplace_back("fwd");
     }
 
     if ((flags & PM_GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT) != 0)
     {
-        bits.push_back("robust");
+        bits.emplace_back("robust");
     }
 
     if (bits.empty())

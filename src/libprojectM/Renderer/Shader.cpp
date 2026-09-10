@@ -24,8 +24,8 @@ Shader::~Shader()
 void Shader::CompileProgram(const std::string& vertexShaderSource,
                             const std::string& fragmentShaderSource)
 {
-    auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
-    auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+    const auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
+    const auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
 
     glAttachShader(m_shaderProgram, vertexShader);
     glAttachShader(m_shaderProgram, fragmentShader);
@@ -50,7 +50,7 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
     std::vector<char> message(infoLogLength + 1);
     glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
 
-    std::string linkError = "[Shader] Error linking compiled shader program: " + std::string(message.data());
+    const std::string linkError = "[Shader] Error linking compiled shader program: " + std::string(message.data());
     LOG_ERROR(linkError);
     LOG_DEBUG("[Shader] Vertex shader source: " + vertexShaderSource);
     LOG_DEBUG("[Shader] Fragment shader source: " + fragmentShaderSource);
@@ -89,9 +89,9 @@ void Shader::Unbind()
     glUseProgram(0);
 }
 
-void Shader::SetUniformFloat(const char* uniform, float value) const
+void Shader::SetUniformFloat(const char* uniform, const float value) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -99,9 +99,9 @@ void Shader::SetUniformFloat(const char* uniform, float value) const
     glUniform1fv(location, 1, &value);
 }
 
-void Shader::SetUniformInt(const char* uniform, int value) const
+void Shader::SetUniformInt(const char* uniform, const int value) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -111,7 +111,7 @@ void Shader::SetUniformInt(const char* uniform, int value) const
 
 void Shader::SetUniformFloat2(const char* uniform, const glm::vec2& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -121,7 +121,7 @@ void Shader::SetUniformFloat2(const char* uniform, const glm::vec2& values) cons
 
 void Shader::SetUniformInt2(const char* uniform, const glm::ivec2& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -131,7 +131,7 @@ void Shader::SetUniformInt2(const char* uniform, const glm::ivec2& values) const
 
 void Shader::SetUniformFloat3(const char* uniform, const glm::vec3& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -141,7 +141,7 @@ void Shader::SetUniformFloat3(const char* uniform, const glm::vec3& values) cons
 
 void Shader::SetUniformInt3(const char* uniform, const glm::ivec3& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -151,7 +151,7 @@ void Shader::SetUniformInt3(const char* uniform, const glm::ivec3& values) const
 
 void Shader::SetUniformFloat4(const char* uniform, const glm::vec4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -161,7 +161,7 @@ void Shader::SetUniformFloat4(const char* uniform, const glm::vec4& values) cons
 
 void Shader::SetUniformInt4(const char* uniform, const glm::ivec4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -171,7 +171,7 @@ void Shader::SetUniformInt4(const char* uniform, const glm::ivec4& values) const
 
 void Shader::SetUniformMat3x4(const char* uniform, const glm::mat3x4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -181,7 +181,7 @@ void Shader::SetUniformMat3x4(const char* uniform, const glm::mat3x4& values) co
 
 void Shader::SetUniformMat4x4(const char* uniform, const glm::mat4x4& values) const
 {
-    auto location = glGetUniformLocation(m_shaderProgram, uniform);
+    const auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)
     {
         return;
@@ -189,11 +189,11 @@ void Shader::SetUniformMat4x4(const char* uniform, const glm::mat4x4& values) co
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(values));
 }
 
-GLuint Shader::CompileShader(const std::string& source, GLenum type)
+GLuint Shader::CompileShader(const std::string& source, const GLenum type)
 {
     GLint shaderCompiled{};
 
-    auto shader = glCreateShader(type);
+    const auto shader = glCreateShader(type);
     const auto* shaderSourceCStr = source.c_str();
     glShaderSource(shader, 1, &shaderSourceCStr, nullptr);
 
@@ -211,15 +211,15 @@ GLuint Shader::CompileShader(const std::string& source, GLenum type)
     glGetShaderInfoLog(shader, infoLogLength, nullptr, message.data());
     glDeleteShader(shader);
 
-    std::string compileError = "[Shader] Error compiling " + std::string(type == GL_VERTEX_SHADER ? "vertex" : "fragment") + " shader: " + std::string(message.data());
+    const std::string compileError = "[Shader] Error compiling " + std::string(type == GL_VERTEX_SHADER ? "vertex" : "fragment") + " shader: " + std::string(message.data());
     LOG_ERROR(compileError);
     LOG_DEBUG("[Shader] Failed source: " + source);
     throw ShaderException(compileError);
 }
 
-auto Shader::GetShaderLanguageVersion() -> Shader::GlslVersion
+auto Shader::GetShaderLanguageVersion() -> GlslVersion
 {
-    const char* shaderLanguageVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+    const auto shaderLanguageVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     if (shaderLanguageVersion == nullptr)
     {
@@ -230,29 +230,29 @@ auto Shader::GetShaderLanguageVersion() -> Shader::GlslVersion
 
     // Some OpenGL implementations add non-standard-conforming text in front, e.g. WebGL, which returns "OpenGL ES GLSL ES 3.00 ..."
     // Find the first digit and start there.
-    auto firstDigit = shaderLanguageVersionString.find_first_of("0123456789");
+    const auto firstDigit = shaderLanguageVersionString.find_first_of("0123456789");
     if (firstDigit != std::string::npos && firstDigit != 0)
     {
         shaderLanguageVersionString = shaderLanguageVersionString.substr(firstDigit);
     }
 
     // Cut off the vendor-specific information, if any
-    auto spacePos = shaderLanguageVersionString.find(' ');
+    const auto spacePos = shaderLanguageVersionString.find(' ');
     if (spacePos != std::string::npos)
     {
         shaderLanguageVersionString.resize(spacePos);
     }
 
-    auto dotPos = shaderLanguageVersionString.find('.');
+    const auto dotPos = shaderLanguageVersionString.find('.');
     if (dotPos == std::string::npos)
     {
         return {};
     }
 
-    int versionMajor = std::stoi(shaderLanguageVersionString.substr(0, dotPos));
-    int versionMinor = std::stoi(shaderLanguageVersionString.substr(dotPos + 1));
-
-    return {versionMajor, versionMinor};
+    GlslVersion version;
+    version.major = std::stoi(shaderLanguageVersionString.substr(0, dotPos));
+    version.minor = std::stoi(shaderLanguageVersionString.substr(dotPos + 1));
+    return version;
 }
 
 } // namespace Renderer

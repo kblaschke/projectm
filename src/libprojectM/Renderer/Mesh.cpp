@@ -8,7 +8,7 @@ Mesh::Mesh()
     Initialize();
 }
 
-Mesh::Mesh(VertexBufferUsage usage)
+Mesh::Mesh(const VertexBufferUsage usage)
     : m_vertices(usage)
     , m_colors(usage)
     , m_textureUVs(usage)
@@ -17,7 +17,7 @@ Mesh::Mesh(VertexBufferUsage usage)
     Initialize();
 }
 
-Mesh::Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs)
+Mesh::Mesh(const VertexBufferUsage usage, const bool useColor, const bool useTextureUVs)
     : m_useColorAttributes(useColor)
     , m_useUVAttributes(useTextureUVs)
     , m_vertices(usage)
@@ -28,7 +28,7 @@ Mesh::Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs)
     Initialize();
 }
 
-void Mesh::SetVertexCount(uint32_t vertexCount)
+void Mesh::SetVertexCount(const uint32_t vertexCount)
 {
     m_vertices.Resize(vertexCount);
 
@@ -43,7 +43,7 @@ void Mesh::SetVertexCount(uint32_t vertexCount)
     }
 }
 
-void Mesh::SetUseColor(bool useColor)
+void Mesh::SetUseColor(const bool useColor)
 {
     m_useColorAttributes = useColor;
     if (m_useColorAttributes)
@@ -56,7 +56,7 @@ void Mesh::SetUseColor(bool useColor)
     }
 }
 
-void Mesh::SetUseUV(bool useUV)
+void Mesh::SetUseUV(const bool useUV)
 {
     m_useUVAttributes = useUV;
     if (m_useUVAttributes)
@@ -145,12 +145,12 @@ void Mesh::Draw()
             break;
     }
 
-    glDrawElements(primitiveType, m_indices.Size(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(primitiveType, static_cast<GLsizei>(m_indices.Size()), GL_UNSIGNED_INT, nullptr);
 
     VertexArray::Unbind();
 }
 
-void Mesh::Initialize()
+void Mesh::Initialize() const
 {
     m_vertexArray.Bind();
 

@@ -173,7 +173,7 @@ VertexBuffer<VT>::VertexBuffer()
 }
 
 template<class VT>
-VertexBuffer<VT>::VertexBuffer(VertexBufferUsage usage)
+VertexBuffer<VT>::VertexBuffer(const VertexBufferUsage usage)
     : m_vboUsage(usage)
 {
     glGenBuffers(1, &m_vboID);
@@ -198,14 +198,14 @@ void VertexBuffer<VT>::Unbind()
 }
 
 template<class VT>
-void VertexBuffer<VT>::InitializeAttributePointer(uint32_t attributeIndex) const
+void VertexBuffer<VT>::InitializeAttributePointer(const uint32_t attributeIndex) const
 {
     Bind();
     VT::InitializeAttributePointer(attributeIndex);
 }
 
 template<class VT>
-void VertexBuffer<VT>::SetEnableAttributeArray(uint32_t attributeIndex, bool enable)
+void VertexBuffer<VT>::SetEnableAttributeArray(const uint32_t attributeIndex, const bool enable)
 {
     if (enable)
     {
@@ -236,19 +236,19 @@ void VertexBuffer<VT>::Set(const std::vector<VT>& buffer)
 }
 
 template<class VT>
-auto VertexBuffer<VT>::Vertex(size_t index) -> VT&
+auto VertexBuffer<VT>::Vertex(const size_t index) -> VT&
 {
     return m_vertices.at(index);
 }
 
 template<class VT>
-auto VertexBuffer<VT>::Vertex(size_t index) const -> const VT&
+auto VertexBuffer<VT>::Vertex(const size_t index) const -> const VT&
 {
     return m_vertices.at(index);
 }
 
 template<class VT>
-void VertexBuffer<VT>::SetVertex(size_t index, const VT& vertex)
+void VertexBuffer<VT>::SetVertex(const size_t index, const VT& vertex)
 {
     m_vertices.at(index) = vertex;
 }
@@ -266,13 +266,13 @@ auto VertexBuffer<VT>::Size() const -> size_t
 }
 
 template<class VT>
-void VertexBuffer<VT>::Resize(size_t size)
+void VertexBuffer<VT>::Resize(const size_t size)
 {
     m_vertices.resize(size);
 }
 
 template<class VT>
-void VertexBuffer<VT>::Resize(size_t size, const VT& elem)
+void VertexBuffer<VT>::Resize(const size_t size, const VT& elem)
 {
     m_vertices.resize(size, elem);
 }
@@ -299,13 +299,13 @@ void VertexBuffer<VT>::Update()
 }
 
 template<class VT>
-auto VertexBuffer<VT>::operator[](size_t index) const -> const VT&
+auto VertexBuffer<VT>::operator[](const size_t index) const -> const VT&
 {
     return m_vertices.at(index);
 }
 
 template<class VT>
-auto VertexBuffer<VT>::operator[](size_t index) -> VT&
+auto VertexBuffer<VT>::operator[](const size_t index) -> VT&
 {
     return m_vertices.at(index);
 }

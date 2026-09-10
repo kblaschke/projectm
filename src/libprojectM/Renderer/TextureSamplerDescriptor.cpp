@@ -23,7 +23,7 @@ auto TextureSamplerDescriptor::Empty() const -> bool
     return !m_texture || m_texture->Empty();
 }
 
-void TextureSamplerDescriptor::Bind(GLint unit, const Shader& shader) const
+void TextureSamplerDescriptor::Bind(const GLint unit, const Shader& shader) const
 {
 
     if (m_texture && m_sampler)
@@ -47,7 +47,7 @@ void TextureSamplerDescriptor::Bind(GLint unit, const Shader& shader) const
     }
 }
 
-void TextureSamplerDescriptor::Unbind(GLint unit)
+void TextureSamplerDescriptor::Unbind(const GLint unit) const
 {
     if (m_texture)
     {
@@ -141,7 +141,7 @@ void TextureSamplerDescriptor::TryUpdate(TextureManager& textureManager)
         return;
     }
 
-    auto desc = textureManager.GetTexture(m_samplerName);
+    const auto desc = textureManager.GetTexture(m_samplerName);
     if (desc.Empty())
     {
         // Only try once, then give up.
